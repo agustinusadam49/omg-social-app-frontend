@@ -1,0 +1,113 @@
+.post {
+  width: 100%;
+  border-radius: 10px;
+  -webkit-box-shadow: 0px 0px 16px -8px rgba(0, 0, 0, 0.68);
+  box-shadow: 0px 0px 16px -8px rgba(0, 0, 0, 0.68);
+  margin: 10px 0;
+  background-color: white;
+
+  .post-wrapper {
+    display: flex;
+    flex-direction: column;
+    padding: 10px;
+
+    .post-top {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: space-between;
+
+      .post-top-left {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+
+        .post-profile-img {
+          width: 32px;
+          height: 32px;
+          object-fit: cover;
+          border-radius: 50%;
+          cursor: pointer;
+        }
+
+        .post-username {
+          font-size: 13px;
+          font-weight: 500;
+          margin: 0 10px;
+          cursor: pointer;
+        }
+
+        .post-date {
+          font-size: 10px;
+        }
+      }
+
+      // .post-top-right {
+      //     cursor: pointer;
+      // }
+    }
+
+    .post-middle {
+      margin: 14px 0;
+
+      .post-middle-text {
+        font-size: 12px;
+      }
+
+      .post-img {
+        width: 100%;
+        max-height: 500px;
+        object-fit: contain;
+        margin-top: 20px;
+        border-radius: 4px;
+      }
+    }
+
+    .post-bottom {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+
+      .post-bottom-left {
+        display: flex;
+        align-items: center;
+
+        .like-and-heart-icon {
+          width: 24px;
+          height: 24px;
+          margin-right: 5px;
+          cursor: pointer;
+        }
+
+        .post-like-counter {
+          font-size: 9px;
+          
+          @media only screen and (min-width: 1024px) {
+            font-size: 10px;
+          }
+        }
+      }
+
+      .post-bottom-right {
+        font-size: 12px;
+        font-weight: bold;
+
+        .post-comment-text {
+          font-size: 10px;
+          cursor: pointer;
+          border-bottom: 1px dashed gray;
+          color: black;
+
+          &:hover {
+            color: rgb(202, 9, 202);
+          }
+
+          @media only screen and (min-width: 1024px) {
+            font-size: 12px;
+          }
+        }
+      }
+    }
+  }
+}

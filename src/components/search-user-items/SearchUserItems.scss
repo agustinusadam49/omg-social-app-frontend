@@ -1,0 +1,30 @@
+.search-items-user-card-container {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  padding: 6px 10px 6px 10px;
+
+  .search-items-user-card-wrapper {
+    background-color: rgb(238, 228, 228);
+    cursor: pointer;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    flex-grow: 1;
+    border-radius: 5px;
+    padding: 6px;
+
+    .search-items-user-image {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      object-fit: cover;
+      margin-right: 10px;
+      border: dashed 1.5px rgb(121, 63, 63);
+    }
+
+    .search-items-user-username {
+      font-size: 20px;
+    }
+  }
+}

@@ -1,0 +1,89 @@
+.event-contents {
+  flex: 1;
+  width: 100%;
+  margin: 10px;
+
+  @media only screen and (min-width: 1024px) {
+    flex: 6;
+    margin: 10px 0px;
+  }
+
+  .event-contents-wrapper {
+    width: 100%;
+
+    .event-contents-title {
+      font-size: 12px;
+      font-weight: 500;
+      margin-bottom: 10px;
+
+      @media only screen and (min-width: 1024px) {
+        font-size: 14px;
+        margin-bottom: 12px;
+      }
+    }
+
+    .event-contents-main {
+      font-size: 11px;
+      height: fit-content;
+
+      .event-content-main-user-birthday-section {
+        height: fit-content;
+
+        .event-content-user-birthday-title {
+          font-size: 12px;
+          font-weight: 500;
+          width: 100%;
+          text-align: center;
+          margin-bottom: 8px;
+        }
+
+        .event-content-user-birthday-lists {
+          width: 100%;
+          display: flex;
+          flex-direction: column;
+          gap: 6px;
+
+          .event-content-user-birthday-item {
+            background-color: white;
+            padding: 6px;
+            border-radius: 8px;
+            width: 100%;
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            cursor: pointer;
+            -webkit-box-shadow: 0px 0px 16px -8px rgba(0, 0, 0, 0.68);
+            box-shadow: 0px 0px 16px -8px rgba(0, 0, 0, 0.68);
+
+            .event-content-user-image-wrapper {
+              width: 34px;
+              height: 34px;
+              flex-shrink: 0;
+              margin-right: 10px;
+              border-radius: 50%;
+              -webkit-box-shadow: 0px 0px 16px -8px rgba(0, 0, 0, 0.68);
+              box-shadow: 0px 0px 16px -8px rgba(0, 0, 0, 0.68);
+
+              .event-content-user-img {
+                width: 100%;
+                height: 100%;
+                border-radius: 50%;
+                object-fit: cover;
+              }
+            }
+
+            .event-content-username-wrapper {
+              width: 100%;
+              height: 100%;
+              flex-grow: 1;
+
+              .event-content-username {
+                color: rgb(61, 60, 60);
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

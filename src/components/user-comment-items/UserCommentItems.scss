@@ -1,0 +1,98 @@
+.user-comment-items {
+  width: 100%;
+  margin-top: 10px;
+
+  .user-comments-wrapper {
+    display: flex;
+    flex-direction: row;
+    align-items: initial;
+
+    .user-comments-avatar {
+      width: 28px;
+      height: 28px;
+      object-fit: cover;
+      border-radius: 50%;
+      cursor: pointer;
+      margin-right: 10px;
+      border: dashed 1px red;
+    }
+
+    .user-comments-content {
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+
+      .user-name {
+        font-size: 12px;
+        font-weight: bolder;
+        margin-bottom: 3px;
+
+        .post-owner-tag {
+          font-size: 10px;
+          border-radius: 5px;
+          color: white;
+          text-align: center;
+          padding: 3px 6px;
+          background-color: rgb(109, 109, 240);
+          margin-left: 10px;
+        }
+
+        .comment-created-at {
+          font-size: 10px;
+          font-weight: normal;
+          margin-left: 10px;
+        }
+      }
+
+      .user-comment-text {
+        font-size: 11px;
+        line-height: 20px;
+        text-align: justify;
+        padding-right: 10px;
+      }
+
+      .comments-bottom-section-wrapper-container {
+        margin-top: 10px;
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+
+        .comments-reply-button {
+          cursor: pointer;
+          font-size: 11px;
+          font-weight: 600;
+          width: 50px;
+          color: rgb(73, 73, 99);
+          text-align: center;
+          width: fit-content;
+          margin-right: 20px;
+
+          &:hover {
+            color: rgb(38, 38, 245);
+          }
+        }
+
+        .view-comments-reply-button {
+          cursor: pointer;
+          font-size: 10px;
+          font-weight: 600;
+          width: 50px;
+          color: rgb(73, 73, 99);
+          width: fit-content;
+
+          &:hover {
+            color: rgb(38, 38, 245);
+          }
+
+          @media only screen and (min-width: 1024px) {
+            font-size: 11px;
+          }
+        }
+      }
+    }
+  }
+
+  .user-comment-content-line {
+    margin-top: 10px;
+  }
+}
