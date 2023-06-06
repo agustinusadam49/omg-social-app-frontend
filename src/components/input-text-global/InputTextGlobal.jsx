@@ -19,13 +19,13 @@ const InputTextGlobal = ({
 
   const displayErrorMessages = () => {
     if (inputErrorMessage.length) {
-      return <div className="inputErrorMessage">{inputErrorMessage}</div>;
+      return <div className="inputErrorMessageV1">{inputErrorMessage}</div>;
     }
   };
 
   const displaySecondaryErrorMessages = () => {
     if (inputSecondErrorMessage) {
-      return <div className="inputErrorMessage">{inputSecondErrorMessage}</div>;
+      return <div className="inputErrorMessageV1">{inputSecondErrorMessage}</div>;
     }
   };
 
@@ -83,7 +83,7 @@ const InputTextGlobal = ({
 
   return (
     <Fragment>
-      <div className="input-text-wrapper">
+      <div className="input-text-wrapper-v1">
         {displayLabel()}
         <input
           ref={inputRef}

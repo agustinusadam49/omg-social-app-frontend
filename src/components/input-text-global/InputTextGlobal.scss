@@ -1,15 +1,15 @@
-.input-text-wrapper {
+.input-text-wrapper-v1 {
   position: relative;
 
   input.input-tag {
     box-sizing: border-box;
     width: 100%;
-    height: 50px;
-    border-radius: 10px;
+    height: 38px;
+    border-radius: 8px;
     border: solid 1px gray;
-    font-size: 18px;
-    padding-left: 20px;
-    margin-bottom: 4px;
+    font-size: 12px;
+    padding: 0px 10px;
+    margin-bottom: 6px;
     background-color: white;
     color: black;
 
@@ -29,14 +29,26 @@
     &:focus {
       outline: none;
     }
+
+    @media only screen and (min-width: 1024px) {
+      height: 50px;
+      border-radius: 10px;
+      font-size: 18px;
+      padding: 0px 20px;
+      margin-bottom: 4px;
+    }
   }
 
   .eye-icon-wrapper {
     position: absolute;
     right: 16px;
-    bottom: 12px;
+    bottom: 9px;
     width: fit-content;
     cursor: pointer;
+
+    @media only screen and (min-width: 1024px) {
+      bottom: 12px;
+    }
 
     .eye-icon {
       box-sizing: border-box;
@@ -45,8 +57,8 @@
   }
 }
 
-.inputErrorMessage {
-  margin-bottom: 10px;
+.inputErrorMessageV1 {
+  margin-bottom: 8px;
   color: red;
-  font-size: small;
+  font-size: 12px;
 }
