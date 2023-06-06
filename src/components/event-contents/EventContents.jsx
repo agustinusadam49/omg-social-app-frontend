@@ -16,7 +16,6 @@ const EventContents = () => {
   );
 
   const [usersBirthday, setUsersBirthday] = useState([]);
-  console.log("usersBirthday:", usersBirthday);
 
   useEffect(() => {
     if (allUsersRegisterd) {

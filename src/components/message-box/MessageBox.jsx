@@ -122,29 +122,13 @@ const MessageBox = ({ paramUserId }) => {
   const hitApiGetMessagesData = (
     userAccessToken,
     userIdFromUrlParam,
-    currentSliceUserId
   ) => {
-    getAllMessagesData(userAccessToken)
-      .then((messagesData) => {
-        const { totalMessages } = messagesData.data;
+    getAllMessagesData(userAccessToken, userIdFromUrlParam)
+      .then((chatData) => {
+        const { totalMessages } = chatData.data;
         if (totalMessages) {
-          const allMessagesMerged = [];
-          const allMessagesDataFromDB = messagesData.data.messagesData;
-          const sentMessages = allMessagesDataFromDB.filter((message) => {
-            return (
-              message.UserId === currentSliceUserId &&
-              message.receiver_id === userIdFromUrlParam
-            );
-          });
-          const incomingMessages = allMessagesDataFromDB.filter((message) => {
-            return (
-              message.receiver_id === currentSliceUserId &&
-              message.UserId === userIdFromUrlParam
-            );
-          });
-          sentMessages.forEach((messageSent) => { allMessagesMerged.push(messageSent) });
-          incomingMessages.forEach((messageIncoming) => { allMessagesMerged.push(messageIncoming) });
-          setAllMessages(allMessagesMerged.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt)));
+          const { messagesData } = chatData.data;
+          setAllMessages(messagesData);
         } else {
           setAllMessages([]);
         }
@@ -268,9 +252,16 @@ const MessageBox = ({ paramUserId }) => {
 
   useEffect(() => {
     if (currentUserIdFromSlice && access_token) {
-      hitApiGetMessagesData(access_token, paramUserId, currentUserIdFromSlice);
+      hitApiGetMessagesData(
+        access_token,
+        paramUserId,
+      );
     }
-  }, [access_token, paramUserId, currentUserIdFromSlice]);
+  }, [
+    access_token,
+    paramUserId,
+    currentUserIdFromSlice
+  ]);
 
   const mappedMessageForRendering = useMemo(() => {
     const messages = mappedMessages;

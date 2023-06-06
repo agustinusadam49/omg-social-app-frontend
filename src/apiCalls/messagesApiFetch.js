@@ -12,13 +12,17 @@ export const createNewMessageData = (userToken, payloadData) => {
   });
 };
 
-export const getAllMessagesData = (userToken) => {
-  return axios.get(`${MESSAGES_URL}/`, {
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `${userToken}`,
-    },
-  });
+export const getAllMessagesData = (userToken, userIdFromUrlParam) => {
+  return axios.get(
+    `${MESSAGES_URL}/`,
+    {
+      params: { userReceiverId: parseInt(userIdFromUrlParam) },
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `${userToken}`,
+      },
+    }
+  );
 };
 
 export const updateTheMessageById = (userToken, idOfMessage, payloadData) => {
