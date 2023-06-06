@@ -57,7 +57,7 @@ const InputTextGlobal = ({
     }
   };
 
-  const isErroMessage = () => {
+  const isErrorMessage = () => {
     return inputErrorMessage.length ? "if-error-message" : "";
   };
 
@@ -70,7 +70,7 @@ const InputTextGlobal = ({
   };
 
   const styleForInputTag = () => {
-    return `input-tag ${isErroMessage()} ${additionalStyling()} ${styleForTypeDate()}`;
+    return `input-tag ${isErrorMessage()} ${additionalStyling()} ${styleForTypeDate()}`;
   };
 
   return (
