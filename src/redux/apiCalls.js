@@ -115,9 +115,9 @@ export const doUserLogout = (userId, dispatch) => {
 };
 
 // POSTS API CALLS
-export const getPostsAvailable = (accessTokenUser, dispatch) => {
+export const getPostsAvailable = (dispatch) => {
   dispatch(setLoadingGetPosts({ getAllPostsLoading: true }));
-  getAllPosts(accessTokenUser)
+  getAllPosts()
     .then((posts) => {
       const { totalPosts } = posts.data;
 
@@ -138,7 +138,6 @@ export const getPostsAvailable = (accessTokenUser, dispatch) => {
     .catch((error) => {
       console.error("error getPostsAvailable", error.message);
       dispatch(setPostsTotal({ totalOfPosts: 0 }));
-
       setTimeout(() => {
         dispatch(setLoadingGetPosts({ getAllPostsLoading: false }));
       }, 1000);
@@ -146,22 +145,17 @@ export const getPostsAvailable = (accessTokenUser, dispatch) => {
 };
 
 // POSTS API CALLS BY USER ID
-export const getPostsAvailableByUserId = (
-  accessTokenUser,
-  userIdParam,
-  dispatch
-) => {
-  dispatch(setLoadingGetPostsById({ getAllPostsByUserIdLoading: true }));
-  getAllPosts(accessTokenUser)
+export const getPostsAvailableByUserId = (userIdParam, dispatch) => {
+  getAllPosts()
     .then((posts) => {
-      setTimeout(() => {
-        const { totalPosts } = posts.data;
-        const dataPostAll = posts.data.posts;
+      const dataPostAll = posts.data.posts;
+      const dataPostByUserId = dataPostAll.filter(
+        (post) => post.UserId === userIdParam
+      );
 
-        if (totalPosts) {
-          const dataPostByUserId = dataPostAll.filter(
-            (post) => post.UserId === userIdParam
-          );
+      if (dataPostByUserId.length) {
+        dispatch(setLoadingGetPostsById({ getAllPostsByUserIdLoading: true }));
+        setTimeout(() => {
           dispatch(setPostsByUserId({ postDataByUserId: dataPostByUserId }));
           dispatch(
             setPostsTotalByUserId({
@@ -172,13 +166,16 @@ export const getPostsAvailableByUserId = (
           dispatch(
             setLoadingGetPostsById({ getAllPostsByUserIdLoading: false })
           );
-        } else {
+        }, 1000);
+      } else {
+        dispatch(setLoadingGetPostsById({ getAllPostsByUserIdLoading: true }));
+        setTimeout(() => {
           dispatch(setPostsTotalByUserId({ totalOfPostsByUserId: 0 }));
           dispatch(
             setLoadingGetPostsById({ getAllPostsByUserIdLoading: false })
           );
-        }
-      }, 1000);
+        }, 1000);
+      }
     })
     .catch((error) => {
       console.error("error getPostsAvailableByUserId", error);

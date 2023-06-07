@@ -55,8 +55,8 @@ export default function SearchPageContents() {
   };
 
   useEffect(() => {
-    const hitApiSearchPosts = (searchTermsForPosts, userAccessToken) => {
-      getAllPostsBySearch(userAccessToken, searchTermsForPosts)
+    const hitApiSearchPosts = (searchTermsForPosts) => {
+      getAllPostsBySearch(searchTermsForPosts)
         .then((searchPostsResult) => {
           setSearchedPostItems(searchPostsResult.data.postData);
         })
@@ -66,10 +66,10 @@ export default function SearchPageContents() {
           setSearchedPostItems([]);
         });
     };
-    if (queryParamsUrl && access_token) {
-      hitApiSearchPosts(queryParamsUrl, access_token);
+    if (queryParamsUrl) {
+      hitApiSearchPosts(queryParamsUrl);
     }
-  }, [queryParamsUrl, access_token]);
+  }, [queryParamsUrl]);
 
   useEffect(() => {
     const getUsersAndPostsThroughSearch = (searchTerms, userAccessToken) => {

@@ -1,31 +1,33 @@
 import axios from "axios";
+import { accessToken } from "../utils/getLocalStorage";
+const user_access_token = accessToken();
 
 const BASE_URL = process.env.REACT_APP_API_BASE_URL;
 const POSTS_URL = `${BASE_URL}posts/`;
 
-export const getAllPosts = (userToken) => {
+export const getAllPosts = () => {
   return axios.get(`${POSTS_URL}`, {
     headers: {
       "Content-Type": "application/json",
-      Authorization: `${userToken}`,
+      Authorization: `${user_access_token}`,
     },
   });
 };
 
-export const getAllPostsBySearch = (userToken, querySearch) => {
+export const getAllPostsBySearch = (querySearch) => {
   return axios.get(`${POSTS_URL}search-posts/?searchTerms=${querySearch}`, {
     headers: {
       "Content-Type": "application/json",
-      Authorization: `${userToken}`,
+      Authorization: `${user_access_token}`,
     },
   });
 };
 
-export const createNewPosting = (userToken, payloadData) => {
+export const createNewPosting = (payloadData) => {
   return axios.post(`${POSTS_URL}`, payloadData, {
     headers: {
       "Content-Type": "application/json",
-      Authorization: `${userToken}`,
+      Authorization: `${user_access_token}`,
     },
   });
 };

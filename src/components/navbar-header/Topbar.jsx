@@ -200,7 +200,7 @@ export default function Topbar() {
   //   };
 
   //   const hitApiSearchPosts = () => {
-  //     getAllPostsBySearch(access_token, searchTerms)
+  //     getAllPostsBySearch(searchTerms)
   //       .then((searchPostsResult) => {
   //         setSearchedPostItems(searchPostsResult.data.postData);
   //       })

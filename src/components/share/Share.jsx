@@ -11,14 +11,11 @@ import {
 import { useSelector, useDispatch } from "react-redux";
 import { setIsAddPosting } from "../../redux/slices/postsSlice";
 import { Link } from "react-router-dom";
-import { accessToken } from "../../utils/getLocalStorage";
 import GlobalButton from "../button/GlobalButton";
 import "./Share.scss";
 
 const Share = ({ userNameFromParam }) => {
   const dispatch = useDispatch();
-
-  const user_access_token = accessToken();
 
   const currentUserNameFromSlice = useSelector((state) => state.user.userName);
   const currentUserIdFromSlice = useSelector((state) => state.user.userId);
@@ -49,7 +46,7 @@ const Share = ({ userNameFromParam }) => {
   };
 
   const hitCreateNewPostApi = (payloadBodyObj) => {
-    createNewPosting(user_access_token, payloadBodyObj)
+    createNewPosting(payloadBodyObj)
       .then((postingResult) => {
         if (postingResult.data.success) {
           setCaption("");
