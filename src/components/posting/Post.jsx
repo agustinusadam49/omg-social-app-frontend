@@ -103,8 +103,8 @@ export default function Post({ postedData }) {
       });
   };
 
-  const getDataCommentsByIdEachPosting = (user_token, this_post_id) => {
-    getAllCommentsDataByPostId(user_token, this_post_id)
+  const getDataCommentsByIdEachPosting = (this_post_id) => {
+    getAllCommentsDataByPostId(this_post_id)
       .then((commentByPostId) => {
         const commentsByPostIdTotal =
           commentByPostId.data.totalCommentsByPostId;
@@ -130,6 +130,10 @@ export default function Post({ postedData }) {
     }));
 
     setPostedDataLikes(mappedPostedLikesData);
+
+    return () => {
+      setPostedDataLikes([])
+    }
   }, [postedData]);
 
   useEffect(() => {
@@ -144,8 +148,12 @@ export default function Post({ postedData }) {
   }, [postedData, currentUserIdFromSlice]);
 
   useEffect(() => {
-    if (access_token) getDataCommentsByIdEachPosting(access_token, thisPostId);
-  }, [access_token, thisPostId, addNewPosting, isCommentSectionOpen]);
+    getDataCommentsByIdEachPosting(thisPostId);
+
+    return () => {
+      setCurrentCommentByIdTotal(0)
+    }
+  }, [thisPostId, addNewPosting, isCommentSectionOpen]);
 
   return (
     <div className="post">
