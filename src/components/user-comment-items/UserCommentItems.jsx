@@ -6,7 +6,6 @@ import { rangeDay } from "../../utils/rangeDay";
 import { getAllRepliesDataByCommentId } from "../../apiCalls/commentsApiFetch";
 import { setIsAddNewReplyComment } from "../../redux/slices/commentsSlice";
 import { Link } from "react-router-dom";
-import { accessToken } from "../../utils/getLocalStorage";
 import "./UserCommentItems.scss";
 
 const UserCommentItems = ({
@@ -17,7 +16,6 @@ const UserCommentItems = ({
   lastIndex,
 }) => {
   const dispatch = useDispatch();
-  const access_token = accessToken();
 
   const addNewReply = useSelector((state) => state.comments.isAddNewReplyComment);
   const currentUserIdFromSlice = useSelector((state) => state.user.userId);
@@ -50,8 +48,8 @@ const UserCommentItems = ({
   };
 
   useEffect(() => {
-    const getDataRepliesByCommentId = (accessTokenUser, idOfComment) => {
-      getAllRepliesDataByCommentId(accessTokenUser, idOfComment)
+    const getDataRepliesByCommentId = (idOfComment) => {
+      getAllRepliesDataByCommentId(idOfComment)
         .then((repliesByCommentId) => {
           const repliesByCommentIdTotal = repliesByCommentId.data.totalReplyCommentsByCommentId;
           if (repliesByCommentIdTotal > 0) {
@@ -70,8 +68,8 @@ const UserCommentItems = ({
         });
     };
 
-    if (access_token) getDataRepliesByCommentId(access_token, comment_id);
-  }, [access_token, comment_id, addNewReply, isOpenReplyBox, dispatch]);
+    getDataRepliesByCommentId(comment_id);
+  }, [comment_id, addNewReply, isOpenReplyBox, dispatch]);
 
   return (
     <div className="user-comment-items">

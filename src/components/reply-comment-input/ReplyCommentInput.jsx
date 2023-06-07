@@ -3,13 +3,11 @@ import { useSelector, useDispatch } from "react-redux";
 import { addNewReplyCommentData } from "../../apiCalls/commentsApiFetch";
 import { setIsAddNewReplyComment } from "../../redux/slices/commentsSlice";
 import { Link } from "react-router-dom";
-import { accessToken } from "../../utils/getLocalStorage"
 import "./ReplyCommentInput.scss";
 
 const ReplyCommentInput = ({ commentId, postId, setIsViewReply, setIsOpenReplyBox }) => {
   const thisPostId = postId;
   const thisCommentId = commentId;
-  const access_token = accessToken();
   const dispatch = useDispatch();
   const currentUserAvatarFromSlice = useSelector((state) => state.user.userAvatarPicture);
   const currentUserNameFromSlice = useSelector((state) => state.user.userName);
@@ -28,7 +26,7 @@ const ReplyCommentInput = ({ commentId, postId, setIsViewReply, setIsOpenReplyBo
       CommentId: thisCommentId,
       replyMessage: replyCommentMessage,
     };
-    addNewReplyCommentData(access_token, newCommentPayloadBody)
+    addNewReplyCommentData(newCommentPayloadBody)
       .then((newCommentData) => {
         if (newCommentData.data.success) {
           setReplyCommentMessage("");

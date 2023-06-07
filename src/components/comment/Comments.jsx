@@ -7,7 +7,6 @@ import {
 } from "../../apiCalls/commentsApiFetch";
 import { setIsAddNewComment } from "../../redux/slices/commentsSlice";
 import { Link } from "react-router-dom";
-import { accessToken } from "../../utils/getLocalStorage";
 import "./Comments.scss";
 
 const Comments = ({ postId, postUserId }) => {
@@ -18,7 +17,6 @@ const Comments = ({ postId, postUserId }) => {
   const addNewComment = useSelector((state) => state.comments.isAddNewComment);
   const currentUserNameFromSlice = useSelector((state) => state.user.userName);
   const currentUserIdFromSlice = useSelector((state) => state.user.userId);
-  const access_token = accessToken();
   const post_id = postId;
   const post_user_id = postUserId;
 
@@ -37,7 +35,7 @@ const Comments = ({ postId, postUserId }) => {
       postId: post_id,
       commentContent: comment,
     };
-    createNewCommentData(access_token, newCommentPayloadBody)
+    createNewCommentData(newCommentPayloadBody)
       .then((newCommentData) => {
         if (newCommentData.data.success) {
           setComment("");
@@ -54,14 +52,12 @@ const Comments = ({ postId, postUserId }) => {
   };
 
   useEffect(() => {
-    const getDataCommentsByIdOfPost = (user_token, this_post_id) => {
-      getAllCommentsDataByPostId(user_token, this_post_id)
+    const getDataCommentsByIdOfPost = (this_post_id) => {
+      getAllCommentsDataByPostId(this_post_id)
         .then((commentByPostId) => {
-          const commentsByPostIdTotal =
-            commentByPostId.data.totalCommentsByPostId;
+          const commentsByPostIdTotal = commentByPostId.data.totalCommentsByPostId;
           if (commentsByPostIdTotal > 0) {
-            const commentsByPostIdDataArray =
-              commentByPostId.data.commentsDataByPostId;
+            const commentsByPostIdDataArray = commentByPostId.data.commentsDataByPostId;
             setThisPostCommentData(commentsByPostIdDataArray);
             setLastIndex(commentsByPostIdTotal - 1);
             dispatch(setIsAddNewComment({ successAddNewComment: false }));
@@ -79,8 +75,8 @@ const Comments = ({ postId, postUserId }) => {
         });
     };
 
-    if (access_token) getDataCommentsByIdOfPost(access_token, post_id);
-  }, [access_token, post_id, addNewComment, dispatch]);
+    getDataCommentsByIdOfPost(post_id);
+  }, [post_id, addNewComment, dispatch]);
 
   return (
     <div className="comments">
