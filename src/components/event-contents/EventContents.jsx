@@ -9,6 +9,7 @@ import "./EventContents.scss";
 const EventContents = () => {
   const access_token = accessToken();
   const dispatch = useDispatch();
+  const isAd = true;
 
   const allUsersRegisterd = useSelector((state) => state.user.allUsers);
   const userSnapRegisteredStatus = useSelector(
@@ -44,7 +45,10 @@ const EventContents = () => {
 
               <div className="event-content-user-birthday-lists">
                 {usersBirthday.map((user) => (
-                  <div key={user.id} className="event-content-user-birthday-item">
+                  <div
+                    key={user.id}
+                    className="event-content-user-birthday-item"
+                  >
                     <div className="event-content-user-image-wrapper">
                       <img
                         src={user.Profile.avatarUrl}
@@ -54,10 +58,25 @@ const EventContents = () => {
                     </div>
 
                     <div className="event-content-username-wrapper">
-                      <div className="event-content-username">{user.userName}</div>
+                      <div className="event-content-username">
+                        {user.userName}
+                      </div>
                     </div>
                   </div>
                 ))}
+              </div>
+            </div>
+          )}
+
+          {/* Ad Section */}
+          {isAd && (
+            <div className="event-content-main-ad-section">
+              <div className="event-content-ad-image-wrapper">
+                <img
+                  src="/assets/ad.png"
+                  alt="advertisement"
+                  className="event-content-ad-image"
+                />
               </div>
             </div>
           )}
