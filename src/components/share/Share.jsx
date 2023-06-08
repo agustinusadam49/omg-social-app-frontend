@@ -105,24 +105,32 @@ const Share = ({ userNameFromParam }) => {
 
   useEffect(() => {
     setFinishPostingStatus(false);
-  }, [fileImagePosting]);
+  }, [fileImagePosting, caption]);
 
   // Menghilangkan success message secara otomatis setelah 10 detik
   useEffect(() => {
-    if (finishPostingStatus === true) {
-      setTimeout(() => {
+    const delayedDisappearedFinishStatus =
+      finishPostingStatus === true &&
+      setInterval(() => {
         setFinishPostingStatus(false);
       }, 10000);
-    }
+
+    return () => {
+      clearInterval(delayedDisappearedFinishStatus);
+    };
   }, [finishPostingStatus]);
 
   // Menghilangkan error message caption empty secara otomatis setelah 10 detik
   useEffect(() => {
-    if (errorMessageCaption === true) {
-      setTimeout(() => {
+    const delayDisappearedErrorMessage =
+      errorMessageCaption === true &&
+      setInterval(() => {
         setErrorMessageCaption(false);
       }, 10000);
-    }
+
+    return () => {
+      clearInterval(delayDisappearedErrorMessage);
+    };
   }, [errorMessageCaption]);
 
   return (
