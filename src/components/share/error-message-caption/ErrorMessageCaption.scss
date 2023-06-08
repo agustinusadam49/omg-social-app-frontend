@@ -1,0 +1,22 @@
+.error-message-caption {
+  width: 100%;
+  padding: 8px 0;
+  text-align: center;
+  border-radius: 6px;
+  color: rgb(253, 251, 252);
+  background-color: rgb(233, 106, 106);
+  margin-bottom: 20px;
+  font-size: 14px;
+  font-weight: 300;
+  position: relative;
+  transition: 5s ease-in;
+  animation-name: memunculkan-pesan;
+  animation-duration: 0.75s;
+
+  .cancel-error-message {
+    position: absolute;
+    cursor: pointer;
+    top: 4px;
+    right: 0;
+  }
+}

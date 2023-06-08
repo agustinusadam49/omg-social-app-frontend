@@ -4,6 +4,7 @@ import { updateTheMessageById } from "../../apiCalls/messagesApiFetch";
 import { useSelector, useDispatch } from "react-redux";
 import { setSnapUserLogout } from "../../redux/slices/userSlice";
 import { accessToken } from "../../utils/getLocalStorage";
+import GlobalImage from "../global-image/GlobalImage";
 import "./Friend-List.scss";
 
 export default function FriendList({ user }) {
@@ -13,7 +14,8 @@ export default function FriendList({ user }) {
   const userDataIdFromProp = user.id;
   const messages = user.Messages;
   const currentUserIdFromSlice = useSelector((state) => state.user.userId);
-  const [incomingMessageNotifications, setIncomingMessageNotifications] = useState([]);
+  const [incomingMessageNotifications, setIncomingMessageNotifications] =
+    useState([]);
 
   const checkActiveBadgeNotifications = () => {
     if (incomingMessageNotifications.length) {
@@ -29,7 +31,10 @@ export default function FriendList({ user }) {
     updateTheMessageById(userAccessToken, messageId, payloadBody)
       .then(() => {})
       .catch((error) => {
-        console.log("failed edit message by id message:", error.response.data.err.message);
+        console.log(
+          "failed edit message by id message:",
+          error.response.data.err.message
+        );
       });
   };
 
@@ -48,7 +53,7 @@ export default function FriendList({ user }) {
             }
           );
         }
-        dispatch(setSnapUserLogout({ isUserLogout: true }))
+        dispatch(setSnapUserLogout({ isUserLogout: true }));
       }
     }
   }, [
@@ -57,7 +62,7 @@ export default function FriendList({ user }) {
     currentUserIdFromSlice,
     incomingMessageNotifications,
     access_token,
-    dispatch
+    dispatch,
   ]);
 
   useEffect(() => {
@@ -65,7 +70,7 @@ export default function FriendList({ user }) {
       (message) =>
         message.receiver_id === currentUserIdFromSlice &&
         message.isRead === false
-    )
+    );
     setIncomingMessageNotifications(messagesNotReadYet);
   }, [messages, currentUserIdFromSlice]);
 
@@ -81,12 +86,15 @@ export default function FriendList({ user }) {
             : "bg-color-transparent"
         }`}
       >
-        <img
-          src={`${user.Profile.avatarUrl}`}
-          alt="friend-pict"
-          className="leftbar-friend-img"
+        <GlobalImage
+          widthSize={28}
+          heighSize={28}
+          imageName={"friend-pict"}
+          imageSource={`${user.Profile.avatarUrl}`}
+          additionalClassName={["leftbar-friend-img"]}
+          isRoundImg={true}
         />
-        <span className="leftbar-friend-name">{user.userName}</span>
+        <div className="leftbar-friend-name">{user.userName}</div>
         {checkActiveBadgeNotifications()}
       </li>
     </Link>

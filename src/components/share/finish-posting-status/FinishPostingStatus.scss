@@ -1,0 +1,22 @@
+.success-message-container {
+  width: 100%;
+  padding: 20px 0;
+  text-align: center;
+  border-radius: 10px;
+  color: rgb(230, 65, 194);
+  background-color: pink;
+  margin-bottom: 20px;
+  font-size: 18px;
+  font-weight: 600;
+  position: relative;
+  transition: 5s ease-in;
+  animation-name: memunculkan-pesan;
+  animation-duration: 1s;
+
+  .cancel-success-message {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    right: 0;
+  }
+}
