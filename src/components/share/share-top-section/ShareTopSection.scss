@@ -1,0 +1,17 @@
+.share-top {
+  display: flex;
+  align-items: center;
+
+  .share-input {
+    border: none;
+    width: 80%;
+    background-color: white;
+    color: black;
+    margin: 0px 0px 0px 10px;
+    font-size: 12px;
+
+    &:focus {
+      outline: none;
+    }
+  }
+}

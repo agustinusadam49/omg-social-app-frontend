@@ -1,27 +1,22 @@
-import React, { useState, useEffect, memo } from "react";
-import PermMediaIcon from "@mui/icons-material/PermMedia";
-import LabelIcon from "@mui/icons-material/Label";
-import RoomIcon from "@mui/icons-material/Room";
-import EmojiEmotionsIcon from "@mui/icons-material/EmojiEmotions";
-import CancelIcon from "@mui/icons-material/Cancel";
+import React, { useState, useEffect, memo, useRef } from "react";
 import {
   createNewPosting,
   uploadImagePosting,
 } from "../../apiCalls/postsApiFetch";
 import { useSelector, useDispatch } from "react-redux";
 import { setIsAddPosting } from "../../redux/slices/postsSlice";
-import { Link } from "react-router-dom";
-import GlobalButton from "../button/GlobalButton";
+import ShareTopSection from "./share-top-section/ShareTopSection";
+import UploadProgessSection from "./upload-progress-section/UploadProgessSection";
+import FinishPostingStatus from "./finish-posting-status/FinishPostingStatus";
+import ErrorMessageCaption from "./error-message-caption/ErrorMessageCaption";
+import SharePreviewImageSection from "./share-preview-image-section/SharePreviewImageSection";
+import ShareBottomSection from "./share-bottom-section/ShareBottomSection";
 import "./Share.scss";
 
 const Share = ({ userNameFromParam }) => {
   const dispatch = useDispatch();
 
   const currentUserNameFromSlice = useSelector((state) => state.user.userName);
-  const currentUserIdFromSlice = useSelector((state) => state.user.userId);
-  const currentUserAvatarFromSlice = useSelector(
-    (state) => state.user.userAvatarPicture
-  );
 
   const [uploadProgress, setUploadProgress] = useState(0);
   const [finishPostingStatus, setFinishPostingStatus] = useState(false);
@@ -29,6 +24,7 @@ const Share = ({ userNameFromParam }) => {
   const [errorMessageEmptyCaption, setErrorMessageEmptyCaption] = useState("");
   const [caption, setCaption] = useState("");
   const [fileImagePosting, setFileImagePosting] = useState(null);
+  const previewImagePostingRef = useRef(null)
 
   const userNameFromParamUrl = userNameFromParam;
   const displayPlaceHolderUsername = userNameFromParamUrl
@@ -42,6 +38,7 @@ const Share = ({ userNameFromParam }) => {
   };
 
   const cancelImagePreviewHandler = () => {
+    previewImagePostingRef.current.value = null
     setFileImagePosting(null);
   };
 
@@ -100,11 +97,8 @@ const Share = ({ userNameFromParam }) => {
   };
 
   useEffect(() => {
-    setErrorMessageCaption(false);
-  }, [caption]);
-
-  useEffect(() => {
     setFinishPostingStatus(false);
+    setErrorMessageCaption(false);
   }, [fileImagePosting, caption]);
 
   // Menghilangkan success message secara otomatis setelah 10 detik
@@ -136,118 +130,46 @@ const Share = ({ userNameFromParam }) => {
   return (
     <div className="share">
       <div className="share-wrapper">
-        {/* Share component top menu */}
-        <div className="share-top" onKeyPress={doAddNewPostWithEnter}>
-          <Link
-            to={`/profile/${displayPlaceHolderUsername}/user-id/${currentUserIdFromSlice}`}
-            className="share-profile-image-wrapper"
-          >
-            <img
-              src={currentUserAvatarFromSlice}
-              alt="share-user-pict"
-              className="share-profile-img"
-            />
-          </Link>
+        <ShareTopSection
+          displayPlaceHolderUsername={displayPlaceHolderUsername}
+          caption={caption}
+          setCaption={setCaption}
+          doAddNewPostWithEnter={doAddNewPostWithEnter}
+        />
 
-          <input
-            placeholder={`Hai ${displayPlaceHolderUsername}, Apa yang ada dalam pikiranmu?`}
-            className="share-input"
-            value={caption}
-            onChange={(e) => setCaption(e.target.value)}
-          />
-        </div>
-
-        {/* Line */}
         <hr className="share-hr" />
 
-        {/* Upload Progress */}
         {uploadProgress > 0 && (
-          <div className="uploading-progress-container">
-            <div className="progress-upload-presentage">{uploadProgress} %</div>
-            <div className="uploading-wording">Uploading Image</div>
-          </div>
+          <UploadProgessSection uploadProgress={uploadProgress} />
         )}
 
-        {/* Success Posting Message */}
         {finishPostingStatus && (
-          <div className="success-message-container">
-            <div className="success-message-wording">SUCCESS POSTING!</div>
-
-            <CancelIcon
-              className="cancel-success-message"
-              onClick={() => setFinishPostingStatus(false)}
-            />
-          </div>
+          <FinishPostingStatus
+            setFinishPostingStatus={setFinishPostingStatus}
+          />
         )}
 
         {/* Warning Wording to fill caption field is mandatory */}
         {/* Silahkan input caption terlebih dahulu! */}
         {errorMessageCaption && (
-          <div className="error-message-caption">
-            <div className="error-message-wording">
-              {errorMessageEmptyCaption}
-            </div>
-
-            <CancelIcon
-              className="cancel-error-message"
-              onClick={() => setErrorMessageCaption(false)}
-            />
-          </div>
-        )}
-
-        {/* Preview Image before uploading */}
-        {fileImagePosting && (
-          <div className="preview-img-container">
-            <img
-              src={URL.createObjectURL(fileImagePosting)}
-              alt="preview-img"
-              className="preview-img"
-            />
-
-            <CancelIcon
-              className="cancel-preview-img"
-              onClick={cancelImagePreviewHandler}
-            />
-          </div>
-        )}
-
-        {/* Share component bottom menu */}
-        <div className="share-bottom">
-          <div className="share-options-container">
-            <label htmlFor="fileImagePosting" className="share-option">
-              <PermMediaIcon htmlColor="tomato" className="share-icon" />
-              <span className="share-option-text">Photo or Video</span>
-              <input
-                style={{ display: "none" }}
-                type="file"
-                id="fileImagePosting"
-                accept=".png,.jpeg,.jpg"
-                onChange={(e) => setFileImagePosting(e.target.files[0])}
-              />
-            </label>
-
-            <div className="share-option">
-              <LabelIcon htmlColor="blue" className="share-icon" />
-              <span className="share-option-text">Tag</span>
-            </div>
-
-            <div className="share-option">
-              <RoomIcon htmlColor="green" className="share-icon" />
-              <span className="share-option-text">Location</span>
-            </div>
-
-            <div className="share-option">
-              <EmojiEmotionsIcon htmlColor="goldenrod" className="share-icon" />
-              <span className="share-option-text">Feelings</span>
-            </div>
-          </div>
-
-          <GlobalButton
-            buttonLabel={"Share"}
-            classStyleName="share-button"
-            onClick={doPosting}
+          <ErrorMessageCaption
+            errorMessageEmptyCaption={errorMessageEmptyCaption}
+            setErrorMessageCaption={setErrorMessageCaption}
           />
-        </div>
+        )}
+
+        {fileImagePosting && (
+          <SharePreviewImageSection
+            fileImagePosting={fileImagePosting}
+            cancelImagePreviewHandler={cancelImagePreviewHandler}
+          />
+        )}
+
+        <ShareBottomSection
+          setFileImagePosting={setFileImagePosting}
+          doPosting={doPosting}
+          inputRef={previewImagePostingRef}
+        />
       </div>
     </div>
   );
