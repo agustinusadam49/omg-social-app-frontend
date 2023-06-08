@@ -1,12 +1,14 @@
-import React, { useEffect } from "react";
+// , { useEffect }
+import React from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { needAuthpages, notNeedAuthpages } from "./router/index";
 import { useSelector, useDispatch } from "react-redux";
-import { setIsAuthUser } from "./redux/slices/userSlice";
+// import { setIsAuthUser } from "./redux/slices/userSlice";
 import { accessToken } from "./utils/getLocalStorage";
 import PageWithHeaderLayout from "./layout/page-with-header-layout/PageWithHeaderLayout";
 import NonProfilePages from "./layout/page-with-header-layout/non-profile-pages/NonProfilePages";
 import NotificationPages from "./layout/page-with-header-layout/notification-pages/NotificationPages";
+import { useCheckUserAuth } from "./utils/checkUserAuth";
 import "./App.scss";
 
 export default function App() {
@@ -14,13 +16,20 @@ export default function App() {
   const access_token = accessToken();
   const isUserLoggedin = useSelector((state) => state.user.isUserAuthenticated);
 
-  useEffect(() => {
-    if (access_token) {
-      dispatch(setIsAuthUser({ isAuth: true }));
-    } else {
-      dispatch(setIsAuthUser({ isAuth: false }));
-    }
-  }, [isUserLoggedin, access_token, dispatch]);
+  // Sementara akan tetap di comment terlebih dahulu
+  // useEffect(() => {
+  //   if (access_token) {
+  //     dispatch(setIsAuthUser({ isAuth: true }));
+  //   } else {
+  //     dispatch(setIsAuthUser({ isAuth: false }));
+  //   }
+  // }, [isUserLoggedin, access_token, dispatch]);
+
+  useCheckUserAuth({
+    isUserLoggedin: isUserLoggedin,
+    access_token: access_token,
+    dispatch: dispatch,
+  })
 
   const needAuthCheckToken = () => {
     if (access_token) {
