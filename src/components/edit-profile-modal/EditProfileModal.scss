@@ -180,7 +180,7 @@
       .bottom-edit-button {
         font-size: 10px;
         font-weight: 500;
-        border-radius: 5px;
+        border-radius: 8px;
         color: white;
         cursor: pointer;
         text-align: center;
@@ -193,11 +193,14 @@
         }
 
         &.cancel {
-          background-color: red;
+          background-color: white;
+          color: rgb(231, 101, 101);
+          border: solid 1px rgb(231, 101, 101);
         }
 
         &.save {
-          background-color: blue;
+          background-color: #605beb;
+          border: solid 1px #605beb;
         }
       }
     }

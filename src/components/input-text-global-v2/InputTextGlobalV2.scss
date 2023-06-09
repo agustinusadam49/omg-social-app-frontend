@@ -1,9 +1,18 @@
 .input-text-wrapper {
   position: relative;
 
-  // .input-label-text-global {
-  //   margin-bottom: 20px;
-  // }
+  .input-label-text-global {
+    font-size: 12px;
+    font-weight: bold;
+
+    &.if-error-message {
+      color: red;
+    }
+
+    @media only screen and (min-width: 1024px) {
+      font-size: 14px;
+    }
+  }
 
   input.input-tag {
     box-sizing: border-box;
@@ -12,18 +21,18 @@
     border-radius: 10px;
     border: solid 1px gray;
     font-size: 18px;
-    padding-left: 20px;
-    margin-bottom: 4px;
+    padding: 0 10px;
+    margin-bottom: 14px;
     background-color: white;
     color: black;
 
     &.if-error-message {
       border: solid 1px red;
+      margin-bottom: 4px;
     }
 
     &.if-edit-profile-style {
       height: 36px;
-      margin-bottom: 14px;
     }
 
     &.if-type-date {
@@ -45,6 +54,94 @@
     .eye-icon {
       box-sizing: border-box;
       color: #2c2891;
+    }
+  }
+
+  .input-date-type-wrapper {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    width: 100%;
+    height: 36px;
+    margin-bottom: 14px;
+    
+    &.if-error-message {
+      margin-bottom: 4px;
+    }
+
+    .input-tag-date-icon-wrapper {
+      flex-shrink: 0;
+      box-sizing: border-box;
+      position: relative;
+      cursor: pointer;
+      width: 30px;
+      height: 30px;
+      margin-right: 16px;
+
+      .calendar-month-icon {
+        width: 100%;
+        height: 100%;
+
+        &.if-error-message {
+          color: red;
+        }
+      }
+
+      input[type="date"].input-tag-date-icon {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        opacity: 0;
+        cursor: pointer;
+        box-sizing: border-box;
+      }
+
+      input[type="date"].input-tag-date-icon::-webkit-calendar-picker-indicator {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        padding: 0;
+        cursor: pointer;
+      }
+    }
+
+    input.input-tag-date-field {
+      flex-grow: 1;
+      box-sizing: border-box;
+      width: 100%;
+      height: 50px;
+      border-radius: 10px;
+      border: solid 1px gray;
+      font-size: 18px;
+      padding: 0 10px;
+      
+      background-color: white;
+      color: black;
+
+      &.if-error-message {
+        border: solid 1px red;
+      }
+
+      &.if-edit-profile-style-date {
+        height: 36px;
+      }
+
+      &.if-type-date {
+        cursor: pointer;
+      }
+
+      &:focus {
+        outline: none;
+      }
+    }
+
+    input[type="date"].input-tag-date-field::-webkit-calendar-picker-indicator {
+      display: none;
     }
   }
 }

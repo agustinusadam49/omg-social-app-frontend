@@ -173,15 +173,29 @@
 
       .edit-profile-button {
         border: none;
-        border-radius: 5px;
+        border-radius: 8px;
         width: 100%;
-        background-color: green;
+        background-color: #605beb;
         color: white;
         cursor: pointer;
         text-align: center;
-        padding: 6px 0px;
+        padding: 12px 0px;
         margin-top: 10px;
         box-sizing: border-box;
+        font-size: 11px;
+        
+        @media only screen and (min-width: 1024px) {
+          padding: 8px 0px;
+          font-size: 12px;
+        }
+      }
+
+      .edit-profile-button:last-child {
+        margin-top: 14px;
+        
+        @media only screen and (min-width: 1024px) {
+          margin-top: 12px;
+        }
       }
     }
 
