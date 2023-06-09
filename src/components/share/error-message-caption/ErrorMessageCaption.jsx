@@ -3,13 +3,12 @@ import CancelIcon from "@mui/icons-material/Cancel";
 
 import "./ErrorMessageCaption.scss";
 
-export default function ErrorMessageCaption({
-  errorMessageEmptyCaption,
-  setErrorMessageCaption,
-}) {
+export default function ErrorMessageCaption({ setErrorMessageCaption }) {
   return (
     <div className="error-message-caption">
-      <div className="error-message-wording">{errorMessageEmptyCaption}</div>
+      <div className="error-message-caption-wording">
+        Silahkan masukan caption terlebih dahulu!
+      </div>
 
       <CancelIcon
         className="cancel-error-message"

@@ -7,7 +7,11 @@ import GlobalButton from "../../button/GlobalButton";
 
 import "./ShareBottomSection.scss";
 
-export default function ShareBottomSection({ setFileImagePosting, doPosting, inputRef }) {
+export default function ShareBottomSection({
+  setFileImagePosting,
+  doPosting,
+  inputRef,
+}) {
   const handleCreatePosting = () => {
     doPosting();
   };
