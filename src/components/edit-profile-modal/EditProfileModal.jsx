@@ -342,7 +342,7 @@ const EditProfileModal = ({
                   setInputValue={setBirthdate}
                   inputErrorMessage={errorMessage.birthDate}
                   inputType={"date"}
-                  additionalStylingClass={"if-edit-profile-style"}
+                  additionalStylingClass={"if-edit-profile-style-date"}
                 />
 
                 <InputTextGlobalV2

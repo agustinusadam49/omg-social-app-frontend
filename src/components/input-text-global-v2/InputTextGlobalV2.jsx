@@ -1,6 +1,7 @@
 import React, { Fragment, useState } from "react";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
+import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
 import "./InputTextGlobalV2.scss";
 
 // This input text global v2 component using value and onchange,
@@ -53,7 +54,7 @@ const InputTextGlobal = ({
 
   const displayLabel = () => {
     if (inputLabel) {
-      return <label className="input-label-text-global">{inputLabel}</label>;
+      return <label className={`input-label-text-global ${isErrorMessage()}`}>{inputLabel}</label>;
     }
   };
 
@@ -69,21 +70,62 @@ const InputTextGlobal = ({
     return inputType === "date" ? "if-type-date" : "";
   };
 
+  const allMergedAdditionalStyling = () => {
+    return `${isErrorMessage()} ${additionalStyling()} ${styleForTypeDate()}`;
+  };
+
   const styleForInputTag = () => {
-    return `input-tag ${isErrorMessage()} ${additionalStyling()} ${styleForTypeDate()}`;
+    return `${
+      inputType === "date" ? "input-tag-date-field" : "input-tag"
+    } ${allMergedAdditionalStyling()}`;
+  };
+
+  const styleForWrapperInputDate = () => {
+    return `input-date-type-wrapper ${allMergedAdditionalStyling()}`;
+  };
+
+  const displayInputField = () => {
+    if (inputType === "date") {
+      return (
+        <div className={styleForWrapperInputDate()}>
+          <label htmlFor="date-icon" className="input-tag-date-icon-wrapper">
+            <CalendarMonthIcon className={`calendar-month-icon ${isErrorMessage()}`} />
+            <input
+              id="date-icon"
+              value={inputValue}
+              onChange={(e) => setInputValue(e.target.value)}
+              className="input-tag-date-icon"
+              type={!seePassword ? inputType : "text"}
+            />
+          </label>
+
+          <input
+            value={inputValue}
+            onChange={(e) => setInputValue(e.target.value)}
+            placeholder={inputPlaceholder}
+            className={styleForInputTag()}
+            type={!seePassword ? inputType : "text"}
+          />
+        </div>
+      );
+    }
+
+    return (
+      <input
+        value={inputValue}
+        onChange={(e) => setInputValue(e.target.value)}
+        placeholder={inputPlaceholder}
+        className={styleForInputTag()}
+        type={!seePassword ? inputType : "text"}
+      />
+    );
   };
 
   return (
     <Fragment>
       <div className="input-text-wrapper">
         {displayLabel()}
-        <input
-          value={inputValue}
-          onChange={(e) => setInputValue(e.target.value)}
-          placeholder={inputPlaceholder}
-          className={styleForInputTag()}
-          type={!seePassword ? inputType : "text"}
-        />
+        {displayInputField()}
         {displayEyeIcon()}
       </div>
       {displayErrorMessages()}
