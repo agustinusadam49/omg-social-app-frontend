@@ -21,10 +21,9 @@ const Share = ({ userNameFromParam }) => {
   const [uploadProgress, setUploadProgress] = useState(0);
   const [finishPostingStatus, setFinishPostingStatus] = useState(false);
   const [errorMessageCaption, setErrorMessageCaption] = useState(false);
-  const [errorMessageEmptyCaption, setErrorMessageEmptyCaption] = useState("");
   const [caption, setCaption] = useState("");
   const [fileImagePosting, setFileImagePosting] = useState(null);
-  const previewImagePostingRef = useRef(null)
+  const previewImagePostingRef = useRef(null);
 
   const userNameFromParamUrl = userNameFromParam;
   const displayPlaceHolderUsername = userNameFromParamUrl
@@ -38,7 +37,7 @@ const Share = ({ userNameFromParam }) => {
   };
 
   const cancelImagePreviewHandler = () => {
-    previewImagePostingRef.current.value = null
+    previewImagePostingRef.current.value = null;
     setFileImagePosting(null);
   };
 
@@ -62,7 +61,6 @@ const Share = ({ userNameFromParam }) => {
     setFinishPostingStatus(false);
     if (!caption) {
       setErrorMessageCaption(true);
-      setErrorMessageEmptyCaption("Silahkan masukan caption terlebih dahulu!");
       return;
     }
     const newPostBody = {
@@ -107,7 +105,7 @@ const Share = ({ userNameFromParam }) => {
       finishPostingStatus === true &&
       setInterval(() => {
         setFinishPostingStatus(false);
-      }, 10000);
+      }, 8000);
 
     return () => {
       clearInterval(delayedDisappearedFinishStatus);
@@ -120,7 +118,7 @@ const Share = ({ userNameFromParam }) => {
       errorMessageCaption === true &&
       setInterval(() => {
         setErrorMessageCaption(false);
-      }, 10000);
+      }, 5000);
 
     return () => {
       clearInterval(delayDisappearedErrorMessage);
@@ -149,11 +147,8 @@ const Share = ({ userNameFromParam }) => {
           />
         )}
 
-        {/* Warning Wording to fill caption field is mandatory */}
-        {/* Silahkan input caption terlebih dahulu! */}
         {errorMessageCaption && (
           <ErrorMessageCaption
-            errorMessageEmptyCaption={errorMessageEmptyCaption}
             setErrorMessageCaption={setErrorMessageCaption}
           />
         )}

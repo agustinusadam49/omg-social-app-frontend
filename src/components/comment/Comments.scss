@@ -67,12 +67,17 @@
   .empty-state-comment-items {
     margin-top: 10px;
     width: 100%;
-    padding: 10px 0px;
+    padding: 6px 0px;
     text-align: center;
     border-radius: 5px;
-    font-size: 14px;
+    font-size: 10px;
     font-weight: bold;
     background-color: bisque;
     color: rgb(92, 41, 146);
+
+    @media only screen and (min-width: 1024px) {
+      font-size: 12px;
+      padding: 8px 0px;
+    }
   }
 }
