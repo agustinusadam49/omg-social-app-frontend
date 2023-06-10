@@ -1,20 +1,20 @@
-import React, { useMemo } from "react";
+import React, { useMemo, memo, useCallback } from "react";
 import CancelIcon from "@mui/icons-material/Cancel";
 
 import "./SharePreviewImageSection.scss";
 
-export default function SharePreviewImageSection({
+const SharePreviewImageSection = ({
   fileImagePosting,
   cancelImagePreviewHandler,
-}) {
+}) => {
   const previewImageUrl = useMemo(
     () => URL.createObjectURL(fileImagePosting),
     [fileImagePosting]
   );
 
-  const handleCancelImagePreview = () => {
+  const handleCancelImagePreview = useCallback(() => {
     cancelImagePreviewHandler();
-  };
+  }, [cancelImagePreviewHandler]);
 
   return (
     <div className="preview-img-container">
@@ -26,4 +26,6 @@ export default function SharePreviewImageSection({
       />
     </div>
   );
-}
+};
+
+export default memo(SharePreviewImageSection)

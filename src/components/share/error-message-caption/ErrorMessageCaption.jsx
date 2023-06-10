@@ -3,7 +3,7 @@ import CancelIcon from "@mui/icons-material/Cancel";
 
 import "./ErrorMessageCaption.scss";
 
-export default function ErrorMessageCaption({ setErrorMessageCaption }) {
+export default function ErrorMessageCaption({ handleCancelErrorMessage }) {
   return (
     <div className="error-message-caption">
       <div className="error-message-caption-wording">
@@ -12,7 +12,7 @@ export default function ErrorMessageCaption({ setErrorMessageCaption }) {
 
       <CancelIcon
         className="cancel-error-message"
-        onClick={() => setErrorMessageCaption(false)}
+        onClick={() => handleCancelErrorMessage(false)}
       />
     </div>
   );

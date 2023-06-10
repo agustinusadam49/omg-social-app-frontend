@@ -4,19 +4,23 @@ import { useSelector, useDispatch } from "react-redux";
 import { doUserLogout } from "../../redux/apiCalls";
 import "./ProfileBox.scss";
 
-export default function ProfileBox() {
+export default function ProfileBox({classStyleAddOn}) {
   const dispatch = useDispatch();
   const currentUserNameFromSlice = useSelector((state) => state.user.userName);
   const currentUserIdFromSlice = useSelector((state) => state.user.userId);
   const currentUserAvatarFromSlice = useSelector((state) => state.user.userAvatarPicture);
   const currentUserEmail = useSelector((state) => state.user.currentUsers.userEmail);
 
+  const addClassStyleAddOn = () => {
+    return !!classStyleAddOn.length ? classStyleAddOn.join(" ") : ''
+  }
+
   const doLogout = () => {
     doUserLogout(currentUserIdFromSlice, dispatch);
   };
 
   return (
-    <div className="profile-box">
+    <div className={`profile-box ${addClassStyleAddOn()}`}>
       <div className="profile-box-inner-wrapper">
         <Link
           to={`/profile/${currentUserNameFromSlice}/user-id/${currentUserIdFromSlice}`}

@@ -115,12 +115,10 @@ export default function MobileBottomNavigation() {
 
   const toggleActiveSuggestionModal = (value) => {
     dispatch(setIsUserSuggestionModalOpen({ isSuggestionModalOpen: value }));
-    dispatch(setIsUserOnlineModalOpen({ isUserOnlineModalOpen: false }));
   };
 
   const toggleUserOnlineModal = (value) => {
     dispatch(setIsUserOnlineModalOpen({ isUserOnlineModalOpen: value }));
-    dispatch(setIsUserSuggestionModalOpen({ isSuggestionModalOpen: false }));
   };
 
   useEffect(() => {

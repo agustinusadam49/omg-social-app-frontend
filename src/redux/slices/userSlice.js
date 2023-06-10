@@ -15,13 +15,14 @@ export const userSlice = createSlice({
     snapUserLogout: false,
     isUserSuggestionModalOpen: false,
     isUserOnlineModalOpen: false,
+    isUserProfileMobileOpen: false,
   },
   reducers: {
     setCurrentUsers: (state, action) => {
-      state.currentUsers = action.payload.currentUsersData
+      state.currentUsers = action.payload.currentUsersData;
     },
     setAllUsers: (state, action) => {
-      state.allUsers = action.payload.registeredUsers
+      state.allUsers = action.payload.registeredUsers;
     },
     setIsAuthUser: (state, action) => {
       state.isUserAuthenticated = action.payload.isAuth;
@@ -45,13 +46,22 @@ export const userSlice = createSlice({
       state.userBiodata = action.payload.shortBio;
     },
     setSnapUserLogout: (state, action) => {
-      state.snapUserLogout = action.payload.isUserLogout
+      state.snapUserLogout = action.payload.isUserLogout;
     },
     setIsUserSuggestionModalOpen: (state, action) => {
-      state.isUserSuggestionModalOpen = action.payload.isSuggestionModalOpen
+      state.isUserSuggestionModalOpen = action.payload.isSuggestionModalOpen;
+      state.isUserOnlineModalOpen = false;
+      state.isUserProfileMobileOpen = false;
     },
     setIsUserOnlineModalOpen: (state, action) => {
-      state.isUserOnlineModalOpen = action.payload.isUserOnlineModalOpen
+      state.isUserOnlineModalOpen = action.payload.isUserOnlineModalOpen;
+      state.isUserSuggestionModalOpen = false;
+      state.isUserProfileMobileOpen = false;
+    },
+    setIsUserProfileMobileOpen: (state, action) => {
+      state.isUserProfileMobileOpen = action.payload.isUserProfileMobileOpen;
+      state.isUserSuggestionModalOpen = false;
+      state.isUserOnlineModalOpen = false;
     },
   },
 });
@@ -69,6 +79,7 @@ export const {
   setUserBiodata,
   setIsUserSuggestionModalOpen,
   setIsUserOnlineModalOpen,
+  setIsUserProfileMobileOpen,
 } = userSlice.actions;
 
 export default userSlice.reducer;

@@ -13,6 +13,7 @@ import NotificationsIcon from "@mui/icons-material/Notifications";
 import { useNavigate } from "react-router-dom";
 // import { searchAllUsersAndPostsData } from "../../apiCalls/searchUserAndPosts";
 import { getNotificationsBelongsToLoggedUser } from "../../redux/apiCalls";
+import { setIsUserProfileMobileOpen } from "../../redux/slices/userSlice";
 // import { getAllPostsBySearch } from "../../apiCalls/postsApiFetch";
 import { useSelector, useDispatch } from "react-redux";
 import { accessToken } from "../../utils/getLocalStorage";
@@ -30,6 +31,7 @@ export default function Topbar() {
   const access_token = accessToken();
 
   const isDesktop = useScreenWidth("lg");
+  const isMobile = useScreenWidth("mb");
 
   const notificationsPath = {
     follower: "/follower-notifications",
@@ -135,6 +137,10 @@ export default function Topbar() {
     }
   };
 
+  const openProfileMobileModal = (val) => {
+    dispatch(setIsUserProfileMobileOpen({ isUserProfileMobileOpen: val }));
+  };
+
   // const displaySearchResultBoxBasedTermsLenght = () => {
   //   if (searchTerms && searchTerms.length >= 3 && isShowSearchBox) {
   //     if (
@@ -238,7 +244,7 @@ export default function Topbar() {
       {/* onClick={unShowSearchBox} */}
       <div className="topbar-left">
         <Link className="logo" to="/">
-          {isDesktop ? 'Omongin' : 'Omg'}
+          {isDesktop ? "Omongin" : "Omg"}
         </Link>
       </div>
 
@@ -309,16 +315,31 @@ export default function Topbar() {
           )}
 
           <div className="image-profile-container">
-            <div className="topbar-img-wrapper">
-              <img
-                src={currentUserAvatarFromSlice}
-                alt="user-profile"
-                className="topbar-img"
-              />
-              <div className="profile-box-wrapper">
-                <ProfileBox />
+            {isDesktop && (
+              <div className="topbar-img-wrapper">
+                <img
+                  src={currentUserAvatarFromSlice}
+                  alt="user-profile"
+                  className="topbar-img"
+                />
+                <div className="profile-box-wrapper">
+                  <ProfileBox classStyleAddOn={["desktop-screen-styling"]} />
+                </div>
               </div>
-            </div>
+            )}
+
+            {isMobile && (
+              <div
+                className="topbar-img-wrapper"
+                onClick={() => openProfileMobileModal(true)}
+              >
+                <img
+                  src={currentUserAvatarFromSlice}
+                  alt="user-profile"
+                  className="topbar-img"
+                />
+              </div>
+            )}
           </div>
         </div>
       </div>
