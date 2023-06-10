@@ -1,8 +1,5 @@
 .profile-box {
-  position: absolute;
-  top: 45px;
   right: 0;
-  width: 240px;
   height: fit-content;
   border-radius: 5px;
   text-align: center;
@@ -12,6 +9,17 @@
   font-weight: 600;
   -webkit-box-shadow: 0px 0px 16px -8px rgba(0, 0, 0, 0.68);
   box-shadow: 0px 0px 16px -8px rgba(0, 0, 0, 0.68);
+
+  &.desktop-screen-styling {
+    position: absolute;
+    width: 240px;
+    top: 45px;
+  }
+
+  &.mobile-screen-styling {
+    position: relative;
+    width: 100%;
+  }
 
   .profile-box-inner-wrapper {
     width: 100%;
@@ -83,6 +91,5 @@
         background-color: rgb(237, 130, 130);
       }
     }
-
   }
 }

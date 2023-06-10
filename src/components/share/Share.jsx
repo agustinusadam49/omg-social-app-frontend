@@ -1,4 +1,4 @@
-import React, { useState, useEffect, memo, useRef } from "react";
+import React, { useState, useEffect, memo, useRef, useCallback } from "react";
 import {
   createNewPosting,
   uploadImagePosting,
@@ -11,6 +11,7 @@ import FinishPostingStatus from "./finish-posting-status/FinishPostingStatus";
 import ErrorMessageCaption from "./error-message-caption/ErrorMessageCaption";
 import SharePreviewImageSection from "./share-preview-image-section/SharePreviewImageSection";
 import ShareBottomSection from "./share-bottom-section/ShareBottomSection";
+import { useAutomaticCloseMessageToast } from "../../utils/automaticCloseMessageToast"
 import "./Share.scss";
 
 const Share = ({ userNameFromParam }) => {
@@ -30,34 +31,43 @@ const Share = ({ userNameFromParam }) => {
     ? userNameFromParamUrl
     : currentUserNameFromSlice;
 
-  const doAddNewPostWithEnter = (event) => {
-    if (event.key === "Enter") {
-      doPosting();
-    }
-  };
+  const handleSetCaptionOnParent = useCallback((val) => {
+    setCaption(val);
+  }, []);
 
-  const cancelImagePreviewHandler = () => {
+  const addFileImagePosting = useCallback((file) => {
+    setFileImagePosting(file);
+  }, []);
+
+  const handleCancelErrorMessage = useCallback((val) => {
+    setErrorMessageCaption(val);
+  }, []);
+
+  const cancelImagePreviewHandler = useCallback(() => {
     previewImagePostingRef.current.value = null;
     setFileImagePosting(null);
-  };
+  }, []);
 
-  const hitCreateNewPostApi = (payloadBodyObj) => {
-    createNewPosting(payloadBodyObj)
-      .then((postingResult) => {
-        if (postingResult.data.success) {
-          setCaption("");
-          setFileImagePosting(null);
-          dispatch(setIsAddPosting({ isSuccessPosting: true }));
-          setFinishPostingStatus(true);
-        }
-      })
-      .catch((error) => {
-        const errorMessageFromServer = error.response.data.errorMessage;
-        console.log("errorMessageFromServer", errorMessageFromServer);
-      });
-  };
+  const hitCreateNewPostApi = useCallback(
+    (payloadBodyObj) => {
+      createNewPosting(payloadBodyObj)
+        .then((postingResult) => {
+          if (postingResult.data.success) {
+            setCaption("");
+            setFileImagePosting(null);
+            dispatch(setIsAddPosting({ isSuccessPosting: true }));
+            setFinishPostingStatus(true);
+          }
+        })
+        .catch((error) => {
+          const errorMessageFromServer = error.response.data.errorMessage;
+          console.log("errorMessageFromServer", errorMessageFromServer);
+        });
+    },
+    [dispatch]
+  );
 
-  const doPosting = async () => {
+  const doPosting = useCallback(() => {
     setFinishPostingStatus(false);
     if (!caption) {
       setErrorMessageCaption(true);
@@ -92,38 +102,38 @@ const Share = ({ userNameFromParam }) => {
     } else {
       hitCreateNewPostApi(newPostBody);
     }
-  };
+  }, [
+    caption,
+    currentUserNameFromSlice,
+    fileImagePosting,
+    hitCreateNewPostApi,
+  ]);
+
+  const doAddNewPostWithEnter = useCallback(
+    (event) => {
+      if (event.key === "Enter") {
+        doPosting();
+      }
+    },
+    [doPosting]
+  );
 
   useEffect(() => {
     setFinishPostingStatus(false);
     setErrorMessageCaption(false);
   }, [fileImagePosting, caption]);
 
-  // Menghilangkan success message secara otomatis setelah 10 detik
-  useEffect(() => {
-    const delayedDisappearedFinishStatus =
-      finishPostingStatus === true &&
-      setInterval(() => {
-        setFinishPostingStatus(false);
-      }, 8000);
+  useAutomaticCloseMessageToast({
+    status: finishPostingStatus,
+    setStatus: setFinishPostingStatus,
+    interval: 8000,
+  })
 
-    return () => {
-      clearInterval(delayedDisappearedFinishStatus);
-    };
-  }, [finishPostingStatus]);
-
-  // Menghilangkan error message caption empty secara otomatis setelah 10 detik
-  useEffect(() => {
-    const delayDisappearedErrorMessage =
-      errorMessageCaption === true &&
-      setInterval(() => {
-        setErrorMessageCaption(false);
-      }, 5000);
-
-    return () => {
-      clearInterval(delayDisappearedErrorMessage);
-    };
-  }, [errorMessageCaption]);
+  useAutomaticCloseMessageToast({
+    status: errorMessageCaption,
+    setStatus: setErrorMessageCaption,
+    interval: 5000,
+  })
 
   return (
     <div className="share">
@@ -131,7 +141,7 @@ const Share = ({ userNameFromParam }) => {
         <ShareTopSection
           displayPlaceHolderUsername={displayPlaceHolderUsername}
           caption={caption}
-          setCaption={setCaption}
+          handleSetCaptionFromParent={handleSetCaptionOnParent}
           doAddNewPostWithEnter={doAddNewPostWithEnter}
         />
 
@@ -149,7 +159,7 @@ const Share = ({ userNameFromParam }) => {
 
         {errorMessageCaption && (
           <ErrorMessageCaption
-            setErrorMessageCaption={setErrorMessageCaption}
+            handleCancelErrorMessage={handleCancelErrorMessage}
           />
         )}
 
@@ -161,7 +171,7 @@ const Share = ({ userNameFromParam }) => {
         )}
 
         <ShareBottomSection
-          setFileImagePosting={setFileImagePosting}
+          setFileImagePosting={addFileImagePosting}
           doPosting={doPosting}
           inputRef={previewImagePostingRef}
         />

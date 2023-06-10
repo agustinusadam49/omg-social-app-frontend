@@ -1,4 +1,4 @@
-import React from "react";
+import React, {memo} from "react";
 import PermMediaIcon from "@mui/icons-material/PermMedia";
 import LabelIcon from "@mui/icons-material/Label";
 import RoomIcon from "@mui/icons-material/Room";
@@ -7,11 +7,11 @@ import GlobalButton from "../../button/GlobalButton";
 
 import "./ShareBottomSection.scss";
 
-export default function ShareBottomSection({
+const ShareBottomSection = ({
   setFileImagePosting,
   doPosting,
   inputRef,
-}) {
+}) => {
   const handleCreatePosting = () => {
     doPosting();
   };
@@ -56,3 +56,5 @@ export default function ShareBottomSection({
     </div>
   );
 }
+
+export default memo(ShareBottomSection)
