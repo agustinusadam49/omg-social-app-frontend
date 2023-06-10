@@ -14,6 +14,7 @@
       width: 32px;
       height: 32px;
       cursor: pointer;
+      flex-shrink: 0;
 
       .comments-current-user-avatar {
         width: 100%;

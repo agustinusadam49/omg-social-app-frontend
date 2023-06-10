@@ -6,18 +6,15 @@ import { rangeDay } from "../../utils/rangeDay";
 import FavoriteSharpIcon from "@mui/icons-material/FavoriteSharp";
 import {
   useSelector,
-  // useDispatch,
 } from "react-redux";
 import { deleteLikeById, addNewLike } from "../../apiCalls/likesApiFetch";
 import { getAllCommentsDataByPostId } from "../../apiCalls/commentsApiFetch";
-// import { setIsAddPosting } from "../../redux/slices/postsSlice";
 import { Link } from "react-router-dom";
 import { accessToken } from "../../utils/getLocalStorage";
 import { displayUserWhoLikesThisPost } from "../../utils/postLikes.js";
 import "./Post.scss";
 
 export default function Post({ postedData }) {
-  // const dispatch = useDispatch();
   const thisPostId = postedData.id;
   const access_token = accessToken();
   const currentUserIdFromSlice = useSelector((state) => state.user.userId);
@@ -28,13 +25,24 @@ export default function Post({ postedData }) {
   const [totalPostLike, setTotalPostLike] = useState(postedData.Likes.length);
   const [postedDataLikes, setPostedDataLikes] = useState([]);
   const calculatedLikeTotal = useMemo(() => totalPostLike, [totalPostLike]);
-  const mappedPostedDataLikes = useMemo(() => postedDataLikes, [postedDataLikes]);
+  const mappedPostedDataLikes = useMemo(
+    () => postedDataLikes,
+    [postedDataLikes]
+  );
 
-  // const postDataUserLiked = useMemo(
-  //   () =>
-  //     postedData.Likes.filter((item) => item.UserId === currentUserIdFromSlice),
-  //   [postedData, currentUserIdFromSlice]
-  // );
+  const getStatus = (statusFromResponse) => {
+    const followersOnlyWording =
+      postedData.UserId === currentUserIdFromSlice
+        ? "Me & My Followers Only"
+        : "Her/His's Followers Only";
+    const POST_STATUS_ENUM = {
+      PUBLIC: "Public",
+      PRIVATE: "Private",
+      FOLLOWERS_ONLY: followersOnlyWording,
+    };
+
+    return POST_STATUS_ENUM[statusFromResponse];
+  };
 
   const toggleCommentHandler = (statusValue) => {
     setIsCommentSectionOpen(statusValue);
@@ -59,7 +67,6 @@ export default function Post({ postedData }) {
     addNewLike(access_token, payloadDataAddLike)
       .then((newLikeResponseData) => {
         if (newLikeResponseData.data.success) {
-          // dispatch(setIsAddPosting({ isSuccessPosting: true }));
           const newLikeData = newLikeResponseData.data.newLike;
           const newLikeObj = {
             id: newLikeData.id,
@@ -77,7 +84,7 @@ export default function Post({ postedData }) {
           };
           setPostDataUserLiked((oldArray) => [...oldArray, newLikeObj]);
           setTotalPostLike((prevVal) => prevVal + 1);
-          setPostedDataLikes((oldArray) => [...oldArray, newLikePayload])
+          setPostedDataLikes((oldArray) => [...oldArray, newLikePayload]);
         }
       })
       .catch((error) => {
@@ -90,11 +97,12 @@ export default function Post({ postedData }) {
     deleteLikeById(access_token, idOfThisLike)
       .then((deleteLikeByIdResponse) => {
         if (deleteLikeByIdResponse.data.success) {
-          // dispatch(setIsAddPosting({ isSuccessPosting: true }));
           setPostDataUserLiked([]);
           setTotalPostLike((prevVal) => prevVal - 1);
-          const filteredLikesData = mappedPostedDataLikes.filter((like) => like.id !== idOfThisLike)
-          setPostedDataLikes(filteredLikesData)
+          const filteredLikesData = mappedPostedDataLikes.filter(
+            (like) => like.id !== idOfThisLike
+          );
+          setPostedDataLikes(filteredLikesData);
         }
       })
       .catch((error) => {
@@ -132,8 +140,8 @@ export default function Post({ postedData }) {
     setPostedDataLikes(mappedPostedLikesData);
 
     return () => {
-      setPostedDataLikes([])
-    }
+      setPostedDataLikes([]);
+    };
   }, [postedData]);
 
   useEffect(() => {
@@ -151,8 +159,8 @@ export default function Post({ postedData }) {
     getDataCommentsByIdEachPosting(thisPostId);
 
     return () => {
-      setCurrentCommentByIdTotal(0)
-    }
+      setCurrentCommentByIdTotal(0);
+    };
   }, [thisPostId, addNewPosting, isCommentSectionOpen]);
 
   return (
@@ -162,6 +170,7 @@ export default function Post({ postedData }) {
           <div className="post-top-left">
             <Link
               to={`/profile/${postedData.User.userName}/user-id/${postedData.UserId}`}
+              className="post-profile-img-link-wrapper"
             >
               <img
                 src={postedData.User.Profile.avatarUrl}
@@ -169,17 +178,36 @@ export default function Post({ postedData }) {
                 className="post-profile-img"
               />
             </Link>
-            <Link
-              to={`/profile/${postedData.User.userName}/user-id/${postedData.UserId}`}
-              style={{ textDecoration: "none", color: "black" }}
-              className="post-username"
-            >
-              {postedData.User.userName}
-            </Link>
-            <span className="post-date">{rangeDay(postedData.createdAt)}</span>
+
+            <div className="post-top-left-username-and-date-wrapper">
+              <Link
+                to={`/profile/${postedData.User.userName}/user-id/${postedData.UserId}`}
+                style={{ textDecoration: "none", color: "black" }}
+                className="post-username"
+              >
+                {postedData.User.userName}
+              </Link>
+
+              <div className="post-date-and-status-wrapper">
+                <div className="post-date">
+                  {rangeDay(postedData.createdAt)}
+                </div>
+              </div>
+            </div>
           </div>
 
           <div className="post-top-right">
+            <div
+              className={`post-status ${
+                postedData.status === "PUBLIC"
+                  ? "public"
+                  : postedData.status === "PRIVATE"
+                  ? "private"
+                  : "followers-only"
+              }`}
+            >
+              {getStatus(postedData.status)}
+            </div>
             <MoreVertIcon style={{ cursor: "pointer" }} />
           </div>
         </div>
@@ -202,40 +230,42 @@ export default function Post({ postedData }) {
           )}
         </div>
 
-        <div className="post-bottom">
-          <div className="post-bottom-left">
-            {postDataUserLiked.length ? (
-              <FavoriteSharpIcon
-                style={{ color: "red" }}
-                className="like-and-heart-icon"
-                onClick={likeHandler}
-              />
-            ) : (
-              <FavoriteBorderSharpIcon
-                style={{ color: "red" }}
-                className="like-and-heart-icon"
-                onClick={likeHandler}
-              />
-            )}
-
-            <span className="post-like-counter">
-              {calculatedLikeTotal},{" "}
-              {displayUserWhoLikesThisPost(
-                mappedPostedDataLikes,
-                currentUserIdFromSlice
+        {postedData.status !== "PRIVATE" && (
+          <div className="post-bottom">
+            <div className="post-bottom-left">
+              {postDataUserLiked.length ? (
+                <FavoriteSharpIcon
+                  style={{ color: "red" }}
+                  className="like-and-heart-icon"
+                  onClick={likeHandler}
+                />
+              ) : (
+                <FavoriteBorderSharpIcon
+                  style={{ color: "red" }}
+                  className="like-and-heart-icon"
+                  onClick={likeHandler}
+                />
               )}
-            </span>
-          </div>
 
-          <div className="post-bottom-right">
-            <span
-              className="post-comment-text"
-              onClick={() => toggleCommentHandler(!isCommentSectionOpen)}
-            >
-              {currentCommentByIdTotal} comments
-            </span>
+              <span className="post-like-counter">
+                {calculatedLikeTotal},{" "}
+                {displayUserWhoLikesThisPost(
+                  mappedPostedDataLikes,
+                  currentUserIdFromSlice
+                )}
+              </span>
+            </div>
+
+            <div className="post-bottom-right">
+              <span
+                className="post-comment-text"
+                onClick={() => toggleCommentHandler(!isCommentSectionOpen)}
+              >
+                {currentCommentByIdTotal} comments
+              </span>
+            </div>
           </div>
-        </div>
+        )}
 
         {isCommentSectionOpen && (
           <Comments postId={postedData.id} postUserId={postedData.User.id} />

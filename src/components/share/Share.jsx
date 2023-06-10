@@ -73,9 +73,13 @@ const Share = ({ userNameFromParam }) => {
       setErrorMessageCaption(true);
       return;
     }
+
+    // Untuk sementara static varible 'POST_STATUS_ENUM'
+    const POST_STATUS_ENUM = ["PUBLIC", "PRIVATE", "FOLLOWERS_ONLY"]
     const newPostBody = {
       postCaption: caption,
       senderName: currentUserNameFromSlice,
+      status: POST_STATUS_ENUM[0]
     };
 
     if (fileImagePosting) {
