@@ -1,4 +1,4 @@
-import React, {memo} from "react";
+import React, { memo } from "react";
 import PermMediaIcon from "@mui/icons-material/PermMedia";
 import LabelIcon from "@mui/icons-material/Label";
 import RoomIcon from "@mui/icons-material/Room";
@@ -11,6 +11,7 @@ const ShareBottomSection = ({
   setFileImagePosting,
   doPosting,
   inputRef,
+  uploadProgress,
 }) => {
   const handleCreatePosting = () => {
     doPosting();
@@ -48,13 +49,15 @@ const ShareBottomSection = ({
         </div>
       </div>
 
-      <GlobalButton
-        buttonLabel={"Share"}
-        classStyleName="share-button"
-        onClick={handleCreatePosting}
-      />
+      {uploadProgress < 1 && (
+        <GlobalButton
+          buttonLabel={"Share"}
+          classStyleName="share-button"
+          onClick={handleCreatePosting}
+        />
+      )}
     </div>
   );
-}
+};
 
-export default memo(ShareBottomSection)
+export default memo(ShareBottomSection);

@@ -11,19 +11,21 @@ import FinishPostingStatus from "./finish-posting-status/FinishPostingStatus";
 import ErrorMessageCaption from "./error-message-caption/ErrorMessageCaption";
 import SharePreviewImageSection from "./share-preview-image-section/SharePreviewImageSection";
 import ShareBottomSection from "./share-bottom-section/ShareBottomSection";
-import { useAutomaticCloseMessageToast } from "../../utils/automaticCloseMessageToast"
+import { useAutomaticCloseMessageToast } from "../../utils/automaticCloseMessageToast";
+import { useToast } from "../../utils/useToast";
 import "./Share.scss";
 
 const Share = ({ userNameFromParam }) => {
   const dispatch = useDispatch();
+  const toast = useToast();
 
   const currentUserNameFromSlice = useSelector((state) => state.user.userName);
 
   const [uploadProgress, setUploadProgress] = useState(0);
   const [finishPostingStatus, setFinishPostingStatus] = useState(false);
-  const [errorMessageCaption, setErrorMessageCaption] = useState(false);
   const [caption, setCaption] = useState("");
   const [fileImagePosting, setFileImagePosting] = useState(null);
+  const [activeStatus, setActiveStatus] = useState("PUBLIC");
   const previewImagePostingRef = useRef(null);
 
   const userNameFromParamUrl = userNameFromParam;
@@ -37,10 +39,6 @@ const Share = ({ userNameFromParam }) => {
 
   const addFileImagePosting = useCallback((file) => {
     setFileImagePosting(file);
-  }, []);
-
-  const handleCancelErrorMessage = useCallback((val) => {
-    setErrorMessageCaption(val);
   }, []);
 
   const cancelImagePreviewHandler = useCallback(() => {
@@ -70,16 +68,16 @@ const Share = ({ userNameFromParam }) => {
   const doPosting = useCallback(() => {
     setFinishPostingStatus(false);
     if (!caption) {
-      setErrorMessageCaption(true);
+      toast.error("Minimal Caption harus terisi!");
       return;
     }
 
-    // Untuk sementara static varible 'POST_STATUS_ENUM'
-    const POST_STATUS_ENUM = ["PUBLIC", "PRIVATE", "FOLLOWERS_ONLY"]
+    toast.closeError()
+
     const newPostBody = {
       postCaption: caption,
       senderName: currentUserNameFromSlice,
-      status: POST_STATUS_ENUM[0]
+      status: activeStatus,
     };
 
     if (fileImagePosting) {
@@ -110,6 +108,8 @@ const Share = ({ userNameFromParam }) => {
     caption,
     currentUserNameFromSlice,
     fileImagePosting,
+    activeStatus,
+    toast,
     hitCreateNewPostApi,
   ]);
 
@@ -124,20 +124,43 @@ const Share = ({ userNameFromParam }) => {
 
   useEffect(() => {
     setFinishPostingStatus(false);
-    setErrorMessageCaption(false);
   }, [fileImagePosting, caption]);
 
   useAutomaticCloseMessageToast({
     status: finishPostingStatus,
     setStatus: setFinishPostingStatus,
     interval: 8000,
-  })
+  });
 
-  useAutomaticCloseMessageToast({
-    status: errorMessageCaption,
-    setStatus: setErrorMessageCaption,
-    interval: 5000,
-  })
+  const STATUS_OPTIONS = [
+    {
+      name: "PUBLIC",
+      description: "Semua orang dapat melihat postingan mu.",
+    },
+    {
+      name: "PRIVATE",
+      description: "Hanya kamu yang dapat melihat postingan ini.",
+    },
+    {
+      name: "FOLLOWERS_ONLY",
+      description:
+        "Hanya kamu dan followers mu yang dapat melihat postingan ini.",
+    },
+  ];
+
+  const getStatus = (statusFromResponse) => {
+    const POST_STATUS_ENUM = {
+      PUBLIC: "Public",
+      PRIVATE: "Private",
+      FOLLOWERS_ONLY: "Followers Only",
+    };
+
+    return POST_STATUS_ENUM[statusFromResponse];
+  };
+
+  const toggleActiveStatus = (status) => {
+    setActiveStatus(status);
+  };
 
   return (
     <div className="share">
@@ -161,9 +184,10 @@ const Share = ({ userNameFromParam }) => {
           />
         )}
 
-        {errorMessageCaption && (
+        {toast.isActiveError && (
           <ErrorMessageCaption
-            handleCancelErrorMessage={handleCancelErrorMessage}
+            errorMessage={toast.errorMessage}
+            handleCancelErrorMessage={toast.closeError}
           />
         )}
 
@@ -174,10 +198,28 @@ const Share = ({ userNameFromParam }) => {
           />
         )}
 
+        <div className="share-status-options-menu">
+          {STATUS_OPTIONS.map((status, index) => (
+            <div
+              key={index}
+              className={`share-status-option-item ${
+                activeStatus === status.name ? "active" : ""
+              }`}
+              onClick={() => toggleActiveStatus(status.name)}
+            >
+              <div className="share-status-name">{getStatus(status.name)}</div>
+              <div className="share-status-description">
+                {status.description}
+              </div>
+            </div>
+          ))}
+        </div>
+
         <ShareBottomSection
           setFileImagePosting={addFileImagePosting}
           doPosting={doPosting}
           inputRef={previewImagePostingRef}
+          uploadProgress={uploadProgress}
         />
       </div>
     </div>
