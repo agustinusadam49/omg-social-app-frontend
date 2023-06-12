@@ -55,6 +55,7 @@ const Share = ({ userNameFromParam }) => {
             setFileImagePosting(null);
             dispatch(setIsAddPosting({ isSuccessPosting: true }));
             setFinishPostingStatus(true);
+            setActiveStatus("PUBLIC")
           }
         })
         .catch((error) => {
