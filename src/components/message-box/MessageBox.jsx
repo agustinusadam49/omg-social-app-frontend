@@ -111,6 +111,8 @@ const MessageBox = ({ paramUserId }) => {
           setMappedMessages((oldArray) => [...oldArray, createObjNewMessages]);
           scrollRef.current?.lastElementChild?.scrollIntoView({
             behaviour: "smooth",
+            block: "start",
+            inline: "nearest"
           });
         }
       })
