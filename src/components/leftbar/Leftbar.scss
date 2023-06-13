@@ -1,0 +1,85 @@
+.leftbar {
+  flex: 3;
+  height: calc(100vh - 50px);
+  overflow-y: scroll;
+  position: sticky;
+  top: 50px;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+
+  &::-webkit-scrollbar-track {
+    background-color: #f1f1f1;
+  }
+  
+  &::-webkit-scrollbar-thumb {
+    background-color: rgb(209, 209, 209);
+    border-radius: 5px;
+  }
+
+  .leftbar-wrapper {
+    margin: 10px;
+    background-color: white;
+    padding: 10px;
+    border-radius: 10px;
+    -webkit-box-shadow: 0px 0px 16px -8px rgba(0, 0, 0, 0.68);
+    box-shadow: 0px 0px 16px -8px rgba(0, 0, 0, 0.68);
+
+    .leftbar-list {
+      padding: 0;
+      margin: 0;
+      list-style: none;
+      font-size: 13px;
+      font-weight: 500;
+
+      .leftbar-list-item {
+        display: flex;
+        align-items: center;
+        margin-bottom: 20px;
+        cursor: pointer;
+
+        .leftbar-icon {
+          margin-right: 10px;
+          margin-left: 0;
+          width: 20px;
+          height: 20px;
+        }
+
+        .leftbar-list-item-text {
+          text-decoration: none;
+          color: black;
+          margin: 0;
+        }
+      }
+    }
+
+    .leftbar-button-wrapper {
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      gap: 20px;
+
+      .leftbar-button {
+        width: 150px;
+        border: none;
+        padding: 10px;
+        border-radius: 5px;
+        font-weight: 500;
+        cursor: pointer;
+        background-color: aqua;
+        color: blueviolet;
+      }
+    }
+
+    .leftbar-hr {
+      margin: 20px 0;
+    }
+
+    .leftbar-friend-list {
+      padding: 0;
+      margin: 0;
+      list-style: none;
+    }
+  }
+}

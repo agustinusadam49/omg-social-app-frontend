@@ -1,0 +1,19 @@
+.empty-state-notif {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  font-size: 18px;
+  font-weight: 600;
+  color: #2c2891;
+  padding: 20px;
+  border-radius: 10px;
+  background-color: rgb(240, 224, 224);
+
+  .empty-state-notif-img-icon {
+    width: 120px;
+    height: 120px;
+    object-fit: cover;
+    margin-bottom: 20px;
+  }
+}

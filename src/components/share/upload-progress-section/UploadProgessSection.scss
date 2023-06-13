@@ -1,0 +1,19 @@
+.uploading-progress-container {
+  width: 100%;
+  padding: 4px 0;
+  text-align: center;
+  border-radius: 10px;
+  color: #2c2891;
+  background-color: rgb(208, 218, 194);
+  margin-bottom: 10px;
+  font-size: 16px;
+  font-weight: 600;
+
+  .progress-upload-presentage {
+    margin-bottom: 6px;
+  }
+
+  .uploading-wording {
+    font-size: 12px;
+  }
+}

@@ -1,0 +1,64 @@
+.input-text-wrapper-v1 {
+  position: relative;
+
+  input.input-tag {
+    box-sizing: border-box;
+    width: 100%;
+    height: 38px;
+    border-radius: 8px;
+    border: solid 1px gray;
+    font-size: 12px;
+    padding: 0px 10px;
+    margin-bottom: 6px;
+    background-color: white;
+    color: black;
+
+    &.if-error-message {
+      border: solid 1px red;
+    }
+
+    &.if-edit-profile-style {
+      height: 36px;
+      margin-bottom: 14px;
+    }
+
+    &.if-type-date {
+      cursor: pointer;
+    }
+
+    &:focus {
+      outline: none;
+    }
+
+    @media only screen and (min-width: 1024px) {
+      height: 50px;
+      border-radius: 10px;
+      font-size: 18px;
+      padding: 0px 20px;
+      margin-bottom: 4px;
+    }
+  }
+
+  .eye-icon-wrapper {
+    position: absolute;
+    right: 16px;
+    bottom: 9px;
+    width: fit-content;
+    cursor: pointer;
+
+    @media only screen and (min-width: 1024px) {
+      bottom: 12px;
+    }
+
+    .eye-icon {
+      box-sizing: border-box;
+      color: #2c2891;
+    }
+  }
+}
+
+.inputErrorMessageV1 {
+  margin-bottom: 8px;
+  color: red;
+  font-size: 12px;
+}

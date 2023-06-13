@@ -1,0 +1,46 @@
+.error-message-caption {
+  width: 100%;
+  padding: 4px 0;
+  border-radius: 6px;
+  color: rgb(253, 251, 252);
+  background-color: rgb(233, 106, 106);
+  margin-bottom: 10px;
+  position: relative;
+  transition: 5s ease-in;
+  animation-name: memunculkan-pesan;
+  animation-duration: 0.50s;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+
+  .error-message-caption-wording {
+    font-size: 10px;
+    font-weight: 500;
+    text-align: center;
+    width: 100%;
+    flex-grow: 1;
+
+    @media only screen and (min-width: 1024px) {
+      font-size: 12px;
+    }
+  }
+
+  .cancel-error-message {
+    flex-shrink: 0;
+    cursor: pointer;
+    margin-right: 8px;
+  }
+}
+
+@keyframes memunculkan-pesan {
+  from {
+    opacity: 0;
+    width: 90%;
+    margin: 10px 20px;
+  }
+  to {
+    opacity: 1;
+    width: 100%;
+    margin-bottom: 10px;
+  }
+}

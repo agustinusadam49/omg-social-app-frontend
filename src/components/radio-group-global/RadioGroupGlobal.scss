@@ -1,0 +1,29 @@
+.radio-group-global-styles {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  border: solid 1px gray;
+  width: 200px;
+  height: fit-content;
+  padding: 12px;
+  border-radius: 10px;
+
+  .label-and-input-wrapper {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+
+    .radio-group-label {
+      font-size: 18px;
+      line-height: 24px;
+      font-weight: 500;
+      margin-right: 10px;
+    }
+
+    input[type="radio"] {
+      color: red;
+      font-size: 60px;
+      cursor: pointer;
+    }
+  }
+}

@@ -1,0 +1,28 @@
+.search-page-contents {
+  flex: 5.5;
+  padding-top: 10px;
+  width: 100%;
+
+  .title-users-search-result {
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 8px;
+    margin-left: 10px;
+  }
+
+  .title-posts-search-result {
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 8px;
+    margin-left: 10px;
+    margin-top: 12px;
+  }
+
+  .search-error-message-failed {
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 12px;
+    margin-left: 10px;
+    text-align: center;
+  }
+}

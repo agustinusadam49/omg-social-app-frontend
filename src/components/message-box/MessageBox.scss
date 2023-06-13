@@ -1,0 +1,104 @@
+.message-box {
+  padding: 10px;
+  border-radius: 10px;
+  -webkit-box-shadow: 0px 0px 16px -8px rgba(0, 0, 0, 0.68);
+  box-shadow: 0px 0px 16px -8px rgba(0, 0, 0, 0.68);
+  background-color: white;
+
+  @media only screen and (min-width: 1024px) {
+    margin-bottom: 20px;
+  }
+
+  .message-data-container {
+    border: solid 3px rgb(237, 231, 231);
+    border-radius: 4px;
+    height: 280px;
+    padding: 10px;
+    display: flex;
+    overflow-y: scroll;
+    flex-direction: column;
+
+    &::-webkit-scrollbar {
+      width: 10px;
+    }
+
+    &::-webkit-scrollbar-track {
+      background-color: #f1f1f1;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background-color: grey;
+      border-radius: 5px;
+    }
+  }
+
+  .send-message-container {
+    width: 100%;
+    border-radius: 0 0 10px 10px;
+    margin-top: 20px;
+    border-top: solid 1px rgb(234, 231, 231);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 60px;
+    padding-top: 4px;
+
+    .who-is-writting {
+      font-size: 11px;
+      font-weight: 600;
+      box-sizing: border-box;
+      width: fit-content;
+      color: rgb(40, 67, 175);
+    }
+
+    .send-message-wrapper {
+      width: 100%;
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: space-between;
+
+      .messages-current-user-avatar {
+        width: 32px;
+        height: 32px;
+        object-fit: cover;
+        border-radius: 50%;
+        border: solid 1px rgb(174, 172, 172);
+        cursor: pointer;
+      }
+
+      .messages-input {
+        height: 32px;
+        border: none;
+        padding: 0 20px;
+        width: 80%;
+        background-color: white;
+        color: black;
+
+        &:focus {
+          outline: none;
+        }
+      }
+
+      .messages-button-send {
+        border: none;
+        padding: 6px 12px;
+        border-radius: 5px;
+        background-color: green;
+        font-weight: 500;
+        cursor: pointer;
+        color: white;
+      }
+
+      .messages-button-send-disabled {
+        border: none;
+        padding: 6px 12px;
+        border-radius: 5px;
+        background-color: rgb(163, 163, 163);
+        font-weight: 500;
+        cursor: not-allowed;
+        color: white;
+      }
+    }
+  }
+}
