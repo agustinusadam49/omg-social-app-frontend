@@ -1,8 +1,16 @@
-import React, { useState, useEffect, memo, useRef, useCallback } from "react";
+import React, {
+  useState,
+  useEffect,
+  memo,
+  useMemo,
+  useRef,
+  useCallback,
+} from "react";
 import {
   createNewPosting,
   uploadImagePosting,
 } from "../../apiCalls/postsApiFetch";
+import { userInfoLogin } from "../../redux/apiCalls";
 import { useSelector, useDispatch } from "react-redux";
 import { setIsAddPosting } from "../../redux/slices/postsSlice";
 import ShareTopSection from "./share-top-section/ShareTopSection";
@@ -13,25 +21,72 @@ import SharePreviewImageSection from "./share-preview-image-section/SharePreview
 import ShareBottomSection from "./share-bottom-section/ShareBottomSection";
 import { useAutomaticCloseMessageToast } from "../../utils/automaticCloseMessageToast";
 import { useToast } from "../../utils/useToast";
+import { accessToken } from "../../utils/getLocalStorage";
+
 import "./Share.scss";
 
 const Share = ({ userNameFromParam }) => {
+  const access_token = accessToken();
   const dispatch = useDispatch();
   const toast = useToast();
 
   const currentUserNameFromSlice = useSelector((state) => state.user.userName);
+
+  const currentUserData = useSelector((state) => state.user.currentUsers);
+  const currentUserFollower = currentUserData.followers;
 
   const [uploadProgress, setUploadProgress] = useState(0);
   const [finishPostingStatus, setFinishPostingStatus] = useState(false);
   const [caption, setCaption] = useState("");
   const [fileImagePosting, setFileImagePosting] = useState(null);
   const [activeStatus, setActiveStatus] = useState("PUBLIC");
+  const [currentUserLoginFollowers, setCurrentUserLoginFollowers] = useState([]);
   const previewImagePostingRef = useRef(null);
+
+  const shareOptionStatus = useMemo(() => {
+    let statusOptions = [
+      {
+        name: "PUBLIC",
+        description: "Semua orang dapat melihat postingan mu.",
+      },
+      {
+        name: "PRIVATE",
+        description: "Hanya kamu yang dapat melihat postingan ini.",
+      },
+    ];
+
+    let followersOnlyStatus = {
+      name: "FOLLOWERS_ONLY",
+      description:
+        "Hanya kamu dan followers mu yang dapat melihat postingan ini.",
+    };
+
+    if (currentUserLoginFollowers.length) {
+      statusOptions.push(followersOnlyStatus);
+    }
+
+    return statusOptions;
+  }, [currentUserLoginFollowers]);
 
   const userNameFromParamUrl = userNameFromParam;
   const displayPlaceHolderUsername = userNameFromParamUrl
     ? userNameFromParamUrl
     : currentUserNameFromSlice;
+
+  const getStatus = (statusFromResponse) => {
+    const POST_STATUS_ENUM = {
+      PUBLIC: "Public",
+      PRIVATE: "Private",
+      FOLLOWERS_ONLY: "Followers Only",
+    };
+
+    return POST_STATUS_ENUM[statusFromResponse];
+  };
+
+  const toggleActiveStatus = (status) => {
+    if (status === activeStatus) return;
+    setActiveStatus(status);
+  };
 
   const handleSetCaptionOnParent = useCallback((val) => {
     setCaption(val);
@@ -55,7 +110,7 @@ const Share = ({ userNameFromParam }) => {
             setFileImagePosting(null);
             dispatch(setIsAddPosting({ isSuccessPosting: true }));
             setFinishPostingStatus(true);
-            setActiveStatus("PUBLIC")
+            setActiveStatus("PUBLIC");
           }
         })
         .catch((error) => {
@@ -73,7 +128,7 @@ const Share = ({ userNameFromParam }) => {
       return;
     }
 
-    toast.closeError()
+    toast.closeError();
 
     const newPostBody = {
       postCaption: caption,
@@ -124,6 +179,13 @@ const Share = ({ userNameFromParam }) => {
   );
 
   useEffect(() => {
+    if (currentUserFollower) {
+      const followers = currentUserFollower.map((follower) => follower) || [];
+      setCurrentUserLoginFollowers(followers);
+    }
+  }, [currentUserFollower]);
+
+  useEffect(() => {
     setFinishPostingStatus(false);
   }, [fileImagePosting, caption]);
 
@@ -133,35 +195,9 @@ const Share = ({ userNameFromParam }) => {
     interval: 8000,
   });
 
-  const STATUS_OPTIONS = [
-    {
-      name: "PUBLIC",
-      description: "Semua orang dapat melihat postingan mu.",
-    },
-    {
-      name: "PRIVATE",
-      description: "Hanya kamu yang dapat melihat postingan ini.",
-    },
-    {
-      name: "FOLLOWERS_ONLY",
-      description:
-        "Hanya kamu dan followers mu yang dapat melihat postingan ini.",
-    },
-  ];
-
-  const getStatus = (statusFromResponse) => {
-    const POST_STATUS_ENUM = {
-      PUBLIC: "Public",
-      PRIVATE: "Private",
-      FOLLOWERS_ONLY: "Followers Only",
-    };
-
-    return POST_STATUS_ENUM[statusFromResponse];
-  };
-
-  const toggleActiveStatus = (status) => {
-    setActiveStatus(status);
-  };
+  useEffect(() => {
+    userInfoLogin(access_token, dispatch);
+  }, [access_token, dispatch]);
 
   return (
     <div className="share">
@@ -200,7 +236,7 @@ const Share = ({ userNameFromParam }) => {
         )}
 
         <div className="share-status-options-menu">
-          {STATUS_OPTIONS.map((status, index) => (
+          {shareOptionStatus.map((status, index) => (
             <div
               key={index}
               className={`share-status-option-item ${
