@@ -2,7 +2,6 @@ import React, {
   useState,
   useEffect,
   memo,
-  useMemo,
   useRef,
   useCallback,
 } from "react";
@@ -10,7 +9,6 @@ import {
   createNewPosting,
   uploadImagePosting,
 } from "../../apiCalls/postsApiFetch";
-import { userInfoLogin } from "../../redux/apiCalls";
 import { useSelector, useDispatch } from "react-redux";
 import { setIsAddPosting } from "../../redux/slices/postsSlice";
 import ShareTopSection from "./share-top-section/ShareTopSection";
@@ -19,74 +17,30 @@ import FinishPostingStatus from "./finish-posting-status/FinishPostingStatus";
 import ErrorMessageCaption from "./error-message-caption/ErrorMessageCaption";
 import SharePreviewImageSection from "./share-preview-image-section/SharePreviewImageSection";
 import ShareBottomSection from "./share-bottom-section/ShareBottomSection";
+import OptionStatusSection from "./option-status-section/OptionStatusSection";
 import { useAutomaticCloseMessageToast } from "../../utils/automaticCloseMessageToast";
 import { useToast } from "../../utils/useToast";
-import { accessToken } from "../../utils/getLocalStorage";
 
 import "./Share.scss";
 
 const Share = ({ userNameFromParam }) => {
-  const access_token = accessToken();
   const dispatch = useDispatch();
   const toast = useToast();
 
   const currentUserNameFromSlice = useSelector((state) => state.user.userName);
-
-  const currentUserData = useSelector((state) => state.user.currentUsers);
-  const currentUserFollower = currentUserData.followers;
 
   const [uploadProgress, setUploadProgress] = useState(0);
   const [finishPostingStatus, setFinishPostingStatus] = useState(false);
   const [caption, setCaption] = useState("");
   const [fileImagePosting, setFileImagePosting] = useState(null);
   const [activeStatus, setActiveStatus] = useState("PUBLIC");
-  const [currentUserLoginFollowers, setCurrentUserLoginFollowers] = useState([]);
+
   const previewImagePostingRef = useRef(null);
-
-  const shareOptionStatus = useMemo(() => {
-    let statusOptions = [
-      {
-        name: "PUBLIC",
-        description: "Semua orang dapat melihat postingan mu.",
-      },
-      {
-        name: "PRIVATE",
-        description: "Hanya kamu yang dapat melihat postingan ini.",
-      },
-    ];
-
-    let followersOnlyStatus = {
-      name: "FOLLOWERS_ONLY",
-      description:
-        "Hanya kamu dan followers mu yang dapat melihat postingan ini.",
-    };
-
-    if (currentUserLoginFollowers.length) {
-      statusOptions.push(followersOnlyStatus);
-    }
-
-    return statusOptions;
-  }, [currentUserLoginFollowers]);
 
   const userNameFromParamUrl = userNameFromParam;
   const displayPlaceHolderUsername = userNameFromParamUrl
     ? userNameFromParamUrl
     : currentUserNameFromSlice;
-
-  const getStatus = (statusFromResponse) => {
-    const POST_STATUS_ENUM = {
-      PUBLIC: "Public",
-      PRIVATE: "Private",
-      FOLLOWERS_ONLY: "Followers Only",
-    };
-
-    return POST_STATUS_ENUM[statusFromResponse];
-  };
-
-  const toggleActiveStatus = (status) => {
-    if (status === activeStatus) return;
-    setActiveStatus(status);
-  };
 
   const handleSetCaptionOnParent = useCallback((val) => {
     setCaption(val);
@@ -179,13 +133,6 @@ const Share = ({ userNameFromParam }) => {
   );
 
   useEffect(() => {
-    if (currentUserFollower) {
-      const followers = currentUserFollower.map((follower) => follower) || [];
-      setCurrentUserLoginFollowers(followers);
-    }
-  }, [currentUserFollower]);
-
-  useEffect(() => {
     setFinishPostingStatus(false);
   }, [fileImagePosting, caption]);
 
@@ -194,10 +141,6 @@ const Share = ({ userNameFromParam }) => {
     setStatus: setFinishPostingStatus,
     interval: 8000,
   });
-
-  useEffect(() => {
-    userInfoLogin(access_token, dispatch);
-  }, [access_token, dispatch]);
 
   return (
     <div className="share">
@@ -235,22 +178,10 @@ const Share = ({ userNameFromParam }) => {
           />
         )}
 
-        <div className="share-status-options-menu">
-          {shareOptionStatus.map((status, index) => (
-            <div
-              key={index}
-              className={`share-status-option-item ${
-                activeStatus === status.name ? "active" : ""
-              }`}
-              onClick={() => toggleActiveStatus(status.name)}
-            >
-              <div className="share-status-name">{getStatus(status.name)}</div>
-              <div className="share-status-description">
-                {status.description}
-              </div>
-            </div>
-          ))}
-        </div>
+        <OptionStatusSection
+          setActiveStatus={setActiveStatus}
+          activeStatus={activeStatus}
+        />
 
         <ShareBottomSection
           setFileImagePosting={addFileImagePosting}
