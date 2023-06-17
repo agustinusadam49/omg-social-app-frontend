@@ -1,19 +1,22 @@
 .empty-state-posts-parrent {
   margin-top: 20px;
   text-align: center;
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 600;
   color: #2c2891;
-  padding: 50px 0px;
+  padding: 20px;
   border-radius: 10px;
   background-color: rgb(240, 224, 224);
+  width: 100%;
+  height: fit-content;
+  box-sizing: border-box;
 
   .first-wording {
     margin-bottom: 8px;
   }
 
   .second-wording {
-    font-size: 14px;
+    font-size: 12px;
     font-weight: 300;
   }
 }
