@@ -154,7 +154,7 @@ export default function MobileBottomNavigation() {
   }, [access_token, dispatch]);
 
   return (
-    <div className="mobile-bottom-navigation">
+    <div className="content-container mobile-bottom-navigation">
       <div className="mobile-bottom-wrapper">
         <div className="mobile-bottom-icons-section">
           <Link
