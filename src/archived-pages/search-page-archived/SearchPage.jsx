@@ -8,7 +8,6 @@ import { userInfoLogin } from "../../redux/apiCalls";
 import { useSearchParams } from "react-router-dom";
 import { searchAllUsersAndPostsData } from "../../apiCalls/searchUserAndPosts";
 import { getAllPostsBySearch } from "../../apiCalls/postsApiFetch";
-import { accessToken } from "../../utils/getLocalStorage";
 import "./SearchPage.scss";
 
 export default function SearchPage() {
@@ -18,7 +17,6 @@ export default function SearchPage() {
   const [searchedPostItems, setSearchedPostItems] = useState([]);
   const [searchErrorMessage, setSearchErrorMessage] = useState("");
   const dispatch = useDispatch();
-  const access_token = accessToken();
 
   const displaySearchResultOfUsers = () => {
     if (searchedUserItems.length) {
@@ -59,8 +57,8 @@ export default function SearchPage() {
   };
 
   useEffect(() => {
-    const hitApiSearchPosts = (searchTermsForPosts, userAccessToken) => {
-      getAllPostsBySearch(userAccessToken, searchTermsForPosts)
+    const hitApiSearchPosts = (searchTermsForPosts) => {
+      getAllPostsBySearch(searchTermsForPosts)
         .then((searchPostsResult) => {
           setSearchedPostItems(searchPostsResult.data.postData);
         })
@@ -70,14 +68,14 @@ export default function SearchPage() {
           setSearchedPostItems([]);
         });
     };
-    if (queryParamsUrl && access_token) {
-      hitApiSearchPosts(queryParamsUrl, access_token);
+    if (queryParamsUrl) {
+      hitApiSearchPosts(queryParamsUrl);
     }
-  }, [queryParamsUrl, access_token]);
+  }, [queryParamsUrl]);
 
   useEffect(() => {
-    const getUsersAndPostsThroughSearch = (searchTerms, userAccessToken) => {
-      searchAllUsersAndPostsData(userAccessToken, searchTerms)
+    const getUsersAndPostsThroughSearch = (searchTerms) => {
+      searchAllUsersAndPostsData(searchTerms)
         .then((searchResult) => {
           setSearchedUserItems(searchResult.data.userData);
         })
@@ -87,14 +85,14 @@ export default function SearchPage() {
           setSearchedUserItems([]);
         });
     };
-    if (queryParamsUrl && access_token) {
-      getUsersAndPostsThroughSearch(queryParamsUrl, access_token);
+    if (queryParamsUrl) {
+      getUsersAndPostsThroughSearch(queryParamsUrl);
     }
-  }, [queryParamsUrl, access_token]);
+  }, [queryParamsUrl]);
 
   useEffect(() => {
-    if (access_token) userInfoLogin(access_token, dispatch);
-  }, [access_token, dispatch]);
+    userInfoLogin(dispatch);
+  }, [dispatch]);
 
   return (
     <div className="search-page-container">

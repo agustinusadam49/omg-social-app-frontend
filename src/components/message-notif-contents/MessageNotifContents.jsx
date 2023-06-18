@@ -2,7 +2,6 @@ import React, { Fragment, useEffect, useState, useMemo } from "react";
 
 import { useDispatch, useSelector } from "react-redux";
 import { getNotificationsBelongsToLoggedUser } from "../../redux/apiCalls";
-import { accessToken } from "../../utils/getLocalStorage";
 import { setMessageNotif } from "../../redux/slices/notificationSlice";
 import { updateAllNotificationStatusNotRead } from "../../apiCalls/notificationsApiFetch";
 
@@ -14,7 +13,6 @@ import GlobalButton from "../button/GlobalButton";
 import "./MessageNotifContents.scss";
 
 export default function MessageNotifContents() {
-  const access_token = accessToken();
   const dispatch = useDispatch();
 
   const messageNotifFromSlice = useSelector(
@@ -22,13 +20,17 @@ export default function MessageNotifContents() {
   );
   const currentUserIdFromSlice = useSelector((state) => state.user.userId);
 
-  const [staticFilteredData, setStaticFilteredData] = useState(messageNotifFromSlice);
+  const [staticFilteredData, setStaticFilteredData] = useState(
+    messageNotifFromSlice
+  );
   const [notifMessageDataObj, setNotifMessageDataObj] = useState({});
   const [activePageIndex, setActivePageIndex] = useState("page1");
   const [notifArrByActivePage, setNotifArrByActivePage] = useState([]);
 
   const notReadYetMessageNotifications = useMemo(() => {
-    const result = messageNotifFromSlice.filter((notif) => notif.isRead === false);
+    const result = messageNotifFromSlice.filter(
+      (notif) => notif.isRead === false
+    );
     return result;
   }, [messageNotifFromSlice]);
 
@@ -40,11 +42,7 @@ export default function MessageNotifContents() {
       isRead: true,
     };
 
-    updateAllNotificationStatusNotRead(
-      access_token,
-      currentUserIdFromSlice,
-      payloadUpdate
-    )
+    updateAllNotificationStatusNotRead(currentUserIdFromSlice, payloadUpdate)
       .then((updateResponse) => {
         const response = updateResponse.data;
         if (response.success === true) {
@@ -55,7 +53,9 @@ export default function MessageNotifContents() {
               isRead: true,
             }));
 
-          dispatch(setMessageNotif({ messageNotifData: changeAllIsReadStatus }));
+          dispatch(
+            setMessageNotif({ messageNotifData: changeAllIsReadStatus })
+          );
         }
       })
       .catch((error) => {
@@ -138,14 +138,8 @@ export default function MessageNotifContents() {
   }, [messageNotifFromSlice]);
 
   useEffect(() => {
-    if (access_token) {
-      getNotificationsBelongsToLoggedUser(access_token, dispatch);
-    }
-
-    return () => {
-      dispatch(setMessageNotif({ messageNotifData: [] }));
-    };
-  }, [access_token, dispatch]);
+    getNotificationsBelongsToLoggedUser(dispatch);
+  }, [dispatch]);
 
   return (
     <div className="message-notif-contents">

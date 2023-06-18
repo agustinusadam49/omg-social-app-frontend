@@ -1,13 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { getAllUsersRegistered } from "../../redux/apiCalls";
-import { accessToken } from "../../utils/getLocalStorage";
+// import { accessToken } from "../../utils/getLocalStorage";
 import { hbdChecker } from "../../utils/birthdayChecker";
 import { useSelector, useDispatch } from "react-redux";
 
 import "./EventContents.scss";
 
 const EventContents = () => {
-  const access_token = accessToken();
   const dispatch = useDispatch();
   const isAd = true;
 
@@ -28,8 +27,8 @@ const EventContents = () => {
   }, [allUsersRegisterd]);
 
   useEffect(() => {
-    if (access_token) getAllUsersRegistered(access_token, dispatch);
-  }, [access_token, userSnapRegisteredStatus, dispatch]);
+    getAllUsersRegistered(dispatch);
+  }, [userSnapRegisteredStatus, dispatch]);
 
   return (
     <div className="event-contents">

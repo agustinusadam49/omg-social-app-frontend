@@ -13,13 +13,11 @@ import {
   deleteFollowById,
 } from "../../apiCalls/followsApiFetch";
 import { createNewNotification } from "../../apiCalls/notificationsApiFetch";
-import { accessToken } from "../../utils/getLocalStorage";
 import { hbdChecker } from "../../utils/birthdayChecker";
 import "./Rightbar.scss";
 
 export default function Rightbar({ profile, userId }) {
   const dispatch = useDispatch();
-  const access_token = accessToken();
   const user_id = parseInt(userId);
 
   const currentUserIdFromSlice = useSelector((state) => state.user.userId);
@@ -106,7 +104,7 @@ export default function Rightbar({ profile, userId }) {
       source_id: idOfThisFollowData,
     };
 
-    createNewNotification(access_token, payloadDataAddFollow)
+    createNewNotification(payloadDataAddFollow)
       .then(() => {})
       .catch((error) => {
         console.log("error createNewNotification:", error.response);
@@ -114,7 +112,7 @@ export default function Rightbar({ profile, userId }) {
   };
 
   const hitApiDeleteFollowById = (idOfThisFollowData) => {
-    deleteFollowById(access_token, idOfThisFollowData)
+    deleteFollowById(idOfThisFollowData)
       .then((deleteFollowerByIdResult) => {
         if (deleteFollowerByIdResult.data.success) {
           setEditSnap(true);
@@ -135,7 +133,7 @@ export default function Rightbar({ profile, userId }) {
     const payloadDataAddFollow = {
       ProfileId: profileId,
     };
-    addNewFollower(access_token, payloadDataAddFollow)
+    addNewFollower(payloadDataAddFollow)
       .then((newFollowerResult) => {
         const sourceId = newFollowerResult.data.newFollow.id;
         if (newFollowerResult.data.success) {
@@ -201,8 +199,8 @@ export default function Rightbar({ profile, userId }) {
   }, [allUsersRegisterd]);
 
   useEffect(() => {
-    if (access_token) getAllUsersRegistered(access_token, dispatch);
-  }, [access_token, userSnapRegisteredStatus, dispatch]);
+    getAllUsersRegistered(dispatch);
+  }, [userSnapRegisteredStatus, dispatch]);
 
   const homeRightbar = () => {
     return (
@@ -470,8 +468,8 @@ export default function Rightbar({ profile, userId }) {
   }, [currentUserData, userProfile, currentUserIdFromSlice, user_id]);
 
   useEffect(() => {
-    const hitApiUserById = (tokenOfCurrentUser, idOfUserInParamUrl) => {
-      getUserById(tokenOfCurrentUser, idOfUserInParamUrl)
+    const hitApiUserById = (idOfUserInParamUrl) => {
+      getUserById(idOfUserInParamUrl)
         .then((userById) => {
           const user = userById.data.userByIdData;
           const follower = userById.data.userByIdFollower;
@@ -493,22 +491,15 @@ export default function Rightbar({ profile, userId }) {
         });
     };
 
-    if (profile && access_token) {
+    if (profile) {
       if (user_id === currentUserIdFromSlice) {
-        userInfoLogin(access_token, dispatch);
+        userInfoLogin(dispatch);
         setEditSnap(false);
       } else {
-        hitApiUserById(access_token, user_id);
+        hitApiUserById(user_id);
       }
     }
-  }, [
-    access_token,
-    user_id,
-    currentUserIdFromSlice,
-    editSnap,
-    profile,
-    dispatch,
-  ]);
+  }, [user_id, currentUserIdFromSlice, editSnap, profile, dispatch]);
 
   return (
     <div className="rightbar">

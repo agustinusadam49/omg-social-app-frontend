@@ -8,13 +8,10 @@ import {
 } from "../../apiCalls/messagesApiFetch";
 import { setSnapUserLogout } from "../../redux/slices/userSlice";
 import { updateTheMessageById } from "../../apiCalls/messagesApiFetch";
-import { accessToken } from "../../utils/getLocalStorage";
 import { io } from "socket.io-client";
 import "./MessageBox.scss";
 
 const MessageBox = ({ paramUserId }) => {
-  const access_token = accessToken();
-
   const dispatch = useDispatch();
 
   const socket = useRef(null);
@@ -22,19 +19,22 @@ const MessageBox = ({ paramUserId }) => {
 
   const currentUserIdFromSlice = useSelector((state) => state.user.userId);
   const currentUserNameFromSlice = useSelector((state) => state.user.userName);
-  const currentUserAvatarFromSlice = useSelector((state) => state.user.userAvatarPicture);
+  const currentUserAvatarFromSlice = useSelector(
+    (state) => state.user.userAvatarPicture
+  );
 
   const [usersOnline, setUsersOnline] = useState([]);
   const [messageText, setMessageText] = useState("");
   const [allMessages, setAllMessages] = useState([]);
   const [mappedMessages, setMappedMessages] = useState(allMessages || []);
   const [whoIsWriting, setWhoIsWriting] = useState("");
-  const [isThisUserVisitedMyProfile, setIsThisUserVisitedMyProfile] = useState(false);
+  const [isThisUserVisitedMyProfile, setIsThisUserVisitedMyProfile] =
+    useState(false);
   const [isTyping, setIsTyping] = useState(false);
 
   const emitSocket = (emitName, payload) => {
     socket.current.emit(emitName, payload);
-  }
+  };
 
   const displayWhoIsWritting = () => {
     if (isThisUserVisitedMyProfile === true) {
@@ -49,17 +49,17 @@ const MessageBox = ({ paramUserId }) => {
   };
 
   const sendNewMessage = () => {
-    hitApiCreateNewMessage(access_token);
+    hitApiCreateNewMessage();
   };
 
   const doCreateNewMessageWithEnter = (event) => {
     if (event.key === "Enter" && messageText !== "") {
-      hitApiCreateNewMessage(access_token);
+      hitApiCreateNewMessage();
     }
   };
 
-  const hitApiUpdateMessageById = (userAccessToken, messageId, payloadBody) => {
-    updateTheMessageById(userAccessToken, messageId, payloadBody)
+  const hitApiUpdateMessageById = (messageId, payloadBody) => {
+    updateTheMessageById(messageId, payloadBody)
       .then(() => {})
       .catch((error) => {
         console.log(
@@ -69,14 +69,14 @@ const MessageBox = ({ paramUserId }) => {
       });
   };
 
-  const hitApiCreateNewMessage = (userAccessToken) => {
+  const hitApiCreateNewMessage = () => {
     const payloadToCreateMessage = {
       receiver_id: paramUserId,
       message_text: messageText,
       senderName: currentUserNameFromSlice,
     };
 
-    createNewMessageData(userAccessToken, payloadToCreateMessage)
+    createNewMessageData(payloadToCreateMessage)
       .then((newMessageResult) => {
         const successCreateNewMessage = newMessageResult.data.success;
         if (successCreateNewMessage === true) {
@@ -93,18 +93,20 @@ const MessageBox = ({ paramUserId }) => {
           };
 
           if (isThisUserVisitedMyProfile === true) {
-            hitApiUpdateMessageById(access_token, newMessageDataDB.id, {
+            hitApiUpdateMessageById(newMessageDataDB.id, {
               receiver_id: newMessageDataDB.receiver_id,
               message_text: newMessageDataDB.message_text,
               isRead: true,
               UserId: newMessageDataDB.UserId,
             });
-            emitSocket("sendPrivateMessage", createObjNewMessages)
-            emitSocket("sendNotif", createObjNewMessages)
+            emitSocket("sendPrivateMessage", createObjNewMessages);
+            emitSocket("sendNotif", createObjNewMessages);
           } else {
-            const findUserReceiverId = usersOnline.filter((user) => user.userId === paramUserId);
+            const findUserReceiverId = usersOnline.filter(
+              (user) => user.userId === paramUserId
+            );
             if (!!findUserReceiverId.length) {
-              emitSocket("sendNotif", createObjNewMessages)
+              emitSocket("sendNotif", createObjNewMessages);
             }
           }
 
@@ -112,7 +114,7 @@ const MessageBox = ({ paramUserId }) => {
           scrollRef.current?.lastElementChild?.scrollIntoView({
             behaviour: "smooth",
             block: "start",
-            inline: "nearest"
+            inline: "nearest",
           });
         }
       })
@@ -121,11 +123,8 @@ const MessageBox = ({ paramUserId }) => {
       });
   };
 
-  const hitApiGetMessagesData = (
-    userAccessToken,
-    userIdFromUrlParam,
-  ) => {
-    getAllMessagesData(userAccessToken, userIdFromUrlParam)
+  const hitApiGetMessagesData = (userIdFromUrlParam) => {
+    getAllMessagesData(userIdFromUrlParam)
       .then((chatData) => {
         const { totalMessages } = chatData.data;
         if (totalMessages) {
@@ -220,9 +219,12 @@ const MessageBox = ({ paramUserId }) => {
 
   useEffect(() => {
     if (usersOnline.length && paramUserId) {
-      const findThisUserWhenOnline = usersOnline.find((user) => user.userId === paramUserId);
+      const findThisUserWhenOnline = usersOnline.find(
+        (user) => user.userId === paramUserId
+      );
       const userProfileIdVisited = findThisUserWhenOnline?.userProfileIdVisited;
-      const isThisUserAlsoVisitedMe = userProfileIdVisited === currentUserIdFromSlice;
+      const isThisUserAlsoVisitedMe =
+        userProfileIdVisited === currentUserIdFromSlice;
       // console.log("Dimanakah user ini sedang berada:", userProfileIdVisited);
       // console.log(
       //   isThisUserAlsoVisitedMe
@@ -253,17 +255,14 @@ const MessageBox = ({ paramUserId }) => {
   }, [allMessages]);
 
   useEffect(() => {
-    if (currentUserIdFromSlice && access_token) {
-      hitApiGetMessagesData(
-        access_token,
-        paramUserId,
-      );
+    if (currentUserIdFromSlice) {
+      hitApiGetMessagesData(paramUserId);
     }
-  }, [
-    access_token,
-    paramUserId,
-    currentUserIdFromSlice
-  ]);
+
+    return () => {
+      setAllMessages([]);
+    };
+  }, [paramUserId, currentUserIdFromSlice]);
 
   const mappedMessageForRendering = useMemo(() => {
     const messages = mappedMessages;

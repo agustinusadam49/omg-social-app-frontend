@@ -1,13 +1,11 @@
 import React, { useMemo, useEffect, useState } from "react";
 import { userInfoLogin } from "../../../redux/apiCalls";
-import { accessToken } from "../../../utils/getLocalStorage";
 import { useSelector, useDispatch } from "react-redux";
 
 import "./OptionStatusSection.scss";
 
 export default function OptionStatusSection({ setActiveStatus, activeStatus }) {
   const dispatch = useDispatch();
-  const access_token = accessToken();
 
   const currentUserData = useSelector((state) => state.user.currentUsers);
   const currentUserFollower = currentUserData.followers;
@@ -63,8 +61,8 @@ export default function OptionStatusSection({ setActiveStatus, activeStatus }) {
   }, [currentUserFollower]);
 
   useEffect(() => {
-    userInfoLogin(access_token, dispatch);
-  }, [access_token, dispatch]);
+    userInfoLogin(dispatch);
+  }, [dispatch]);
 
   return (
     <div className="option-status-section">

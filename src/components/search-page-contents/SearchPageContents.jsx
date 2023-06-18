@@ -4,7 +4,6 @@ import SearchUserItems from "../search-user-items/SearchUserItems";
 import SearchPostItems from "../search-post-items/SearchPostItems";
 import { searchAllUsersAndPostsData } from "../../apiCalls/searchUserAndPosts";
 import { getAllPostsBySearch } from "../../apiCalls/postsApiFetch";
-import { accessToken } from "../../utils/getLocalStorage";
 
 import "./SearchPageContents.scss";
 
@@ -14,7 +13,6 @@ export default function SearchPageContents() {
   const [searchedUserItems, setSearchedUserItems] = useState([]);
   const [searchedPostItems, setSearchedPostItems] = useState([]);
   const [searchErrorMessage, setSearchErrorMessage] = useState("");
-  const access_token = accessToken();
 
   const displaySearchResultOfUsers = () => {
     if (searchedUserItems.length) {
@@ -66,14 +64,20 @@ export default function SearchPageContents() {
           setSearchedPostItems([]);
         });
     };
+
     if (queryParamsUrl) {
       hitApiSearchPosts(queryParamsUrl);
+    }
+
+    return () => {
+      setSearchedPostItems([]);
+      setSearchErrorMessage("")
     }
   }, [queryParamsUrl]);
 
   useEffect(() => {
-    const getUsersAndPostsThroughSearch = (searchTerms, userAccessToken) => {
-      searchAllUsersAndPostsData(userAccessToken, searchTerms)
+    const getUsersAndPostsThroughSearch = (searchTerms) => {
+      searchAllUsersAndPostsData(searchTerms)
         .then((searchResult) => {
           setSearchedUserItems(searchResult.data.userData);
         })
@@ -83,10 +87,16 @@ export default function SearchPageContents() {
           setSearchedUserItems([]);
         });
     };
-    if (queryParamsUrl && access_token) {
-      getUsersAndPostsThroughSearch(queryParamsUrl, access_token);
+
+    if (queryParamsUrl) {
+      getUsersAndPostsThroughSearch(queryParamsUrl);
     }
-  }, [queryParamsUrl, access_token]);
+
+    return () => {
+      setSearchedUserItems([]);
+      setSearchErrorMessage("")
+    }
+  }, [queryParamsUrl]);
 
   return (
     <div className="search-page-contents">
