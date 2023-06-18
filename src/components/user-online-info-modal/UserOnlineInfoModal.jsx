@@ -3,14 +3,12 @@ import CancelIcon from "@mui/icons-material/Cancel";
 import { useDispatch, useSelector } from "react-redux";
 import { setIsUserOnlineModalOpen } from "../../redux/slices/userSlice";
 import { getAllUsersRegistered } from "../../redux/apiCalls";
-import { accessToken } from "../../utils/getLocalStorage";
 import { hbdChecker } from "../../utils/birthdayChecker";
 import Online from "../online/Online";
 import BirthdayEvent from "../birthday-event/BirthdayEvent";
 import "./UserOnlineInfoModal.scss";
 
 export default function UserOnlineInfoModal() {
-  const access_token = accessToken();
   const dispatch = useDispatch();
 
   const currentUserIdFromSlice = useSelector((state) => state.user.userId);
@@ -63,8 +61,8 @@ export default function UserOnlineInfoModal() {
   }, [allUsersRegisterd, currentUserIdFromSlice]);
 
   useEffect(() => {
-    if (access_token) getAllUsersRegistered(access_token, dispatch);
-  }, [access_token, dispatch]);
+    getAllUsersRegistered(dispatch);
+  }, [dispatch]);
 
   return (
     <div className="content-container user-online-modal">

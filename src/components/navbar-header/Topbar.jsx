@@ -1,6 +1,6 @@
 import React, {
   useState,
-  useEffect,
+  // useEffect,
   useCallback,
   // Fragment,
   useMemo,
@@ -12,24 +12,19 @@ import ChatIcon from "@mui/icons-material/Chat";
 import NotificationsIcon from "@mui/icons-material/Notifications";
 import { useNavigate } from "react-router-dom";
 // import { searchAllUsersAndPostsData } from "../../apiCalls/searchUserAndPosts";
-import { getNotificationsBelongsToLoggedUser } from "../../redux/apiCalls";
 import { setIsUserProfileMobileOpen } from "../../redux/slices/userSlice";
 // import { getAllPostsBySearch } from "../../apiCalls/postsApiFetch";
 import { useSelector, useDispatch } from "react-redux";
-import { accessToken } from "../../utils/getLocalStorage";
 import { setSearchPostsTerms } from "../../redux/slices/postsSlice";
-import {
-  setFollowerNotif,
-  setMessageNotif,
-  setPostNotif,
-} from "../../redux/slices/notificationSlice";
 import ProfileBox from "../profile-box/ProfileBox";
 import { useScreenWidth } from "../../utils/screenWidth";
 import "./Topbar.scss";
 
-export default function Topbar() {
-  const access_token = accessToken();
-
+export default function Topbar({
+  followerNotifFromSlice,
+  postNotifFromSlice,
+  messageNotifFromSlice,
+}) {
   const isDesktop = useScreenWidth("lg");
   const isMobile = useScreenWidth("mb");
 
@@ -53,27 +48,17 @@ export default function Topbar() {
   const currentUserAvatarFromSlice = useSelector(
     (state) => state.user.userAvatarPicture
   );
-  const followerNotifFromSlice = useSelector((state) =>
-    state.notifications.followerNotif.filter((item) => !item.isRead)
-  );
-  const postNotifFromSlice = useSelector((state) =>
-    state.notifications.postNotif.filter((item) => !item.isRead)
-  );
-  const messageNotifFromSlice = useSelector((state) =>
-    state.notifications.messageNotif.filter((item) => !item.isRead)
-  );
-  const userSnapRegisteredStatus = useSelector(
-    (state) => state.user.snapUserLogout
-  );
 
   const totalFollowerNotif = useMemo(
     () => followerNotifFromSlice.length,
     [followerNotifFromSlice]
   );
+
   const totalMessageNotif = useMemo(
     () => messageNotifFromSlice.length,
     [messageNotifFromSlice]
   );
+
   const totalPostNotif = useMemo(
     () => postNotifFromSlice.length,
     [postNotifFromSlice]
@@ -194,7 +179,7 @@ export default function Topbar() {
 
   // useEffect(() => {
   //   const getUsersAndPostsThroughSearch = () => {
-  //     searchAllUsersAndPostsData(access_token, searchTerms)
+  //     searchAllUsersAndPostsData(searchTerms)
   //       .then((searchResult) => {
   //         setSearchedItems(searchResult.data.userData);
   //       })
@@ -217,26 +202,14 @@ export default function Topbar() {
   //       });
   //   };
 
-  //   if (searchTerms && searchTerms.length >= 3 && access_token) {
+  //   if (searchTerms && searchTerms.length >= 3) {
   //     setSearchedItems([]);
   //     setTimeout(() => {
   //       getUsersAndPostsThroughSearch();
   //       hitApiSearchPosts();
   //     }, 1700);
   //   }
-  // }, [searchTerms, access_token]);
-
-  useEffect(() => {
-    if (access_token) {
-      getNotificationsBelongsToLoggedUser(access_token, dispatch);
-    }
-
-    return () => {
-      dispatch(setFollowerNotif({ followerNotifData: [] }));
-      dispatch(setMessageNotif({ messageNotifData: [] }));
-      dispatch(setPostNotif({ postNotifData: [] }));
-    };
-  }, [access_token, userSnapRegisteredStatus, dispatch]);
+  // }, [searchTerms]);
 
   return (
     <div className="topbar-container">

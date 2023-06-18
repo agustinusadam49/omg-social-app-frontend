@@ -12,7 +12,6 @@ import {
   updateNotificationStatusRead,
   deleteNotificationAndNotifContentById,
 } from "../../apiCalls/notificationsApiFetch";
-import { accessToken } from "../../utils/getLocalStorage";
 import { useScreenWidth } from "../../utils/screenWidth";
 import "./NotificationCard.scss";
 
@@ -20,7 +19,6 @@ export default function NotificationCard({ notifications }) {
   const isDesktop = useScreenWidth("lg");
   const isMobile = useScreenWidth("mb");
   const dispatch = useDispatch();
-  const access_token = accessToken();
 
   const { type } = notifications;
   const { description, createdAt } = notifications.NotifContent;
@@ -78,7 +76,7 @@ export default function NotificationCard({ notifications }) {
       type: notifById.type,
       notifImageUrl: notifById.notifImageUrl,
     };
-    updateNotificationStatusRead(access_token, notifById.id, payloadToUpdate)
+    updateNotificationStatusRead(notifById.id, payloadToUpdate)
       .then((updatedResponse) => {
         const response = updatedResponse.data;
         if (response.success === true) {
@@ -105,7 +103,7 @@ export default function NotificationCard({ notifications }) {
   };
 
   const deleteNotificationById = (notifId, typeNotif) => {
-    deleteNotificationAndNotifContentById(access_token, notifId)
+    deleteNotificationAndNotifContentById(notifId)
       .then((deletedNotifResponse) => {
         const response = deletedNotifResponse.data;
         if (response.success === true) {

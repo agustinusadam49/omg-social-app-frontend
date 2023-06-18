@@ -10,13 +10,11 @@ import {
 import { deleteLikeById, addNewLike } from "../../apiCalls/likesApiFetch";
 import { getAllCommentsDataByPostId } from "../../apiCalls/commentsApiFetch";
 import { Link } from "react-router-dom";
-import { accessToken } from "../../utils/getLocalStorage";
 import { displayUserWhoLikesThisPost } from "../../utils/postLikes.js";
 import "./Post.scss";
 
 export default function Post({ postedData }) {
   const thisPostId = postedData.id;
-  const access_token = accessToken();
   const currentUserIdFromSlice = useSelector((state) => state.user.userId);
   const addNewPosting = useSelector((state) => state.comments.isAddNewComment);
   const [currentCommentByIdTotal, setCurrentCommentByIdTotal] = useState(0);
@@ -64,7 +62,7 @@ export default function Post({ postedData }) {
   const hitAddNewLikeApi = () => {
     const postId = postedData.id;
     const payloadDataAddLike = { PostId: postId };
-    addNewLike(access_token, payloadDataAddLike)
+    addNewLike(payloadDataAddLike)
       .then((newLikeResponseData) => {
         if (newLikeResponseData.data.success) {
           const newLikeData = newLikeResponseData.data.newLike;
@@ -94,7 +92,7 @@ export default function Post({ postedData }) {
   };
 
   const hitDeleteLikeByIdApi = (idOfThisLike) => {
-    deleteLikeById(access_token, idOfThisLike)
+    deleteLikeById(idOfThisLike)
       .then((deleteLikeByIdResponse) => {
         if (deleteLikeByIdResponse.data.success) {
           setPostDataUserLiked([]);

@@ -5,12 +5,10 @@ import EventIcon from "@mui/icons-material/Event";
 import FriendList from "../friend/Friend-List";
 import { getAllUsersRegistered } from "../../redux/apiCalls";
 import { useDispatch, useSelector } from "react-redux";
-import { accessToken } from "../../utils/getLocalStorage";
 import "./Leftbar.scss";
 
 export default function Leftbar() {
   const dispatch = useDispatch();
-  const access_token = accessToken();
   const currentUserIdFromSlice = useSelector((state) => state.user.userId);
   const allUsersRegisterd = useSelector((state) => state.user.allUsers);
   const [usersYouMayKnow, setUsersYouMayKnow] = useState([]);
@@ -23,8 +21,8 @@ export default function Leftbar() {
   }, [allUsersRegisterd, currentUserIdFromSlice]);
 
   useEffect(() => {
-    if (access_token) getAllUsersRegistered(access_token, dispatch);
-  }, [access_token, dispatch]);
+    getAllUsersRegistered(dispatch);
+  }, [dispatch]);
 
   return (
     <div className="leftbar">
