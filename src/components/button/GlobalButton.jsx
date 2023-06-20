@@ -5,6 +5,7 @@ const GlobalButton = ({
   classStyleName,
   additionalStyleOveride,
   buttonLabel,
+  isDisabled,
   ...props
 }) => {
   return (
@@ -12,6 +13,7 @@ const GlobalButton = ({
       className={classStyleName}
       style={additionalStyleOveride}
       {...props}
+      disabled={isDisabled}
     >
       {buttonLabel}
     </button>

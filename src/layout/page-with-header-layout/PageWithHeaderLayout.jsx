@@ -8,7 +8,6 @@ import ProfileModalMobile from "../../components/profile-modal-mobile/ProfileMod
 import { useScreenWidth } from "../../utils/screenWidth";
 import { getNotificationsBelongsToLoggedUser } from "../../redux/apiCalls";
 import { useSelector, useDispatch } from "react-redux";
-// import { accessToken } from "../../utils/getLocalStorage";
 import {
   setFollowerNotif,
   setMessageNotif,
@@ -18,7 +17,6 @@ import {
 import "./PageWithHeaderLayout.scss";
 
 export default function PageWithHeaderLayout() {
-  // const access_token = accessToken()
   const dispatch = useDispatch();
   const isMobile = useScreenWidth("mb");
 
@@ -36,15 +34,12 @@ export default function PageWithHeaderLayout() {
 
   const followerNotifFromSlice = useSelector(
     (state) => state.notifications.followerNotif
-    // .filter((item) => !item.isRead)
   );
   const postNotifFromSlice = useSelector(
     (state) => state.notifications.postNotif
-    // .filter((item) => !item.isRead)
   );
   const messageNotifFromSlice = useSelector(
     (state) => state.notifications.messageNotif
-    // .filter((item) => !item.isRead)
   );
 
   const followerNotifFiltered = useMemo(

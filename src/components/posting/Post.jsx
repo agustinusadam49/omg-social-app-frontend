@@ -4,9 +4,7 @@ import MoreVertIcon from "@mui/icons-material/MoreVert";
 import FavoriteBorderSharpIcon from "@mui/icons-material/FavoriteBorderSharp";
 import { rangeDay } from "../../utils/rangeDay";
 import FavoriteSharpIcon from "@mui/icons-material/FavoriteSharp";
-import {
-  useSelector,
-} from "react-redux";
+import { useSelector } from "react-redux";
 import { deleteLikeById, addNewLike } from "../../apiCalls/likesApiFetch";
 import { getAllCommentsDataByPostId } from "../../apiCalls/commentsApiFetch";
 import { Link } from "react-router-dom";
@@ -22,11 +20,20 @@ export default function Post({ postedData }) {
   const [isCommentSectionOpen, setIsCommentSectionOpen] = useState(false);
   const [totalPostLike, setTotalPostLike] = useState(postedData.Likes.length);
   const [postedDataLikes, setPostedDataLikes] = useState([]);
+  const [isLoadingComment, setIsLoadingComment] = useState(false);
   const calculatedLikeTotal = useMemo(() => totalPostLike, [totalPostLike]);
   const mappedPostedDataLikes = useMemo(
     () => postedDataLikes,
     [postedDataLikes]
   );
+
+  const displayWordingComments = () => {
+    if (isLoadingComment) {
+      return 'Loading ...'
+    }
+
+    return `${currentCommentByIdTotal} comments`
+  }
 
   const getStatus = (statusFromResponse) => {
     const followersOnlyWording =
@@ -43,6 +50,7 @@ export default function Post({ postedData }) {
   };
 
   const toggleCommentHandler = (statusValue) => {
+    if (isLoadingComment === true) return
     setIsCommentSectionOpen(statusValue);
   };
 
@@ -109,22 +117,6 @@ export default function Post({ postedData }) {
       });
   };
 
-  const getDataCommentsByIdEachPosting = (this_post_id) => {
-    getAllCommentsDataByPostId(this_post_id)
-      .then((commentByPostId) => {
-        const commentsByPostIdTotal =
-          commentByPostId.data.totalCommentsByPostId;
-        if (commentsByPostIdTotal > 0) {
-          setCurrentCommentByIdTotal(commentsByPostIdTotal);
-        } else {
-          setCurrentCommentByIdTotal(0);
-        }
-      })
-      .catch((error) => {
-        console.log("cannot get comment by post id from Post component", error);
-      });
-  };
-
   useEffect(() => {
     const mappedPostedLikesData = postedData.Likes.map((postData) => ({
       id: postData.id,
@@ -151,15 +143,47 @@ export default function Post({ postedData }) {
       UserId: like.UserId,
     }));
     setPostDataUserLiked(currentUserLikeThisPost);
+
+    return () => {
+      setPostDataUserLiked([]);
+    }
   }, [postedData, currentUserIdFromSlice]);
 
   useEffect(() => {
+    const getDataCommentsByIdEachPosting = (this_post_id) => {
+      setIsLoadingComment(true);
+      getAllCommentsDataByPostId(this_post_id)
+        .then((commentByPostId) => {
+          setIsLoadingComment(true);
+          const commentsByPostIdTotal = commentByPostId.data.totalCommentsByPostId;
+          if (commentsByPostIdTotal > 0) {
+            setCurrentCommentByIdTotal(commentsByPostIdTotal);
+          } else {
+            setCurrentCommentByIdTotal(0);
+          }
+
+          setIsLoadingComment(false);
+        })
+        .catch((error) => {
+          setIsLoadingComment(false);
+          console.log(
+            "cannot get comment by post id from Post component",
+            error
+          );
+        });
+    };
+
     getDataCommentsByIdEachPosting(thisPostId);
 
     return () => {
       setCurrentCommentByIdTotal(0);
+      setIsLoadingComment(false);
     };
-  }, [thisPostId, addNewPosting, isCommentSectionOpen]);
+  }, [
+    thisPostId,
+    addNewPosting,
+    isCommentSectionOpen
+  ]);
 
   return (
     <div className="post">
@@ -259,7 +283,7 @@ export default function Post({ postedData }) {
                 className="post-comment-text"
                 onClick={() => toggleCommentHandler(!isCommentSectionOpen)}
               >
-                {currentCommentByIdTotal} comments
+                {displayWordingComments()}
               </span>
             </div>
           </div>
