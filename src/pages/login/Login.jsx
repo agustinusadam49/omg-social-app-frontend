@@ -20,9 +20,12 @@ export default function Login() {
     password: [],
   });
 
+  const [isLoadingLogin, setIsLoadingLogin] = useState(false);
+
   const clearLoginField = () => {
     emailRef.current.value = "";
     passwordRef.current.value = "";
+    setIsLoadingLogin(false)
   };
 
   const doLogin = () => {
@@ -40,6 +43,7 @@ export default function Login() {
     const isValid = formValidationV2(loginValidationCheck, setErrorMessage);
 
     if (isValid) {
+      setIsLoadingLogin(true);
       const payloadLogin = {
         userEmail: loginValidationCheck.email.currentValue,
         userPassword: loginValidationCheck.password.currentValue,
@@ -47,6 +51,7 @@ export default function Login() {
 
       loginUser(payloadLogin)
         .then((userResponseLogin) => {
+          setIsLoadingLogin(true);
           const successResponse = userResponseLogin.data;
           setToLocalStorageWhenSuccess(
             successResponse.user_token,
@@ -62,6 +67,7 @@ export default function Login() {
           dispatch(setIsAuthUser({ isAuth: true }));
         })
         .catch((error) => {
+          setIsLoadingLogin(false);
           const errorMessageFromServer = error.response.data.err.errorMessage;
           const errorForState = {
             email: [],
@@ -89,9 +95,7 @@ export default function Login() {
 
   return (
     <div className="login">
-
       <div className="login-wrapper">
-
         <div className="login-left">
           <h3 className="login-logo">Omongin</h3>
           <span className="login-description">
@@ -118,8 +122,12 @@ export default function Login() {
             />
 
             <GlobalButton
-              buttonLabel={"Log In"}
-              classStyleName="login-button"
+              buttonLabel={isLoadingLogin ? "Loading ..." : "Log In"}
+              classStyleName={`login-button ${isLoadingLogin ? 'loading' : ''}`}
+              additionalStyleOveride={{
+                cursor: isLoadingLogin ? "not-allowed" : "pointer",
+              }}
+              isDisabled={isLoadingLogin}
               onClick={doLogin}
             />
 
@@ -132,9 +140,7 @@ export default function Login() {
             </Link>
           </div>
         </div>
-
       </div>
-
     </div>
   );
 }

@@ -55,9 +55,11 @@ const Comments = ({ postId, postUserId }) => {
     const getDataCommentsByIdOfPost = (this_post_id) => {
       getAllCommentsDataByPostId(this_post_id)
         .then((commentByPostId) => {
-          const commentsByPostIdTotal = commentByPostId.data.totalCommentsByPostId;
+          const commentsByPostIdTotal =
+            commentByPostId.data.totalCommentsByPostId;
           if (commentsByPostIdTotal > 0) {
-            const commentsByPostIdDataArray = commentByPostId.data.commentsDataByPostId;
+            const commentsByPostIdDataArray =
+              commentByPostId.data.commentsDataByPostId;
             setThisPostCommentData(commentsByPostIdDataArray);
             setLastIndex(commentsByPostIdTotal - 1);
             dispatch(setIsAddNewComment({ successAddNewComment: false }));
@@ -76,6 +78,12 @@ const Comments = ({ postId, postUserId }) => {
     };
 
     getDataCommentsByIdOfPost(post_id);
+
+    return () => {
+      setThisPostCommentData([]);
+      setLastIndex(0);
+      dispatch(setIsAddNewComment({ successAddNewComment: false }));
+    };
   }, [post_id, addNewComment, dispatch]);
 
   return (
