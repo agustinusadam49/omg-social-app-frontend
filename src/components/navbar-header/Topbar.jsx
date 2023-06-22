@@ -18,9 +18,10 @@ import { useSelector, useDispatch } from "react-redux";
 import { setSearchPostsTerms } from "../../redux/slices/postsSlice";
 import ProfileBox from "../profile-box/ProfileBox";
 import { useScreenWidth } from "../../utils/screenWidth";
+import withNotifData from "../../hoc/withNotifData";
 import "./Topbar.scss";
 
-export default function Topbar({
+function Topbar({
   followerNotifFromSlice,
   postNotifFromSlice,
   messageNotifFromSlice,
@@ -319,3 +320,5 @@ export default function Topbar({
     </div>
   );
 }
+
+export default withNotifData(Topbar)
