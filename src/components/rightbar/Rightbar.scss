@@ -88,6 +88,11 @@
       &.not-active {
         color: blue;
       }
+
+      &.loading {
+        color: #2c2891;
+        cursor: not-allowed;
+      }
     }
 
     .rightbar-title {
