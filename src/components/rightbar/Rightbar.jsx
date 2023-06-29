@@ -1,4 +1,4 @@
-import React, { useState, useEffect, Fragment } from "react";
+import React, { useState, useEffect, Fragment, useReducer } from "react";
 import { Link } from "react-router-dom";
 import Online from "../online/Online";
 import EditProfileModal from "../edit-profile-modal/EditProfileModal";
@@ -16,7 +16,37 @@ import { createNewNotification } from "../../apiCalls/notificationsApiFetch";
 import { hbdChecker } from "../../utils/birthdayChecker";
 import "./Rightbar.scss";
 
+const INITIAL_FOLLOW_STATE = {
+  loading: false,
+};
+
+const actionType = {
+  FOLLOW_OR_UNFOLLOW: "FOLLOW_OR_UNFOLLOW",
+  FINISH_FOLLOW_OR_UNFOLLOW: "FINISH_FOLLOW_OR_UNFOLLOW",
+};
+
+const followReducer = (state, action) => {
+  switch (action.type) {
+    case "FOLLOW_OR_UNFOLLOW": {
+      return {
+        ...state,
+        loading: true,
+      };
+    }
+    case "FINISH_FOLLOW_OR_UNFOLLOW": {
+      return {
+        ...state,
+        loading: false,
+      };
+    }
+    default: {
+      throw Error("Unknown action: " + action.type);
+    }
+  }
+};
+
 export default function Rightbar({ profile, userId }) {
+  const [followState, mutate] = useReducer(followReducer, INITIAL_FOLLOW_STATE);
   const dispatch = useDispatch();
   const user_id = parseInt(userId);
 
@@ -112,12 +142,14 @@ export default function Rightbar({ profile, userId }) {
   };
 
   const hitApiDeleteFollowById = (idOfThisFollowData) => {
+    mutate({ type: actionType.FOLLOW_OR_UNFOLLOW });
     deleteFollowById(idOfThisFollowData)
       .then((deleteFollowerByIdResult) => {
         if (deleteFollowerByIdResult.data.success) {
           setEditSnap(true);
           hitCreateNewNotification(idOfThisFollowData, "un-follow");
         }
+        mutate({ type: actionType.FINISH_FOLLOW_OR_UNFOLLOW });
       })
       .catch((error) => {
         const errorMessageDeleteFollowerById = error.response;
@@ -125,6 +157,8 @@ export default function Rightbar({ profile, userId }) {
           "errorMessageDeleteFollowerById",
           errorMessageDeleteFollowerById
         );
+
+        mutate({ type: actionType.FINISH_FOLLOW_OR_UNFOLLOW });
       });
   };
 
@@ -133,6 +167,7 @@ export default function Rightbar({ profile, userId }) {
     const payloadDataAddFollow = {
       ProfileId: profileId,
     };
+    mutate({ type: actionType.FOLLOW_OR_UNFOLLOW });
     addNewFollower(payloadDataAddFollow)
       .then((newFollowerResult) => {
         const sourceId = newFollowerResult.data.newFollow.id;
@@ -140,8 +175,11 @@ export default function Rightbar({ profile, userId }) {
           setEditSnap(true);
           hitCreateNewNotification(sourceId, "mem-follow");
         }
+
+        mutate({ type: actionType.FINISH_FOLLOW_OR_UNFOLLOW });
       })
       .catch((error) => {
+        mutate({ type: actionType.FINISH_FOLLOW_OR_UNFOLLOW });
         const errorAddNewFollower = error.response;
         console.log("errorAddNewFollower", errorAddNewFollower);
       });
@@ -227,19 +265,33 @@ export default function Rightbar({ profile, userId }) {
     );
   };
 
+  const displayFollowButton = () => {
+    if (followState.loading || editSnap) {
+      return (
+        <Fragment>
+          <div className="follow-button loading">Loading ...</div>
+        </Fragment>
+      );
+    }
+
+    return (
+      <Fragment>
+        <div
+          className={`follow-button ${
+            userFollower.length ? "active" : "not-active"
+          }`}
+          onClick={() => followHandler()}
+        >
+          {userFollower.length ? "Unfollow" : "Follow"}
+        </div>
+      </Fragment>
+    );
+  };
+
   const profileRightbar = (userProfileDataLogin, userDataMain) => {
     return (
       <Fragment>
-        {currentUserIdFromSlice !== user_id && (
-          <div
-            className={`follow-button ${
-              userFollower.length ? "active" : "not-active"
-            }`}
-            onClick={() => followHandler()}
-          >
-            {userFollower.length ? "Unfollow" : "Follow"}
-          </div>
-        )}
+        {currentUserIdFromSlice !== user_id && displayFollowButton()}
 
         <div className="rightbar-info">
           <h4 className="rightbar-title">User Information</h4>
