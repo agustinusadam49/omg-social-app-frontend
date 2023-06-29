@@ -114,6 +114,8 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
+      height: 30px;
+      box-sizing: border-box;
 
       .post-bottom-left {
         display: flex;
@@ -155,5 +157,36 @@
         }
       }
     }
+  }
+}
+
+.loader {
+  border: 2px solid rgb(251, 226, 226);
+  border-radius: 50%;
+  border-top: 2px solid rgb(234, 84, 84);
+  width: 22px;
+  height: 22px;
+  box-sizing: border-box;
+  -webkit-animation: spin 2s linear infinite; /* Safari */
+  animation: spin 2s linear infinite;
+  margin-right: 5px;
+}
+
+/* Safari */
+@-webkit-keyframes spin {
+  0% {
+    -webkit-transform: rotate(0deg);
+  }
+  100% {
+    -webkit-transform: rotate(360deg);
+  }
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
   }
 }

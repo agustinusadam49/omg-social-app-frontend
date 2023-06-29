@@ -1,4 +1,10 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, {
+  useState,
+  useEffect,
+  useMemo,
+  useReducer,
+  Fragment,
+} from "react";
 import Comments from "../comment/Comments";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import FavoriteBorderSharpIcon from "@mui/icons-material/FavoriteBorderSharp";
@@ -11,7 +17,37 @@ import { Link } from "react-router-dom";
 import { displayUserWhoLikesThisPost } from "../../utils/postLikes.js";
 import "./Post.scss";
 
+const INITIAL_LIKE_STATE = {
+  loading: false,
+};
+
+const actionType = {
+  LIKE_OR_UNLIKE: "LIKE_OR_UNLIKE",
+  FINISH_LIKE_OR_UNLIKE: "FINISH_LIKE_OR_UNLIKE",
+};
+
+const likeReducer = (state, action) => {
+  switch (action.type) {
+    case "LIKE_OR_UNLIKE": {
+      return {
+        ...state,
+        loading: true,
+      };
+    }
+    case "FINISH_LIKE_OR_UNLIKE": {
+      return {
+        ...state,
+        loading: false,
+      };
+    }
+    default: {
+      throw Error("Unknown action: " + action.type);
+    }
+  }
+};
+
 export default function Post({ postedData }) {
+  const [likeState, mutate] = useReducer(likeReducer, INITIAL_LIKE_STATE);
   const thisPostId = postedData.id;
   const currentUserIdFromSlice = useSelector((state) => state.user.userId);
   const addNewPosting = useSelector((state) => state.comments.isAddNewComment);
@@ -27,13 +63,43 @@ export default function Post({ postedData }) {
     [postedDataLikes]
   );
 
-  const displayWordingComments = () => {
-    if (isLoadingComment) {
-      return 'Loading ...'
+  const displayLoader = () => {
+    return <div className="loader"></div>;
+  };
+
+  const displayLoveIcon = () => {
+    if (!likeState.loading) {
+      return (
+        <Fragment>
+          {postDataUserLiked.length ? (
+            <FavoriteSharpIcon
+              style={{ color: "red" }}
+              className="like-and-heart-icon"
+              onClick={likeHandler}
+            />
+          ) : (
+            <FavoriteBorderSharpIcon
+              style={{ color: "red" }}
+              className="like-and-heart-icon"
+              onClick={likeHandler}
+            />
+          )}
+        </Fragment>
+      );
     }
 
-    return `${currentCommentByIdTotal} comments`
-  }
+    if (likeState.loading) {
+      return displayLoader();
+    }
+  };
+
+  const displayWordingComments = () => {
+    if (isLoadingComment) {
+      return "Loading ...";
+    }
+
+    return `${currentCommentByIdTotal} comments`;
+  };
 
   const getStatus = (statusFromResponse) => {
     const followersOnlyWording =
@@ -50,7 +116,7 @@ export default function Post({ postedData }) {
   };
 
   const toggleCommentHandler = (statusValue) => {
-    if (isLoadingComment === true) return
+    if (isLoadingComment === true) return;
     setIsCommentSectionOpen(statusValue);
   };
 
@@ -70,6 +136,7 @@ export default function Post({ postedData }) {
   const hitAddNewLikeApi = () => {
     const postId = postedData.id;
     const payloadDataAddLike = { PostId: postId };
+    mutate({ type: actionType.LIKE_OR_UNLIKE });
     addNewLike(payloadDataAddLike)
       .then((newLikeResponseData) => {
         if (newLikeResponseData.data.success) {
@@ -91,15 +158,18 @@ export default function Post({ postedData }) {
           setPostDataUserLiked((oldArray) => [...oldArray, newLikeObj]);
           setTotalPostLike((prevVal) => prevVal + 1);
           setPostedDataLikes((oldArray) => [...oldArray, newLikePayload]);
+          mutate({ type: actionType.FINISH_LIKE_OR_UNLIKE });
         }
       })
       .catch((error) => {
         const errorAddNewLike = error.response;
         console.log("hitAddNewLikeApi", errorAddNewLike);
+        mutate({ type: actionType.FINISH_LIKE_OR_UNLIKE });
       });
   };
 
   const hitDeleteLikeByIdApi = (idOfThisLike) => {
+    mutate({ type: actionType.LIKE_OR_UNLIKE });
     deleteLikeById(idOfThisLike)
       .then((deleteLikeByIdResponse) => {
         if (deleteLikeByIdResponse.data.success) {
@@ -109,11 +179,13 @@ export default function Post({ postedData }) {
             (like) => like.id !== idOfThisLike
           );
           setPostedDataLikes(filteredLikesData);
+          mutate({ type: actionType.FINISH_LIKE_OR_UNLIKE });
         }
       })
       .catch((error) => {
         const errorDeleteLikeById = error.response;
         console.log("hitDeleteLikeByIdApi", errorDeleteLikeById);
+        mutate({ type: actionType.FINISH_LIKE_OR_UNLIKE });
       });
   };
 
@@ -146,7 +218,7 @@ export default function Post({ postedData }) {
 
     return () => {
       setPostDataUserLiked([]);
-    }
+    };
   }, [postedData, currentUserIdFromSlice]);
 
   useEffect(() => {
@@ -155,7 +227,8 @@ export default function Post({ postedData }) {
       getAllCommentsDataByPostId(this_post_id)
         .then((commentByPostId) => {
           setIsLoadingComment(true);
-          const commentsByPostIdTotal = commentByPostId.data.totalCommentsByPostId;
+          const commentsByPostIdTotal =
+            commentByPostId.data.totalCommentsByPostId;
           if (commentsByPostIdTotal > 0) {
             setCurrentCommentByIdTotal(commentsByPostIdTotal);
           } else {
@@ -179,11 +252,7 @@ export default function Post({ postedData }) {
       setCurrentCommentByIdTotal(0);
       setIsLoadingComment(false);
     };
-  }, [
-    thisPostId,
-    addNewPosting,
-    isCommentSectionOpen
-  ]);
+  }, [thisPostId, addNewPosting, isCommentSectionOpen]);
 
   return (
     <div className="post">
@@ -255,19 +324,7 @@ export default function Post({ postedData }) {
         {postedData.status !== "PRIVATE" && (
           <div className="post-bottom">
             <div className="post-bottom-left">
-              {postDataUserLiked.length ? (
-                <FavoriteSharpIcon
-                  style={{ color: "red" }}
-                  className="like-and-heart-icon"
-                  onClick={likeHandler}
-                />
-              ) : (
-                <FavoriteBorderSharpIcon
-                  style={{ color: "red" }}
-                  className="like-and-heart-icon"
-                  onClick={likeHandler}
-                />
-              )}
+              {displayLoveIcon()}
 
               <span className="post-like-counter">
                 {calculatedLikeTotal},{" "}
