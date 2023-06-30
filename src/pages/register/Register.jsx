@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useReducer } from "react";
 import { Link } from "react-router-dom";
 import {
   formValidationV2,
@@ -11,9 +11,20 @@ import { setIsAuthUser, setUserToken } from "../../redux/slices/userSlice";
 import { useDispatch } from "react-redux";
 import InputTextGlobal from "../../components/input-text-global/InputTextGlobal";
 import GlobalButton from "../../components/button/GlobalButton";
+import {
+  INITIAL_LOADING_STATE,
+  actionType,
+  loadingReducer,
+} from "../../utils/reducers/globalLoadingReducer";
+import RoundedLoader from "../../components/rounded-loader/RoundedLoader";
 import "./Register.scss";
 
 export default function Register() {
+  const [loadingState, mutate] = useReducer(
+    loadingReducer,
+    INITIAL_LOADING_STATE
+  );
+
   const dispatch = useDispatch();
 
   const fullnameRef = useRef();
@@ -36,9 +47,12 @@ export default function Register() {
     emailRef.current.value = "";
     passwordRef.current.value = "";
     confirmPasswordRef.current.value = "";
+    mutate({ type: actionType.STOP_LOADING_STATUS });
   };
 
   const doRegister = () => {
+    if (loadingState.status) return;
+
     const registrationValidateCheck = {
       fullname: {
         currentValue: fullnameRef.current.value,
@@ -98,6 +112,7 @@ export default function Register() {
     );
 
     if (isValid) {
+      mutate({ type: actionType.RUN_LOADING_STATUS });
       const payloadRegistration = {
         userFullname: registrationValidateCheck.fullname.currentValue,
         userName: registrationValidateCheck.username.currentValue,
@@ -107,6 +122,7 @@ export default function Register() {
 
       registerNewUser(payloadRegistration)
         .then((userResponseRegister) => {
+          mutate({ type: actionType.RUN_LOADING_STATUS });
           const successResponse = userResponseRegister.data;
           setToLocalStorageWhenSuccess(
             successResponse.user_token,
@@ -120,6 +136,7 @@ export default function Register() {
           dispatch(setIsAuthUser({ isAuth: true }));
         })
         .catch((error) => {
+          mutate({ type: actionType.STOP_LOADING_STATUS });
           const errorMessageFromServer = error.response.data.err.errorMessage;
           const errorForState = {
             fullname: [],
@@ -147,9 +164,7 @@ export default function Register() {
 
   return (
     <div className="register">
-
       <div className="register-wrapper">
-
         <div className="register-left">
           <h3 className="register-logo">Omongin</h3>
           <span className="register-description">
@@ -193,20 +208,24 @@ export default function Register() {
               inputErrorMessage={getFirstError(errorMessage.confirmPassword)}
             />
 
-            <GlobalButton
-              buttonLabel={"Sign Up"}
-              classStyleName="register-button"
-              onClick={doRegister}
-            />
+            {!loadingState.status ? (
+              <GlobalButton
+                buttonLabel="Sign Up"
+                classStyleName="register-button"
+                onClick={doRegister}
+              />
+            ) : (
+              <div className="register-button-loading">
+                <RoundedLoader baseColor="gray" secondaryColor="white" />
+              </div>
+            )}
 
             <Link className="register-login-button" to="/login">
               Log In
             </Link>
           </div>
         </div>
-
       </div>
-
     </div>
   );
 }

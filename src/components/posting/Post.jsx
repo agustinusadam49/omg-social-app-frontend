@@ -15,6 +15,7 @@ import { deleteLikeById, addNewLike } from "../../apiCalls/likesApiFetch";
 import { getAllCommentsDataByPostId } from "../../apiCalls/commentsApiFetch";
 import { Link } from "react-router-dom";
 import { displayUserWhoLikesThisPost } from "../../utils/postLikes.js";
+import RoundedLoader from "../rounded-loader/RoundedLoader";
 import "./Post.scss";
 
 const INITIAL_LIKE_STATE = {
@@ -63,10 +64,6 @@ export default function Post({ postedData }) {
     [postedDataLikes]
   );
 
-  const displayLoader = () => {
-    return <div className="loader"></div>;
-  };
-
   const displayLoveIcon = () => {
     if (!likeState.loading) {
       return (
@@ -89,7 +86,12 @@ export default function Post({ postedData }) {
     }
 
     if (likeState.loading) {
-      return displayLoader();
+      return (
+        <RoundedLoader
+          baseColor="rgb(251, 226, 226)"
+          secondaryColor="rgb(234, 84, 84)"
+        />
+      );
     }
   };
 
