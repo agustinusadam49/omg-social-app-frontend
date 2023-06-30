@@ -1,4 +1,5 @@
 import { setToLocalStorageWhenSuccess } from "../utils/setLocalStorage";
+import { actionType } from "../utils/reducers/globalLoadingReducer";
 
 // IMPORT API METHOD FOR USER
 import {
@@ -99,11 +100,13 @@ export const getAllUsersRegistered = (dispatch) => {
     });
 };
 
-export const doUserLogout = (userId, dispatch) => {
+export const doUserLogout = (userId, mutate, dispatch) => {
+  mutate({ type: actionType.RUN_LOADING_STATUS });
   const requestBodyForUpdateOnlineStatus = { userOnlineStatus: false };
   userLogout(userId, requestBodyForUpdateOnlineStatus)
     .then((userLoginStatusResult) => {
       if (userLoginStatusResult.data.success) {
+        mutate({ type: actionType.STOP_LOADING_STATUS });
         localStorage.clear();
         dispatch(setIsAuthUser({ isAuth: false }));
         dispatch(setSnapUserLogout({ isUserLogout: true }));
@@ -111,6 +114,7 @@ export const doUserLogout = (userId, dispatch) => {
     })
     .catch((error) => {
       console.log(error?.response?.data?.err?.errorMessage);
+      mutate({ type: actionType.STOP_LOADING_STATUS });
     });
 };
 
