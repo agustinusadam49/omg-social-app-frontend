@@ -1,4 +1,11 @@
-import React, { useState, useEffect, memo, useRef, useMemo } from "react";
+import React, {
+  useState,
+  useEffect,
+  memo,
+  useRef,
+  useMemo,
+  useReducer,
+} from "react";
 import { Link } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import TextItems from "./text-items/TextItems";
@@ -9,9 +16,19 @@ import {
 import { setSnapUserLogout } from "../../redux/slices/userSlice";
 import { updateTheMessageById } from "../../apiCalls/messagesApiFetch";
 import { io } from "socket.io-client";
+import {
+  INITIAL_LOADING_STATE,
+  actionType,
+  loadingReducer,
+} from "../../utils/reducers/globalLoadingReducer";
+import RoundedLoader from "../rounded-loader/RoundedLoader";
 import "./MessageBox.scss";
 
 const MessageBox = ({ paramUserId }) => {
+  const [loadingState, mutate] = useReducer(
+    loadingReducer,
+    INITIAL_LOADING_STATE
+  );
   const dispatch = useDispatch();
 
   const socket = useRef(null);
@@ -49,10 +66,12 @@ const MessageBox = ({ paramUserId }) => {
   };
 
   const sendNewMessage = () => {
+    if (loadingState.status) return;
     hitApiCreateNewMessage();
   };
 
   const doCreateNewMessageWithEnter = (event) => {
+    if (loadingState.status) return;
     if (event.key === "Enter" && messageText !== "") {
       hitApiCreateNewMessage();
     }
@@ -70,12 +89,12 @@ const MessageBox = ({ paramUserId }) => {
   };
 
   const hitApiCreateNewMessage = () => {
+    mutate({ type: actionType.RUN_LOADING_STATUS });
     const payloadToCreateMessage = {
       receiver_id: paramUserId,
       message_text: messageText,
       senderName: currentUserNameFromSlice,
     };
-
     createNewMessageData(payloadToCreateMessage)
       .then((newMessageResult) => {
         const successCreateNewMessage = newMessageResult.data.success;
@@ -116,10 +135,13 @@ const MessageBox = ({ paramUserId }) => {
             block: "start",
             inline: "nearest",
           });
+
+          mutate({ type: actionType.STOP_LOADING_STATUS });
         }
       })
       .catch((error) => {
         console.log("failed to create new message:", error.response);
+        mutate({ type: actionType.STOP_LOADING_STATUS });
       });
   };
 
@@ -142,7 +164,7 @@ const MessageBox = ({ paramUserId }) => {
   };
 
   useEffect(() => {
-    socket.current = io("ws://localhost:8900");
+    socket.current = io(process.env.REACT_APP_SOCKET_IO_URL);
     socket.current.on("incommingPrivateMessage", (incommingMessage) => {
       setMappedMessages((oldArray) => [...oldArray, incommingMessage]);
     });
@@ -308,17 +330,27 @@ const MessageBox = ({ paramUserId }) => {
             onChange={(e) => handleTypingMessage(e.target.value)}
           />
 
-          <button
-            className={
-              messageText !== ""
-                ? "messages-button-send"
-                : "messages-button-send-disabled"
-            }
-            disabled={!messageText}
-            onClick={sendNewMessage}
-          >
-            Send
-          </button>
+          {!loadingState.status ? (
+            <button
+              className={
+                messageText !== ""
+                  ? "messages-button-send"
+                  : "messages-button-send-disabled"
+              }
+              disabled={!messageText}
+              onClick={sendNewMessage}
+            >
+              Send
+            </button>
+          ) : (
+            <button className="messages-button-send">
+              <RoundedLoader
+                size={14}
+                baseColor="rgb(251, 226, 226)"
+                secondaryColor="green"
+              />
+            </button>
+          )}
         </div>
       </div>
     </div>

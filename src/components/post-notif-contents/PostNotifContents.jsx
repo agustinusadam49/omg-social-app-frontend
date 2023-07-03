@@ -1,18 +1,32 @@
-import React, { Fragment, useEffect, useState, useMemo } from "react";
-
+import React, {
+  Fragment,
+  useEffect,
+  useState,
+  useMemo,
+  useReducer,
+} from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { getNotificationsBelongsToLoggedUser } from "../../redux/apiCalls";
 import { setPostNotif } from "../../redux/slices/notificationSlice";
 import { updateAllNotificationStatusNotRead } from "../../apiCalls/notificationsApiFetch";
-
 import NotificationCard from "../notification-card/NotificationCard";
 import PaginationNotif from "../pagination-notif/PaginationNotif";
 import EmptyStateNotification from "../empty-state-notification/EmptyStateNotification";
 import GlobalButton from "../button/GlobalButton";
+import {
+  INITIAL_LOADING_STATE,
+  actionType,
+  loadingReducer,
+} from "../../utils/reducers/globalLoadingReducer";
+import RoundedLoader from "../rounded-loader/RoundedLoader";
 
 import "./PostNotifContents.scss";
 
 export default function PostNotifContents() {
+  const [loadingState, mutate] = useReducer(
+    loadingReducer,
+    INITIAL_LOADING_STATE
+  );
   const dispatch = useDispatch();
 
   const postNotifFromSlice = useSelector(
@@ -20,8 +34,7 @@ export default function PostNotifContents() {
   );
   const currentUserIdFromSlice = useSelector((state) => state.user.userId);
 
-  const [staticFilteredData, setStaticFilteredData] =
-    useState(postNotifFromSlice);
+  const [staticFilteredData, setStaticFilteredData] = useState(postNotifFromSlice);
   const [notifPostsDataObj, setNotifPostsDataObj] = useState({});
   const [activePageIndex, setActivePageIndex] = useState("page1");
   const [notifArrByActivePage, setNotifArrByActivePage] = useState([]);
@@ -32,13 +45,13 @@ export default function PostNotifContents() {
   }, [postNotifFromSlice]);
 
   const changeButton = () => {
+    if (loadingState.status) return;
     if (!notReadYetPostNotifications.length) return;
-
+    mutate({ type: actionType.RUN_LOADING_STATUS });
     const payloadUpdate = {
       type: "Posts",
       isRead: true,
     };
-
     updateAllNotificationStatusNotRead(currentUserIdFromSlice, payloadUpdate)
       .then((updateResponse) => {
         const response = updateResponse.data;
@@ -51,6 +64,7 @@ export default function PostNotifContents() {
             }));
 
           dispatch(setPostNotif({ postNotifData: changeAllIsReadStatus }));
+          mutate({ type: actionType.STOP_LOADING_STATUS });
         }
       })
       .catch((error) => {
@@ -58,6 +72,7 @@ export default function PostNotifContents() {
           error?.response?.data?.err?.errorMessage ||
           "failed edit notification status read by id!";
         console.log(errorMessageFromApi);
+        mutate({ type: actionType.STOP_LOADING_STATUS });
       });
   };
 
@@ -79,19 +94,27 @@ export default function PostNotifContents() {
   };
 
   const displayButtonMarkAllNotif = () => {
-    if (postNotifFromSlice.length) {
+    if (!loadingState.status) {
+      if (postNotifFromSlice.length) {
+        return (
+          <GlobalButton
+            classStyleName={`post-notif-mark-all-button ${
+              totalAllIsRead ? "active" : "not-active"
+            }`}
+            buttonLabel={
+              totalAllIsRead
+                ? "Tandai semua sebagai dibaca"
+                : "Semua notif telah dibaca"
+            }
+            onClick={() => changeButton()}
+          />
+        );
+      }
+    } else {
       return (
-        <GlobalButton
-          classStyleName={`post-notif-mark-all-button ${
-            totalAllIsRead ? "active" : "not-active"
-          }`}
-          buttonLabel={
-            totalAllIsRead
-              ? "Tandai semua sebagai dibaca"
-              : "Semua notif telah dibaca"
-          }
-          onClick={() => changeButton()}
-        />
+        <div className="post-notif-mark-all-button active">
+          <RoundedLoader baseColor="gray" secondaryColor="white" />
+        </div>
       );
     }
   };

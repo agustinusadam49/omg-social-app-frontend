@@ -1,18 +1,32 @@
-import React, { Fragment, useEffect, useState, useMemo } from "react";
-
+import React, {
+  Fragment,
+  useEffect,
+  useState,
+  useMemo,
+  useReducer,
+} from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { getNotificationsBelongsToLoggedUser } from "../../redux/apiCalls";
 import { setFollowerNotif } from "../../redux/slices/notificationSlice";
 import { updateAllNotificationStatusNotRead } from "../../apiCalls/notificationsApiFetch";
-
 import NotificationCard from "../notification-card/NotificationCard";
 import PaginationNotif from "../pagination-notif/PaginationNotif";
 import GlobalButton from "../button/GlobalButton";
 import EmptyStateNotification from "../empty-state-notification/EmptyStateNotification";
+import {
+  INITIAL_LOADING_STATE,
+  actionType,
+  loadingReducer,
+} from "../../utils/reducers/globalLoadingReducer";
+import RoundedLoader from "../rounded-loader/RoundedLoader";
 
 import "./FollowerNotifContents.scss";
 
 export default function FollowerNotifContents() {
+  const [loadingState, mutate] = useReducer(
+    loadingReducer,
+    INITIAL_LOADING_STATE
+  );
   const dispatch = useDispatch();
 
   const followerNotifFromSlice = useSelector(
@@ -20,28 +34,24 @@ export default function FollowerNotifContents() {
   );
   const currentUserIdFromSlice = useSelector((state) => state.user.userId);
 
-  const [staticFilteredData, setStaticFilteredData] = useState(
-    followerNotifFromSlice
-  );
+  const [staticFilteredData, setStaticFilteredData] = useState(followerNotifFromSlice);
   const [notifFollowerDataObj, setNotifFollowerDataObj] = useState({});
   const [activePageIndex, setActivePageIndex] = useState("page1");
   const [notifArrByActivePage, setNotifArrByActivePage] = useState([]);
 
   const notReadYetFollowerNotifications = useMemo(() => {
-    const result = followerNotifFromSlice.filter(
-      (notif) => notif.isRead === false
-    );
+    const result = followerNotifFromSlice.filter((notif) => notif.isRead === false);
     return result;
   }, [followerNotifFromSlice]);
 
   const changeButton = () => {
+    if (loadingState.status) return;
     if (!notReadYetFollowerNotifications.length) return;
-
+    mutate({ type: actionType.RUN_LOADING_STATUS });
     const payloadUpdate = {
       type: "Follows",
       isRead: true,
     };
-
     updateAllNotificationStatusNotRead(currentUserIdFromSlice, payloadUpdate)
       .then((updateResponse) => {
         const response = updateResponse.data;
@@ -53,9 +63,8 @@ export default function FollowerNotifContents() {
               isRead: true,
             }));
 
-          dispatch(
-            setFollowerNotif({ followerNotifData: changeAllIsReadStatus })
-          );
+          dispatch(setFollowerNotif({ followerNotifData: changeAllIsReadStatus }));
+          mutate({ type: actionType.STOP_LOADING_STATUS });
         }
       })
       .catch((error) => {
@@ -63,6 +72,7 @@ export default function FollowerNotifContents() {
           error?.response?.data?.err?.errorMessage ||
           "failed edit notification status read by id!";
         console.log(errorMessageFromApi);
+        mutate({ type: actionType.STOP_LOADING_STATUS });
       });
   };
 
@@ -84,19 +94,27 @@ export default function FollowerNotifContents() {
   };
 
   const displayButtonMarkAllNotif = () => {
-    if (followerNotifFromSlice.length) {
+    if (!loadingState.status) {
+      if (followerNotifFromSlice.length) {
+        return (
+          <GlobalButton
+            classStyleName={`follower-notif-mark-all-notif-button ${
+              totalAllIsRead ? "active" : "not-active"
+            }`}
+            buttonLabel={
+              totalAllIsRead
+                ? "Tandai semua sebagai dibaca"
+                : "Semua notif telah dibaca"
+            }
+            onClick={() => changeButton()}
+          />
+        );
+      }
+    } else {
       return (
-        <GlobalButton
-          classStyleName={`follower-notif-mark-all-notif-button ${
-            totalAllIsRead ? "active" : "not-active"
-          }`}
-          buttonLabel={
-            totalAllIsRead
-              ? "Tandai semua sebagai dibaca"
-              : "Semua notif telah dibaca"
-          }
-          onClick={() => changeButton()}
-        />
+        <div className="follower-notif-mark-all-notif-button active">
+          <RoundedLoader baseColor="gray" secondaryColor="white" />
+        </div>
       );
     }
   };
