@@ -164,6 +164,12 @@ const MessageBox = ({ paramUserId }) => {
   };
 
   useEffect(() => {
+    // socket.current = io(process.env.REACT_APP_SOCKET_IO_URL, {
+    //   withCredentials: true,
+    //   extraHeaders: {
+    //     "my-custom-header": "abcd"
+    //   }
+    // });
     socket.current = io(process.env.REACT_APP_SOCKET_IO_URL);
     socket.current.on("incommingPrivateMessage", (incommingMessage) => {
       setMappedMessages((oldArray) => [...oldArray, incommingMessage]);

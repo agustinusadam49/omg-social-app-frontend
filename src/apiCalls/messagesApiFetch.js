@@ -6,7 +6,6 @@ const MESSAGES_URL = `${BASE_URL}messages`;
 
 export const createNewMessageData = (payloadData) => {
   const user_access_token = accessToken();
-  console.log(user_access_token)
   return axios.post(`${MESSAGES_URL}/`, payloadData, {
     headers: {
       "Content-Type": "application/json",
