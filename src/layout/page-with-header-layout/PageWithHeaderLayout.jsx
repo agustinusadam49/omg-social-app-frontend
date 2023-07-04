@@ -5,6 +5,7 @@ import MobileBottomNavigation from "../../components/mobile-bottom-navigation/Mo
 import UserSuggestionModal from "../../components/user-suggestion-modal/UserSuggestionModal";
 import UserOnlineInfoModal from "../../components/user-online-info-modal/UserOnlineInfoModal";
 import ProfileModalMobile from "../../components/profile-modal-mobile/ProfileModalMobile";
+import PostModalEdit from "../../components/post-modal-edit/PostModalEdit";
 import { useScreenWidth } from "../../utils/screenWidth";
 import { useSelector } from "react-redux";
 
@@ -16,11 +17,13 @@ export default function PageWithHeaderLayout() {
   const isUserSuggestionModalOpen = useSelector((state) => state.user.isUserSuggestionModalOpen);
   const isUserOnlineModalOpen = useSelector((state) => state.user.isUserOnlineModalOpen);
   const isProfileMobileModalOpen = useSelector((state) => state.user.isUserProfileMobileOpen);
+  const isModalPostEdit = useSelector((state) => state.posts.isPostModalEditOpen);
 
   return (
     <div className="page-with-header-layout">
       <Topbar />
       <Outlet />
+      {isModalPostEdit && <PostModalEdit />}
       {isMobile && isUserOnlineModalOpen && <UserOnlineInfoModal />}
       {isMobile && isUserSuggestionModalOpen && <UserSuggestionModal />}
       {isMobile && isProfileMobileModalOpen && <ProfileModalMobile />}

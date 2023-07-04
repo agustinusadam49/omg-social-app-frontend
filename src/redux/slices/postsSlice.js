@@ -10,7 +10,10 @@ export const postsSlice = createSlice({
     isAddPosting: false,
     loadingGetPosts: true,
     loadingGetPostsByUserId: true,
-    searchPostsTerms: '',
+    searchPostsTerms: "",
+    isPostModalEditOpen: false,
+    statusPost: "",
+    postItem: null,
   },
   reducers: {
     setPosts: (state, action) => {
@@ -35,8 +38,17 @@ export const postsSlice = createSlice({
       state.loadingGetPostsByUserId = action.payload.getAllPostsByUserIdLoading;
     },
     setSearchPostsTerms: (state, action) => {
-      state.searchPostsTerms = action.payload.getSearchTermsForPosts
-    }
+      state.searchPostsTerms = action.payload.getSearchTermsForPosts;
+    },
+    setIsPostModalEditOpen: (state, action) => {
+      state.isPostModalEditOpen = action.payload.isPostModalEditOpen;
+    },
+    setStatusPost: (state, action) => {
+      state.statusPost = action.payload.statusPost;
+    },
+    setPostItem: (state, action) => {
+      state.postItem = action.payload.postItem;
+    },
   },
 });
 
@@ -49,6 +61,9 @@ export const {
   setLoadingGetPosts,
   setLoadingGetPostsById,
   setSearchPostsTerms,
+  setIsPostModalEditOpen,
+  setStatusPost,
+  setPostItem,
 } = postsSlice.actions;
 
 export default postsSlice.reducer;

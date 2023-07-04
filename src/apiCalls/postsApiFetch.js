@@ -41,3 +41,13 @@ export const uploadImagePosting = (imageData, config) => {
     config
   );
 };
+
+export const updatePostById = (idOfPost, payloadData) => {
+  const user_access_token = accessToken();
+  return axios.put(`${POSTS_URL}/${idOfPost}`, payloadData, {
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `${user_access_token}`,
+    },
+  });
+};

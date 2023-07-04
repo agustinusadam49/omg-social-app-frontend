@@ -10,11 +10,16 @@ import MoreVertIcon from "@mui/icons-material/MoreVert";
 import FavoriteBorderSharpIcon from "@mui/icons-material/FavoriteBorderSharp";
 import { rangeDay } from "../../utils/rangeDay";
 import FavoriteSharpIcon from "@mui/icons-material/FavoriteSharp";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { deleteLikeById, addNewLike } from "../../apiCalls/likesApiFetch";
 import { getAllCommentsDataByPostId } from "../../apiCalls/commentsApiFetch";
 import { Link } from "react-router-dom";
 import { displayUserWhoLikesThisPost } from "../../utils/postLikes.js";
+import {
+  setIsPostModalEditOpen,
+  setStatusPost,
+  setPostItem,
+} from "../../redux/slices/postsSlice";
 import RoundedLoader from "../rounded-loader/RoundedLoader";
 import "./Post.scss";
 
@@ -48,6 +53,7 @@ const likeReducer = (state, action) => {
 };
 
 export default function Post({ postedData }) {
+  const dispatch = useDispatch();
   const [likeState, mutate] = useReducer(likeReducer, INITIAL_LIKE_STATE);
   const thisPostId = postedData.id;
   const currentUserIdFromSlice = useSelector((state) => state.user.userId);
@@ -63,6 +69,13 @@ export default function Post({ postedData }) {
     () => postedDataLikes,
     [postedDataLikes]
   );
+
+  const openModalEditPost = (val) => {
+    if (currentUserIdFromSlice !== postedData.UserId) return
+    dispatch(setIsPostModalEditOpen({isPostModalEditOpen: val}))
+    dispatch(setStatusPost({statusPost: postedData.status}))
+    dispatch(setPostItem({postItem: postedData}))
+  }
 
   const displayLoveIcon = () => {
     if (!likeState.loading) {
@@ -301,7 +314,10 @@ export default function Post({ postedData }) {
             >
               {getStatus(postedData.status)}
             </div>
-            <MoreVertIcon style={{ cursor: "pointer" }} />
+            <MoreVertIcon
+              style={{ cursor: "pointer" }}
+              onClick={() => openModalEditPost(true)}
+            />
           </div>
         </div>
 
