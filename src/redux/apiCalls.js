@@ -1,4 +1,5 @@
 import { setToLocalStorageWhenSuccess } from "../utils/setLocalStorage";
+import { actionType } from "../utils/reducers/globalLoadingReducer";
 
 // IMPORT API METHOD FOR USER
 import {
@@ -46,8 +47,8 @@ import {
 } from "./slices/notificationSlice";
 
 // USER API CALLS
-export const userInfoLogin = (accessTokenUser, dispatch) => {
-  getCurrentUserLogin(accessTokenUser)
+export const userInfoLogin = (dispatch) => {
+  getCurrentUserLogin()
     .then((currentUserLoginData) => {
       const dataUser = currentUserLoginData.data.users;
       const userNameFromData = currentUserLoginData.data.user_name;
@@ -82,8 +83,8 @@ export const userInfoLogin = (accessTokenUser, dispatch) => {
     });
 };
 
-export const getAllUsersRegistered = (accessTokenUser, dispatch) => {
-  getAllUsersOmonginApp(accessTokenUser)
+export const getAllUsersRegistered = (dispatch) => {
+  getAllUsersOmonginApp()
     .then((allUsersRegistered) => {
       const dataUser = allUsersRegistered.data.userData;
       dispatch(setAllUsers({ registeredUsers: dataUser }));
@@ -99,11 +100,13 @@ export const getAllUsersRegistered = (accessTokenUser, dispatch) => {
     });
 };
 
-export const doUserLogout = (userId, dispatch) => {
+export const doUserLogout = (userId, mutate, dispatch) => {
+  mutate({ type: actionType.RUN_LOADING_STATUS });
   const requestBodyForUpdateOnlineStatus = { userOnlineStatus: false };
   userLogout(userId, requestBodyForUpdateOnlineStatus)
     .then((userLoginStatusResult) => {
       if (userLoginStatusResult.data.success) {
+        mutate({ type: actionType.STOP_LOADING_STATUS });
         localStorage.clear();
         dispatch(setIsAuthUser({ isAuth: false }));
         dispatch(setSnapUserLogout({ isUserLogout: true }));
@@ -111,6 +114,7 @@ export const doUserLogout = (userId, dispatch) => {
     })
     .catch((error) => {
       console.log(error?.response?.data?.err?.errorMessage);
+      mutate({ type: actionType.STOP_LOADING_STATUS });
     });
 };
 
@@ -122,25 +126,19 @@ export const getPostsAvailable = (dispatch) => {
       const { totalPosts } = posts.data;
 
       if (totalPosts) {
-        setTimeout(() => {
-          dispatch(setPostsTotal({ totalOfPosts: posts.data.totalPosts }));
-          dispatch(setPosts({ postData: posts.data.posts }));
-          dispatch(setIsAddPosting({ isSuccessPosting: false }));
-          dispatch(setLoadingGetPosts({ getAllPostsLoading: false }));
-        }, 1000);
+        dispatch(setPostsTotal({ totalOfPosts: posts.data.totalPosts }));
+        dispatch(setPosts({ postData: posts.data.posts }));
+        dispatch(setIsAddPosting({ isSuccessPosting: false }));
+        dispatch(setLoadingGetPosts({ getAllPostsLoading: false }));
       } else {
         dispatch(setPostsTotal({ totalOfPosts: 0 }));
-        setTimeout(() => {
-          dispatch(setLoadingGetPosts({ getAllPostsLoading: false }));
-        }, 1000);
+        dispatch(setLoadingGetPosts({ getAllPostsLoading: false }));
       }
     })
     .catch((error) => {
       console.error("error getPostsAvailable", error.message);
       dispatch(setPostsTotal({ totalOfPosts: 0 }));
-      setTimeout(() => {
-        dispatch(setLoadingGetPosts({ getAllPostsLoading: false }));
-      }, 1000);
+      dispatch(setLoadingGetPosts({ getAllPostsLoading: false }));
     });
 };
 
@@ -155,44 +153,31 @@ export const getPostsAvailableByUserId = (userIdParam, dispatch) => {
 
       if (dataPostByUserId.length) {
         dispatch(setLoadingGetPostsById({ getAllPostsByUserIdLoading: true }));
-        setTimeout(() => {
-          dispatch(setPostsByUserId({ postDataByUserId: dataPostByUserId }));
-          dispatch(
-            setPostsTotalByUserId({
-              totalOfPostsByUserId: dataPostByUserId.length,
-            })
-          );
-          dispatch(setIsAddPosting({ isSuccessPosting: false }));
-          dispatch(
-            setLoadingGetPostsById({ getAllPostsByUserIdLoading: false })
-          );
-        }, 1000);
+        dispatch(setPostsByUserId({ postDataByUserId: dataPostByUserId }));
+        dispatch(
+          setPostsTotalByUserId({
+            totalOfPostsByUserId: dataPostByUserId.length,
+          })
+        );
+        dispatch(setIsAddPosting({ isSuccessPosting: false }));
+        dispatch(setLoadingGetPostsById({ getAllPostsByUserIdLoading: false }));
       } else {
         dispatch(setLoadingGetPostsById({ getAllPostsByUserIdLoading: true }));
-        setTimeout(() => {
-          dispatch(setPostsTotalByUserId({ totalOfPostsByUserId: 0 }));
-          dispatch(
-            setLoadingGetPostsById({ getAllPostsByUserIdLoading: false })
-          );
-        }, 1000);
+        dispatch(setPostsTotalByUserId({ totalOfPostsByUserId: 0 }));
+        dispatch(setLoadingGetPostsById({ getAllPostsByUserIdLoading: false }));
       }
     })
     .catch((error) => {
       console.error("error getPostsAvailableByUserId", error);
       dispatch(setPostsTotalByUserId({ totalOfPostsByUserId: 0 }));
 
-      setTimeout(() => {
-        dispatch(setLoadingGetPostsById({ getAllPostsByUserIdLoading: false }));
-      }, 1000);
+      dispatch(setLoadingGetPostsById({ getAllPostsByUserIdLoading: false }));
     });
 };
 
 // NOTIFICATIONS BELONGS TO LOGGED IN USER API CALL
-export const getNotificationsBelongsToLoggedUser = (
-  userAccessToken,
-  dispatch
-) => {
-  getAllNotificationsOfCurrentUser(userAccessToken)
+export const getNotificationsBelongsToLoggedUser = (dispatch) => {
+  getAllNotificationsOfCurrentUser()
     .then((notificationsResult) => {
       const { totalNotif } = notificationsResult.data;
       const notifications = notificationsResult.data.notifications;

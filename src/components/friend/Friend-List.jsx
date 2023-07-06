@@ -3,13 +3,11 @@ import { Link, useParams } from "react-router-dom";
 import { updateTheMessageById } from "../../apiCalls/messagesApiFetch";
 import { useSelector, useDispatch } from "react-redux";
 import { setSnapUserLogout } from "../../redux/slices/userSlice";
-import { accessToken } from "../../utils/getLocalStorage";
 import GlobalImage from "../global-image/GlobalImage";
 import "./Friend-List.scss";
 
 export default function FriendList({ user }) {
   const dispatch = useDispatch();
-  const access_token = accessToken();
   const { userId } = useParams();
   const userDataIdFromProp = user.id;
   const messages = user.Messages;
@@ -39,11 +37,10 @@ export default function FriendList({ user }) {
   };
 
   useEffect(() => {
-    if (userDataIdFromProp === parseInt(userId) && access_token) {
+    if (userDataIdFromProp === parseInt(userId)) {
       if (incomingMessageNotifications.length) {
         for (let i = 0; i < incomingMessageNotifications.length; i++) {
           hitApiUpdateMessageById(
-            access_token,
             incomingMessageNotifications[i].id,
             {
               receiver_id: incomingMessageNotifications[i].receiver_id,
@@ -61,7 +58,6 @@ export default function FriendList({ user }) {
     userDataIdFromProp,
     currentUserIdFromSlice,
     incomingMessageNotifications,
-    access_token,
     dispatch,
   ]);
 

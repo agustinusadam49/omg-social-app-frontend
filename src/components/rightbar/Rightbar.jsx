@@ -1,4 +1,4 @@
-import React, { useState, useEffect, Fragment } from "react";
+import React, { useState, useEffect, Fragment, useReducer } from "react";
 import { Link } from "react-router-dom";
 import Online from "../online/Online";
 import EditProfileModal from "../edit-profile-modal/EditProfileModal";
@@ -13,13 +13,41 @@ import {
   deleteFollowById,
 } from "../../apiCalls/followsApiFetch";
 import { createNewNotification } from "../../apiCalls/notificationsApiFetch";
-import { accessToken } from "../../utils/getLocalStorage";
 import { hbdChecker } from "../../utils/birthdayChecker";
 import "./Rightbar.scss";
 
+const INITIAL_FOLLOW_STATE = {
+  loading: false,
+};
+
+const actionType = {
+  FOLLOW_OR_UNFOLLOW: "FOLLOW_OR_UNFOLLOW",
+  FINISH_FOLLOW_OR_UNFOLLOW: "FINISH_FOLLOW_OR_UNFOLLOW",
+};
+
+const followReducer = (state, action) => {
+  switch (action.type) {
+    case "FOLLOW_OR_UNFOLLOW": {
+      return {
+        ...state,
+        loading: true,
+      };
+    }
+    case "FINISH_FOLLOW_OR_UNFOLLOW": {
+      return {
+        ...state,
+        loading: false,
+      };
+    }
+    default: {
+      throw Error("Unknown action: " + action.type);
+    }
+  }
+};
+
 export default function Rightbar({ profile, userId }) {
+  const [followState, mutate] = useReducer(followReducer, INITIAL_FOLLOW_STATE);
   const dispatch = useDispatch();
-  const access_token = accessToken();
   const user_id = parseInt(userId);
 
   const currentUserIdFromSlice = useSelector((state) => state.user.userId);
@@ -106,7 +134,7 @@ export default function Rightbar({ profile, userId }) {
       source_id: idOfThisFollowData,
     };
 
-    createNewNotification(access_token, payloadDataAddFollow)
+    createNewNotification(payloadDataAddFollow)
       .then(() => {})
       .catch((error) => {
         console.log("error createNewNotification:", error.response);
@@ -114,12 +142,14 @@ export default function Rightbar({ profile, userId }) {
   };
 
   const hitApiDeleteFollowById = (idOfThisFollowData) => {
-    deleteFollowById(access_token, idOfThisFollowData)
+    mutate({ type: actionType.FOLLOW_OR_UNFOLLOW });
+    deleteFollowById(idOfThisFollowData)
       .then((deleteFollowerByIdResult) => {
         if (deleteFollowerByIdResult.data.success) {
           setEditSnap(true);
           hitCreateNewNotification(idOfThisFollowData, "un-follow");
         }
+        mutate({ type: actionType.FINISH_FOLLOW_OR_UNFOLLOW });
       })
       .catch((error) => {
         const errorMessageDeleteFollowerById = error.response;
@@ -127,6 +157,8 @@ export default function Rightbar({ profile, userId }) {
           "errorMessageDeleteFollowerById",
           errorMessageDeleteFollowerById
         );
+
+        mutate({ type: actionType.FINISH_FOLLOW_OR_UNFOLLOW });
       });
   };
 
@@ -135,15 +167,19 @@ export default function Rightbar({ profile, userId }) {
     const payloadDataAddFollow = {
       ProfileId: profileId,
     };
-    addNewFollower(access_token, payloadDataAddFollow)
+    mutate({ type: actionType.FOLLOW_OR_UNFOLLOW });
+    addNewFollower(payloadDataAddFollow)
       .then((newFollowerResult) => {
         const sourceId = newFollowerResult.data.newFollow.id;
         if (newFollowerResult.data.success) {
           setEditSnap(true);
           hitCreateNewNotification(sourceId, "mem-follow");
         }
+
+        mutate({ type: actionType.FINISH_FOLLOW_OR_UNFOLLOW });
       })
       .catch((error) => {
+        mutate({ type: actionType.FINISH_FOLLOW_OR_UNFOLLOW });
         const errorAddNewFollower = error.response;
         console.log("errorAddNewFollower", errorAddNewFollower);
       });
@@ -201,8 +237,8 @@ export default function Rightbar({ profile, userId }) {
   }, [allUsersRegisterd]);
 
   useEffect(() => {
-    if (access_token) getAllUsersRegistered(access_token, dispatch);
-  }, [access_token, userSnapRegisteredStatus, dispatch]);
+    getAllUsersRegistered(dispatch);
+  }, [userSnapRegisteredStatus, dispatch]);
 
   const homeRightbar = () => {
     return (
@@ -229,19 +265,33 @@ export default function Rightbar({ profile, userId }) {
     );
   };
 
+  const displayFollowButton = () => {
+    if (followState.loading || editSnap) {
+      return (
+        <Fragment>
+          <div className="follow-button loading">Loading ...</div>
+        </Fragment>
+      );
+    }
+
+    return (
+      <Fragment>
+        <div
+          className={`follow-button ${
+            userFollower.length ? "active" : "not-active"
+          }`}
+          onClick={() => followHandler()}
+        >
+          {userFollower.length ? "Unfollow" : "Follow"}
+        </div>
+      </Fragment>
+    );
+  };
+
   const profileRightbar = (userProfileDataLogin, userDataMain) => {
     return (
       <Fragment>
-        {currentUserIdFromSlice !== user_id && (
-          <div
-            className={`follow-button ${
-              userFollower.length ? "active" : "not-active"
-            }`}
-            onClick={() => followHandler()}
-          >
-            {userFollower.length ? "Unfollow" : "Follow"}
-          </div>
-        )}
+        {currentUserIdFromSlice !== user_id && displayFollowButton()}
 
         <div className="rightbar-info">
           <h4 className="rightbar-title">User Information</h4>
@@ -470,8 +520,8 @@ export default function Rightbar({ profile, userId }) {
   }, [currentUserData, userProfile, currentUserIdFromSlice, user_id]);
 
   useEffect(() => {
-    const hitApiUserById = (tokenOfCurrentUser, idOfUserInParamUrl) => {
-      getUserById(tokenOfCurrentUser, idOfUserInParamUrl)
+    const hitApiUserById = (idOfUserInParamUrl) => {
+      getUserById(idOfUserInParamUrl)
         .then((userById) => {
           const user = userById.data.userByIdData;
           const follower = userById.data.userByIdFollower;
@@ -493,22 +543,15 @@ export default function Rightbar({ profile, userId }) {
         });
     };
 
-    if (profile && access_token) {
+    if (profile) {
       if (user_id === currentUserIdFromSlice) {
-        userInfoLogin(access_token, dispatch);
+        userInfoLogin(dispatch);
         setEditSnap(false);
       } else {
-        hitApiUserById(access_token, user_id);
+        hitApiUserById(user_id);
       }
     }
-  }, [
-    access_token,
-    user_id,
-    currentUserIdFromSlice,
-    editSnap,
-    profile,
-    dispatch,
-  ]);
+  }, [user_id, currentUserIdFromSlice, editSnap, profile, dispatch]);
 
   return (
     <div className="rightbar">

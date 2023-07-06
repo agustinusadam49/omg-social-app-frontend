@@ -1,8 +1,4 @@
-import React, {
-  useEffect,
-  useMemo,
-  useState,
-} from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import PersonIcon from "@mui/icons-material/Person";
 import ChatIcon from "@mui/icons-material/Chat";
@@ -12,7 +8,6 @@ import EventIcon from "@mui/icons-material/Event";
 import PeopleIcon from "@mui/icons-material/People";
 import PersonPinIcon from "@mui/icons-material/PersonPin";
 import { useSelector, useDispatch } from "react-redux";
-import { accessToken } from "../../utils/getLocalStorage";
 import {
   getNotificationsBelongsToLoggedUser,
   getAllUsersRegistered,
@@ -29,7 +24,6 @@ import {
 import "./MobileBottomNavigation.scss";
 
 export default function MobileBottomNavigation() {
-  const access_token = accessToken();
   const dispatch = useDispatch();
 
   const notificationsPath = {
@@ -57,7 +51,8 @@ export default function MobileBottomNavigation() {
   const currentUserIdFromSlice = useSelector((state) => state.user.userId);
   const allUsersRegisterd = useSelector((state) => state.user.allUsers);
 
-  const [usersOnlineWithoutCurrentUser, setUsersOnlineWithoutCurrentUser] = useState([]);
+  const [usersOnlineWithoutCurrentUser, setUsersOnlineWithoutCurrentUser] =
+    useState([]);
 
   const currentPathName = useMemo(() => {
     const path = pathname;
@@ -109,7 +104,9 @@ export default function MobileBottomNavigation() {
 
   const checkUserOnlineBadge = () => {
     if (totalUserOnline) {
-      return <span className="mobile-bottom-icon-badge">{totalUserOnline}</span>;
+      return (
+        <span className="mobile-bottom-icon-badge">{totalUserOnline}</span>
+      );
     }
   };
 
@@ -138,23 +135,21 @@ export default function MobileBottomNavigation() {
   }, [pathname, dispatch]);
 
   useEffect(() => {
-    if (access_token) {
-      getNotificationsBelongsToLoggedUser(access_token, dispatch);
-    }
+    getNotificationsBelongsToLoggedUser(dispatch);
 
     return () => {
       dispatch(setFollowerNotif({ followerNotifData: [] }));
       dispatch(setMessageNotif({ messageNotifData: [] }));
       dispatch(setPostNotif({ postNotifData: [] }));
     };
-  }, [access_token, userSnapRegisteredStatus, dispatch]);
+  }, [userSnapRegisteredStatus, dispatch]);
 
   useEffect(() => {
-    if (access_token) getAllUsersRegistered(access_token, dispatch);
-  }, [access_token, dispatch]);
+    getAllUsersRegistered(dispatch);
+  }, [dispatch]);
 
   return (
-    <div className="mobile-bottom-navigation">
+    <div className="content-container mobile-bottom-navigation">
       <div className="mobile-bottom-wrapper">
         <div className="mobile-bottom-icons-section">
           <Link

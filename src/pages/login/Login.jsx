@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useReducer } from "react";
 import { Link } from "react-router-dom";
 import { formValidationV2 } from "../../utils/formValidationFunction";
 import { setToLocalStorageWhenSuccess } from "../../utils/setLocalStorage";
@@ -7,9 +7,19 @@ import { setIsAuthUser, setUserToken } from "../../redux/slices/userSlice";
 import { useDispatch } from "react-redux";
 import InputTextGlobal from "../../components/input-text-global/InputTextGlobal";
 import GlobalButton from "../../components/button/GlobalButton";
+import {
+  INITIAL_LOADING_STATE,
+  actionType,
+  loadingReducer,
+} from "../../utils/reducers/globalLoadingReducer";
+import RoundedLoader from "../../components/rounded-loader/RoundedLoader";
 import "./Login.scss";
 
 export default function Login() {
+  const [loadingState, mutate] = useReducer(
+    loadingReducer,
+    INITIAL_LOADING_STATE
+  );
   const dispatch = useDispatch();
 
   const emailRef = useRef();
@@ -23,9 +33,12 @@ export default function Login() {
   const clearLoginField = () => {
     emailRef.current.value = "";
     passwordRef.current.value = "";
+    mutate({ type: actionType.STOP_LOADING_STATUS });
   };
 
   const doLogin = () => {
+    if (loadingState.status) return;
+
     const loginValidationCheck = {
       email: {
         currentValue: emailRef.current.value,
@@ -40,6 +53,7 @@ export default function Login() {
     const isValid = formValidationV2(loginValidationCheck, setErrorMessage);
 
     if (isValid) {
+      mutate({ type: actionType.RUN_LOADING_STATUS });
       const payloadLogin = {
         userEmail: loginValidationCheck.email.currentValue,
         userPassword: loginValidationCheck.password.currentValue,
@@ -47,6 +61,7 @@ export default function Login() {
 
       loginUser(payloadLogin)
         .then((userResponseLogin) => {
+          mutate({ type: actionType.RUN_LOADING_STATUS });
           const successResponse = userResponseLogin.data;
           setToLocalStorageWhenSuccess(
             successResponse.user_token,
@@ -62,6 +77,7 @@ export default function Login() {
           dispatch(setIsAuthUser({ isAuth: true }));
         })
         .catch((error) => {
+          mutate({ type: actionType.STOP_LOADING_STATUS });
           const errorMessageFromServer = error.response.data.err.errorMessage;
           const errorForState = {
             email: [],
@@ -89,9 +105,7 @@ export default function Login() {
 
   return (
     <div className="login">
-
       <div className="login-wrapper">
-
         <div className="login-left">
           <h3 className="login-logo">Omongin</h3>
           <span className="login-description">
@@ -117,11 +131,17 @@ export default function Login() {
               inputSecondErrorMessage={errorMessage["other"]}
             />
 
-            <GlobalButton
-              buttonLabel={"Log In"}
-              classStyleName="login-button"
-              onClick={doLogin}
-            />
+            {!loadingState.status ? (
+              <GlobalButton
+                buttonLabel="Log In"
+                classStyleName="login-button"
+                onClick={doLogin}
+              />
+            ) : (
+              <div className="login-button-loading">
+                <RoundedLoader baseColor="gray" secondaryColor="white" />
+              </div>
+            )}
 
             <div className="login-forgot-wrapper">
               <span className="login-forgot">Forgot Password?</span>
@@ -132,9 +152,7 @@ export default function Login() {
             </Link>
           </div>
         </div>
-
       </div>
-
     </div>
   );
 }

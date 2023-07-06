@@ -114,6 +114,8 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
+      height: 30px;
+      box-sizing: border-box;
 
       .post-bottom-left {
         display: flex;

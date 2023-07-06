@@ -3,12 +3,10 @@ import CancelIcon from "@mui/icons-material/Cancel";
 import { useDispatch, useSelector } from "react-redux";
 import { setIsUserSuggestionModalOpen } from "../../redux/slices/userSlice";
 import { getAllUsersRegistered } from "../../redux/apiCalls";
-import { accessToken } from "../../utils/getLocalStorage";
 import FriendList from "../friend/Friend-List";
 import "./UserSuggestionModal.scss";
 
 export default function UserSuggestionModal() {
-  const access_token = accessToken();
   const dispatch = useDispatch();
 
   const [usersYouMayKnow, setUsersYouMayKnow] = useState([]);
@@ -27,8 +25,8 @@ export default function UserSuggestionModal() {
   }, [allUsersRegisterd, currentUserIdFromSlice]);
 
   useEffect(() => {
-    if (access_token) getAllUsersRegistered(access_token, dispatch);
-  }, [access_token, dispatch]);
+    getAllUsersRegistered(dispatch);
+  }, [dispatch]);
 
   return (
     <div className="content-container user-suggestion-modal">

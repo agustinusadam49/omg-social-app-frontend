@@ -1,4 +1,11 @@
-import React, { useState, useEffect, memo, useRef, useMemo } from "react";
+import React, {
+  useState,
+  useEffect,
+  memo,
+  useRef,
+  useMemo,
+  useReducer,
+} from "react";
 import { Link } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import TextItems from "./text-items/TextItems";
@@ -8,13 +15,20 @@ import {
 } from "../../apiCalls/messagesApiFetch";
 import { setSnapUserLogout } from "../../redux/slices/userSlice";
 import { updateTheMessageById } from "../../apiCalls/messagesApiFetch";
-import { accessToken } from "../../utils/getLocalStorage";
 import { io } from "socket.io-client";
+import {
+  INITIAL_LOADING_STATE,
+  actionType,
+  loadingReducer,
+} from "../../utils/reducers/globalLoadingReducer";
+import RoundedLoader from "../rounded-loader/RoundedLoader";
 import "./MessageBox.scss";
 
 const MessageBox = ({ paramUserId }) => {
-  const access_token = accessToken();
-
+  const [loadingState, mutate] = useReducer(
+    loadingReducer,
+    INITIAL_LOADING_STATE
+  );
   const dispatch = useDispatch();
 
   const socket = useRef(null);
@@ -22,19 +36,22 @@ const MessageBox = ({ paramUserId }) => {
 
   const currentUserIdFromSlice = useSelector((state) => state.user.userId);
   const currentUserNameFromSlice = useSelector((state) => state.user.userName);
-  const currentUserAvatarFromSlice = useSelector((state) => state.user.userAvatarPicture);
+  const currentUserAvatarFromSlice = useSelector(
+    (state) => state.user.userAvatarPicture
+  );
 
   const [usersOnline, setUsersOnline] = useState([]);
   const [messageText, setMessageText] = useState("");
   const [allMessages, setAllMessages] = useState([]);
   const [mappedMessages, setMappedMessages] = useState(allMessages || []);
   const [whoIsWriting, setWhoIsWriting] = useState("");
-  const [isThisUserVisitedMyProfile, setIsThisUserVisitedMyProfile] = useState(false);
+  const [isThisUserVisitedMyProfile, setIsThisUserVisitedMyProfile] =
+    useState(false);
   const [isTyping, setIsTyping] = useState(false);
 
   const emitSocket = (emitName, payload) => {
     socket.current.emit(emitName, payload);
-  }
+  };
 
   const displayWhoIsWritting = () => {
     if (isThisUserVisitedMyProfile === true) {
@@ -49,17 +66,19 @@ const MessageBox = ({ paramUserId }) => {
   };
 
   const sendNewMessage = () => {
-    hitApiCreateNewMessage(access_token);
+    if (loadingState.status) return;
+    hitApiCreateNewMessage();
   };
 
   const doCreateNewMessageWithEnter = (event) => {
+    if (loadingState.status) return;
     if (event.key === "Enter" && messageText !== "") {
-      hitApiCreateNewMessage(access_token);
+      hitApiCreateNewMessage();
     }
   };
 
-  const hitApiUpdateMessageById = (userAccessToken, messageId, payloadBody) => {
-    updateTheMessageById(userAccessToken, messageId, payloadBody)
+  const hitApiUpdateMessageById = (messageId, payloadBody) => {
+    updateTheMessageById(messageId, payloadBody)
       .then(() => {})
       .catch((error) => {
         console.log(
@@ -69,14 +88,14 @@ const MessageBox = ({ paramUserId }) => {
       });
   };
 
-  const hitApiCreateNewMessage = (userAccessToken) => {
+  const hitApiCreateNewMessage = () => {
+    mutate({ type: actionType.RUN_LOADING_STATUS });
     const payloadToCreateMessage = {
       receiver_id: paramUserId,
       message_text: messageText,
       senderName: currentUserNameFromSlice,
     };
-
-    createNewMessageData(userAccessToken, payloadToCreateMessage)
+    createNewMessageData(payloadToCreateMessage)
       .then((newMessageResult) => {
         const successCreateNewMessage = newMessageResult.data.success;
         if (successCreateNewMessage === true) {
@@ -93,18 +112,20 @@ const MessageBox = ({ paramUserId }) => {
           };
 
           if (isThisUserVisitedMyProfile === true) {
-            hitApiUpdateMessageById(access_token, newMessageDataDB.id, {
+            hitApiUpdateMessageById(newMessageDataDB.id, {
               receiver_id: newMessageDataDB.receiver_id,
               message_text: newMessageDataDB.message_text,
               isRead: true,
               UserId: newMessageDataDB.UserId,
             });
-            emitSocket("sendPrivateMessage", createObjNewMessages)
-            emitSocket("sendNotif", createObjNewMessages)
+            emitSocket("sendPrivateMessage", createObjNewMessages);
+            emitSocket("sendNotif", createObjNewMessages);
           } else {
-            const findUserReceiverId = usersOnline.filter((user) => user.userId === paramUserId);
+            const findUserReceiverId = usersOnline.filter(
+              (user) => user.userId === paramUserId
+            );
             if (!!findUserReceiverId.length) {
-              emitSocket("sendNotif", createObjNewMessages)
+              emitSocket("sendNotif", createObjNewMessages);
             }
           }
 
@@ -112,20 +133,20 @@ const MessageBox = ({ paramUserId }) => {
           scrollRef.current?.lastElementChild?.scrollIntoView({
             behaviour: "smooth",
             block: "start",
-            inline: "nearest"
+            inline: "nearest",
           });
+
+          mutate({ type: actionType.STOP_LOADING_STATUS });
         }
       })
       .catch((error) => {
         console.log("failed to create new message:", error.response);
+        mutate({ type: actionType.STOP_LOADING_STATUS });
       });
   };
 
-  const hitApiGetMessagesData = (
-    userAccessToken,
-    userIdFromUrlParam,
-  ) => {
-    getAllMessagesData(userAccessToken, userIdFromUrlParam)
+  const hitApiGetMessagesData = (userIdFromUrlParam) => {
+    getAllMessagesData(userIdFromUrlParam)
       .then((chatData) => {
         const { totalMessages } = chatData.data;
         if (totalMessages) {
@@ -143,7 +164,13 @@ const MessageBox = ({ paramUserId }) => {
   };
 
   useEffect(() => {
-    socket.current = io("ws://localhost:8900");
+    // socket.current = io(process.env.REACT_APP_SOCKET_IO_URL, {
+    //   withCredentials: true,
+    //   extraHeaders: {
+    //     "my-custom-header": "abcd"
+    //   }
+    // });
+    socket.current = io(process.env.REACT_APP_SOCKET_IO_URL);
     socket.current.on("incommingPrivateMessage", (incommingMessage) => {
       setMappedMessages((oldArray) => [...oldArray, incommingMessage]);
     });
@@ -220,9 +247,12 @@ const MessageBox = ({ paramUserId }) => {
 
   useEffect(() => {
     if (usersOnline.length && paramUserId) {
-      const findThisUserWhenOnline = usersOnline.find((user) => user.userId === paramUserId);
+      const findThisUserWhenOnline = usersOnline.find(
+        (user) => user.userId === paramUserId
+      );
       const userProfileIdVisited = findThisUserWhenOnline?.userProfileIdVisited;
-      const isThisUserAlsoVisitedMe = userProfileIdVisited === currentUserIdFromSlice;
+      const isThisUserAlsoVisitedMe =
+        userProfileIdVisited === currentUserIdFromSlice;
       // console.log("Dimanakah user ini sedang berada:", userProfileIdVisited);
       // console.log(
       //   isThisUserAlsoVisitedMe
@@ -253,17 +283,14 @@ const MessageBox = ({ paramUserId }) => {
   }, [allMessages]);
 
   useEffect(() => {
-    if (currentUserIdFromSlice && access_token) {
-      hitApiGetMessagesData(
-        access_token,
-        paramUserId,
-      );
+    if (currentUserIdFromSlice) {
+      hitApiGetMessagesData(paramUserId);
     }
-  }, [
-    access_token,
-    paramUserId,
-    currentUserIdFromSlice
-  ]);
+
+    return () => {
+      setAllMessages([]);
+    };
+  }, [paramUserId, currentUserIdFromSlice]);
 
   const mappedMessageForRendering = useMemo(() => {
     const messages = mappedMessages;
@@ -309,17 +336,27 @@ const MessageBox = ({ paramUserId }) => {
             onChange={(e) => handleTypingMessage(e.target.value)}
           />
 
-          <button
-            className={
-              messageText !== ""
-                ? "messages-button-send"
-                : "messages-button-send-disabled"
-            }
-            disabled={!messageText}
-            onClick={sendNewMessage}
-          >
-            Send
-          </button>
+          {!loadingState.status ? (
+            <button
+              className={
+                messageText !== ""
+                  ? "messages-button-send"
+                  : "messages-button-send-disabled"
+              }
+              disabled={!messageText}
+              onClick={sendNewMessage}
+            >
+              Send
+            </button>
+          ) : (
+            <button className="messages-button-send">
+              <RoundedLoader
+                size={14}
+                baseColor="rgb(251, 226, 226)"
+                secondaryColor="green"
+              />
+            </button>
+          )}
         </div>
       </div>
     </div>

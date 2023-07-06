@@ -1,20 +1,32 @@
-import React, { Fragment, useEffect, useState, useMemo } from "react";
-
+import React, {
+  Fragment,
+  useEffect,
+  useState,
+  useMemo,
+  useReducer,
+} from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { getNotificationsBelongsToLoggedUser } from "../../redux/apiCalls";
-import { accessToken } from "../../utils/getLocalStorage";
 import { setFollowerNotif } from "../../redux/slices/notificationSlice";
 import { updateAllNotificationStatusNotRead } from "../../apiCalls/notificationsApiFetch";
-
 import NotificationCard from "../notification-card/NotificationCard";
 import PaginationNotif from "../pagination-notif/PaginationNotif";
 import GlobalButton from "../button/GlobalButton";
 import EmptyStateNotification from "../empty-state-notification/EmptyStateNotification";
+import {
+  INITIAL_LOADING_STATE,
+  actionType,
+  loadingReducer,
+} from "../../utils/reducers/globalLoadingReducer";
+import RoundedLoader from "../rounded-loader/RoundedLoader";
 
 import "./FollowerNotifContents.scss";
 
 export default function FollowerNotifContents() {
-  const access_token = accessToken();
+  const [loadingState, mutate] = useReducer(
+    loadingReducer,
+    INITIAL_LOADING_STATE
+  );
   const dispatch = useDispatch();
 
   const followerNotifFromSlice = useSelector(
@@ -33,18 +45,14 @@ export default function FollowerNotifContents() {
   }, [followerNotifFromSlice]);
 
   const changeButton = () => {
+    if (loadingState.status) return;
     if (!notReadYetFollowerNotifications.length) return;
-
+    mutate({ type: actionType.RUN_LOADING_STATUS });
     const payloadUpdate = {
       type: "Follows",
       isRead: true,
     };
-
-    updateAllNotificationStatusNotRead(
-      access_token,
-      currentUserIdFromSlice,
-      payloadUpdate
-    )
+    updateAllNotificationStatusNotRead(currentUserIdFromSlice, payloadUpdate)
       .then((updateResponse) => {
         const response = updateResponse.data;
         if (response.success === true) {
@@ -56,6 +64,7 @@ export default function FollowerNotifContents() {
             }));
 
           dispatch(setFollowerNotif({ followerNotifData: changeAllIsReadStatus }));
+          mutate({ type: actionType.STOP_LOADING_STATUS });
         }
       })
       .catch((error) => {
@@ -63,6 +72,7 @@ export default function FollowerNotifContents() {
           error?.response?.data?.err?.errorMessage ||
           "failed edit notification status read by id!";
         console.log(errorMessageFromApi);
+        mutate({ type: actionType.STOP_LOADING_STATUS });
       });
   };
 
@@ -84,19 +94,27 @@ export default function FollowerNotifContents() {
   };
 
   const displayButtonMarkAllNotif = () => {
-    if (followerNotifFromSlice.length) {
+    if (!loadingState.status) {
+      if (followerNotifFromSlice.length) {
+        return (
+          <GlobalButton
+            classStyleName={`follower-notif-mark-all-notif-button ${
+              totalAllIsRead ? "active" : "not-active"
+            }`}
+            buttonLabel={
+              totalAllIsRead
+                ? "Tandai semua sebagai dibaca"
+                : "Semua notif telah dibaca"
+            }
+            onClick={() => changeButton()}
+          />
+        );
+      }
+    } else {
       return (
-        <GlobalButton
-          classStyleName={`follower-notif-mark-all-notif-button ${
-            totalAllIsRead ? "active" : "not-active"
-          }`}
-          buttonLabel={
-            totalAllIsRead
-              ? "Tandai semua sebagai dibaca"
-              : "Semua notif telah dibaca"
-          }
-          onClick={() => changeButton()}
-        />
+        <div className="follower-notif-mark-all-notif-button active">
+          <RoundedLoader baseColor="gray" secondaryColor="white" />
+        </div>
       );
     }
   };
@@ -138,14 +156,8 @@ export default function FollowerNotifContents() {
   }, [followerNotifFromSlice]);
 
   useEffect(() => {
-    if (access_token) {
-      getNotificationsBelongsToLoggedUser(access_token, dispatch);
-    }
-
-    return () => {
-      dispatch(setFollowerNotif({ followerNotifData: [] }));
-    };
-  }, [access_token, dispatch]);
+    getNotificationsBelongsToLoggedUser(dispatch);
+  }, [dispatch]);
 
   return (
     <div className="follower-notif-contents">

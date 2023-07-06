@@ -1,22 +1,35 @@
-import React from "react";
+import React, { useReducer } from "react";
 import { Link } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { doUserLogout } from "../../redux/apiCalls";
+import {
+  INITIAL_LOADING_STATE,
+  loadingReducer,
+} from "../../utils/reducers/globalLoadingReducer";
+import RoundedLoader from "../rounded-loader/RoundedLoader";
 import "./ProfileBox.scss";
 
-export default function ProfileBox({classStyleAddOn}) {
+export default function ProfileBox({ classStyleAddOn }) {
+  const [loadingState, mutate] = useReducer(
+    loadingReducer,
+    INITIAL_LOADING_STATE
+  );
   const dispatch = useDispatch();
   const currentUserNameFromSlice = useSelector((state) => state.user.userName);
   const currentUserIdFromSlice = useSelector((state) => state.user.userId);
-  const currentUserAvatarFromSlice = useSelector((state) => state.user.userAvatarPicture);
-  const currentUserEmail = useSelector((state) => state.user.currentUsers.userEmail);
+  const currentUserAvatarFromSlice = useSelector(
+    (state) => state.user.userAvatarPicture
+  );
+  const currentUserEmail = useSelector(
+    (state) => state.user.currentUsers.userEmail
+  );
 
   const addClassStyleAddOn = () => {
-    return !!classStyleAddOn.length ? classStyleAddOn.join(" ") : ''
-  }
+    return !!classStyleAddOn.length ? classStyleAddOn.join(" ") : "";
+  };
 
   const doLogout = () => {
-    doUserLogout(currentUserIdFromSlice, dispatch);
+    doUserLogout(currentUserIdFromSlice, mutate, dispatch);
   };
 
   return (
@@ -42,9 +55,19 @@ export default function ProfileBox({classStyleAddOn}) {
       </div>
 
       <div className="profile-box-logout-inner-wrapper">
-        <div className="profile-box-logout-button" onClick={doLogout}>
-          Logout
-        </div>
+        {!loadingState.status ? (
+          <div className="profile-box-logout-button" onClick={doLogout}>
+            Logout
+          </div>
+        ) : (
+          <div className="profile-box-logout-button">
+            <RoundedLoader
+              size={14}
+              baseColor="rgb(251, 226, 226)"
+              secondaryColor="white"
+            />
+          </div>
+        )}
       </div>
     </div>
   );

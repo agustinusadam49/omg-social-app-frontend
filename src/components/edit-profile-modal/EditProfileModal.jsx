@@ -3,7 +3,6 @@ import CancelIcon from "@mui/icons-material/Cancel";
 import { formValidation } from "../../utils/formValidationFunction";
 import { updateProfileById } from "../../apiCalls/profileApiFetch";
 import { uploadImagePosting } from "../../apiCalls/postsApiFetch";
-import { accessToken } from "../../utils/getLocalStorage";
 import InputTextGlobalV2 from "../input-text-global-v2/InputTextGlobalV2";
 import GlobalButton from "../button/GlobalButton";
 import "./EditProfileModal.scss";
@@ -18,17 +17,23 @@ const EditProfileModal = ({
   const avatarUrl = userProfileData.avatarUrl;
   const profileCover = userProfileData.profileCoverUrl;
 
-  const access_token = accessToken();
-
   const [biodata, setBiodata] = useState(userProfileData.biodata || "");
   const [addressData, setAddressData] = useState(userProfileData.address || "");
   const [birthdate, setBirthdate] = useState(userProfileData.birthDate || "");
   const [statusUser, setStatusUser] = useState(userProfileData.status || "");
   const [quotes, setQuotes] = useState(userProfileData.quotes || "");
-  const [userPhoneNumber, setUserPhoneNumber] = useState(userProfileData.phoneNumber || "");
-  const [userCurrentCity, setUserCurrentCity] = useState(userProfileData.currentCity || "");
-  const [userNationality, setUserNationality] = useState(userProfileData.nationality || "");
-  const [userRelationship, setUserRelationship] = useState(userProfileData.relationship || "");
+  const [userPhoneNumber, setUserPhoneNumber] = useState(
+    userProfileData.phoneNumber || ""
+  );
+  const [userCurrentCity, setUserCurrentCity] = useState(
+    userProfileData.currentCity || ""
+  );
+  const [userNationality, setUserNationality] = useState(
+    userProfileData.nationality || ""
+  );
+  const [userRelationship, setUserRelationship] = useState(
+    userProfileData.relationship || ""
+  );
   const [avatarUrlFile, setAvatarUrlFile] = useState(null);
   const [profileCoverFile, setProfileCoverFile] = useState(null);
   const [uploadProgress, setUploadProgress] = useState(0);
@@ -63,8 +68,8 @@ const EditProfileModal = ({
     closeModalEditProfile(statusValue);
   };
 
-  const hitApiEditProfile = (userToken, idOfProfile, payloadData) => {
-    updateProfileById(userToken, idOfProfile, payloadData)
+  const hitApiEditProfile = (idOfProfile, payloadData) => {
+    updateProfileById(idOfProfile, payloadData)
       .then((editProfileByIdResponse) => {
         const successEditProfile = editProfileByIdResponse.data.success;
         if (successEditProfile) {
@@ -118,7 +123,7 @@ const EditProfileModal = ({
         relationship: profileDataToValidateCheck.relationship,
       };
 
-      hitApiEditProfile(access_token, profileId, profilePayloadObj);
+      hitApiEditProfile(profileId, profilePayloadObj);
     }
   };
 
@@ -138,7 +143,7 @@ const EditProfileModal = ({
       })
         .then((response) => {
           profilePayloadObj.avatarUrl = response.data.secure_url;
-          hitApiEditProfile(access_token, profileId, profilePayloadObj);
+          hitApiEditProfile(profileId, profilePayloadObj);
           setUploadProgress(0);
         })
         .catch((error) => {
@@ -159,7 +164,7 @@ const EditProfileModal = ({
       })
         .then((response) => {
           profilePayloadObj.profileCoverUrl = response.data.secure_url;
-          hitApiEditProfile(access_token, profileId, profilePayloadObj);
+          hitApiEditProfile(profileId, profilePayloadObj);
           setUploadProgressProfile(0);
         })
         .catch((error) => {

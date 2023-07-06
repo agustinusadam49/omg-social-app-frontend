@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import React, { useMemo, useReducer } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import { rangeDay } from "../../utils/rangeDay";
@@ -12,15 +12,23 @@ import {
   updateNotificationStatusRead,
   deleteNotificationAndNotifContentById,
 } from "../../apiCalls/notificationsApiFetch";
-import { accessToken } from "../../utils/getLocalStorage";
 import { useScreenWidth } from "../../utils/screenWidth";
+import {
+  INITIAL_LOADING_STATE,
+  actionType,
+  loadingReducer,
+} from "../../utils/reducers/globalLoadingReducer";
+import RoundedLoader from "../rounded-loader/RoundedLoader";
 import "./NotificationCard.scss";
 
 export default function NotificationCard({ notifications }) {
+  const [loadingState, mutate] = useReducer(
+    loadingReducer,
+    INITIAL_LOADING_STATE
+  );
   const isDesktop = useScreenWidth("lg");
   const isMobile = useScreenWidth("mb");
   const dispatch = useDispatch();
-  const access_token = accessToken();
 
   const { type } = notifications;
   const { description, createdAt } = notifications.NotifContent;
@@ -73,12 +81,13 @@ export default function NotificationCard({ notifications }) {
   };
 
   const changeToRead = (notifId, typeNotif) => {
+    mutate({ type: actionType.RUN_LOADING_STATUS });
     const notifById = getDataNotifById(notifId, typeNotif);
     const payloadToUpdate = {
       type: notifById.type,
       notifImageUrl: notifById.notifImageUrl,
     };
-    updateNotificationStatusRead(access_token, notifById.id, payloadToUpdate)
+    updateNotificationStatusRead(notifById.id, payloadToUpdate)
       .then((updatedResponse) => {
         const response = updatedResponse.data;
         if (response.success === true) {
@@ -94,6 +103,8 @@ export default function NotificationCard({ notifications }) {
             []
           );
           notificationObj[typeNotif].function(readStatusModifiedData);
+
+          mutate({ type: actionType.STOP_LOADING_STATUS });
         }
       })
       .catch((error) => {
@@ -101,11 +112,13 @@ export default function NotificationCard({ notifications }) {
           error?.response?.data?.err?.errorMessage ||
           "failed edit notification status read by id!";
         console.log(errorMessageFromApi);
+        mutate({ type: actionType.STOP_LOADING_STATUS });
       });
   };
 
   const deleteNotificationById = (notifId, typeNotif) => {
-    deleteNotificationAndNotifContentById(access_token, notifId)
+    mutate({ type: actionType.RUN_LOADING_DELETE });
+    deleteNotificationAndNotifContentById(notifId)
       .then((deletedNotifResponse) => {
         const response = deletedNotifResponse.data;
         if (response.success === true) {
@@ -116,6 +129,7 @@ export default function NotificationCard({ notifications }) {
             }));
 
           notificationObj[typeNotif].function(notifDataWithoutSelectedId);
+          mutate({ type: actionType.STOP_LOADING_DELETE });
         }
       })
       .catch((error) => {
@@ -123,6 +137,7 @@ export default function NotificationCard({ notifications }) {
           error?.response?.data?.err?.errorMessage ||
           "failed delete notification by id!";
         console.log(errorMessageFromApi);
+        mutate({ type: actionType.STOP_LOADING_DELETE });
       });
   };
 
@@ -154,46 +169,84 @@ export default function NotificationCard({ notifications }) {
 
         {isMobile && (
           <div className="notif-action-buttons-position-for-mobile-screen">
-            {!notifications.isRead ? (
-              <div
-                className="notif-action-circle-button"
-                onClick={() => changeToRead(notifications.id, notifType)}
-              />
-            ) : (
-              <div className="notif-has-read">sudah dibaca</div>
+            {!loadingState.status && (
+              <>
+                {!notifications.isRead ? (
+                  <div
+                    className="notif-action-circle-button"
+                    onClick={() => changeToRead(notifications.id, notifType)}
+                  />
+                ) : (
+                  <div className="notif-has-read">sudah dibaca</div>
+                )}
+              </>
             )}
 
-            <div className="notif-action-delete-button-mbl-screen-wrapper">
-              <img
-                src={notifImageUrl.DELETE}
-                alt="notif-img-delete-button"
-                className="notif-action-delete-button-mbl-screen"
-                onClick={() =>
-                  deleteNotificationById(notifications.id, notifType)
-                }
+            {loadingState.status && (
+              <RoundedLoader
+                baseColor="rgb(251, 226, 226)"
+                secondaryColor="rgb(95, 157, 95)"
               />
-            </div>
+            )}
+
+            {!loadingState.delete ? (
+              <div className="notif-action-delete-button-mbl-screen-wrapper">
+                <img
+                  src={notifImageUrl.DELETE}
+                  alt="notif-img-delete-button"
+                  className="notif-action-delete-button-mbl-screen"
+                  onClick={() =>
+                    deleteNotificationById(notifications.id, notifType)
+                  }
+                />
+              </div>
+            ) : (
+              <RoundedLoader
+                baseColor="rgb(251, 226, 226)"
+                secondaryColor="red"
+              />
+            )}
           </div>
         )}
       </div>
 
       {isDesktop && (
         <div className="notif-action-buttons">
-          {!notifications.isRead ? (
-            <div
-              className="notif-action-circle-button"
-              onClick={() => changeToRead(notifications.id, notifType)}
-            />
-          ) : (
-            <div className="notif-has-read">sudah dibaca</div>
+          {!loadingState.status && (
+            <>
+              {!notifications.isRead ? (
+                <div
+                  className="notif-action-circle-button"
+                  onClick={() => changeToRead(notifications.id, notifType)}
+                />
+              ) : (
+                <div className="notif-has-read">sudah dibaca</div>
+              )}
+            </>
           )}
 
-          <img
-            src={notifImageUrl.DELETE}
-            alt="notif-img-delete-button"
-            className="notif-action-delete-button"
-            onClick={() => deleteNotificationById(notifications.id, notifType)}
-          />
+          {loadingState.status && (
+            <RoundedLoader
+              baseColor="rgb(251, 226, 226)"
+              secondaryColor="rgb(95, 157, 95)"
+            />
+          )}
+
+          {!loadingState.delete ? (
+            <img
+              src={notifImageUrl.DELETE}
+              alt="notif-img-delete-button"
+              className="notif-action-delete-button"
+              onClick={() =>
+                deleteNotificationById(notifications.id, notifType)
+              }
+            />
+          ) : (
+            <RoundedLoader
+              baseColor="rgb(251, 226, 226)"
+              secondaryColor="red"
+            />
+          )}
         </div>
       )}
     </div>

@@ -17,21 +17,25 @@ const UserCommentItems = ({
 }) => {
   const dispatch = useDispatch();
 
-  const addNewReply = useSelector((state) => state.comments.isAddNewReplyComment);
+  const addNewReply = useSelector(
+    (state) => state.comments.isAddNewReplyComment
+  );
   const currentUserIdFromSlice = useSelector((state) => state.user.userId);
 
   const [isViewReply, setIsViewReply] = useState(false);
   const [isOpenReplyBox, setIsOpenReplyBox] = useState(false);
   const [thisReplies, setThisReplies] = useState([]);
   const [repliesLastIndex, setRepliesLastIndex] = useState(0);
+  const [isLoadingCommentReply, setIsLoadingCommentReply] = useState(false);
 
   const comment_id = commentData.id;
 
   const viewReplyToggleHandler = (isView) => {
+    if (isLoadingCommentReply) return;
     setIsViewReply(isView);
-    if (isView === true) {
-      dispatch(setIsAddNewReplyComment({ successAddNewReplyComment: true }));
-    }
+    // if (isView === true) {
+    //   dispatch(setIsAddNewReplyComment({ successAddNewReplyComment: true }));
+    // }
   };
 
   const openAddReplyBoxToggleHandler = (isOpenReplyBoxValue) => {
@@ -39,7 +43,9 @@ const UserCommentItems = ({
   };
 
   const checkForReplyOwner = () => {
-    const isUserOwnThisReply = thisReplies.filter((reply) => reply.UserId === userPostIdFromFeed);
+    const isUserOwnThisReply = thisReplies.filter(
+      (reply) => reply.UserId === userPostIdFromFeed
+    );
     if (isUserOwnThisReply.length)
       return ` from ${isUserOwnThisReply[0].User.userName} ${
         thisReplies.length > 1 ? " and others" : ""
@@ -49,32 +55,57 @@ const UserCommentItems = ({
 
   useEffect(() => {
     const getDataRepliesByCommentId = (idOfComment) => {
+      setIsLoadingCommentReply(true);
       getAllRepliesDataByCommentId(idOfComment)
         .then((repliesByCommentId) => {
-          const repliesByCommentIdTotal = repliesByCommentId.data.totalReplyCommentsByCommentId;
+          const repliesByCommentIdTotal =
+            repliesByCommentId.data.totalReplyCommentsByCommentId;
           if (repliesByCommentIdTotal > 0) {
-            const repliesByCommentIdDataArray = repliesByCommentId.data.replyCommentsByCommentId;
+            setIsLoadingCommentReply(false);
+            const repliesByCommentIdDataArray =
+              repliesByCommentId.data.replyCommentsByCommentId;
             setThisReplies(repliesByCommentIdDataArray);
             setRepliesLastIndex(repliesByCommentIdTotal - 1);
-            dispatch(setIsAddNewReplyComment({ successAddNewReplyComment: false }));
+            dispatch(
+              setIsAddNewReplyComment({ successAddNewReplyComment: false })
+            );
+            
           } else {
+            setIsLoadingCommentReply(false);
             setThisReplies([]);
             setRepliesLastIndex(0);
-            dispatch(setIsAddNewReplyComment({ successAddNewReplyComment: false }));
+            dispatch(
+              setIsAddNewReplyComment({ successAddNewReplyComment: false })
+            );
           }
         })
         .catch((error) => {
+          setIsLoadingCommentReply(false);
           console.log("Error getAllRepliesDataByCommentId", error);
         });
     };
 
     getDataRepliesByCommentId(comment_id);
-  }, [comment_id, addNewReply, isOpenReplyBox, dispatch]);
+
+    return () => {
+      setThisReplies([]);
+      setRepliesLastIndex(0);
+      dispatch(setIsAddNewReplyComment({ successAddNewReplyComment: false }));
+      setIsLoadingCommentReply(false);
+    };
+  }, [
+    comment_id,
+    addNewReply,
+    // isOpenReplyBox,
+    dispatch
+  ]);
 
   return (
     <div className="user-comment-items">
       <div className="user-comments-wrapper">
-        <Link to={`/profile/${commentData.User.userName}/user-id/${commentData.UserId}`}>
+        <Link
+          to={`/profile/${commentData.User.userName}/user-id/${commentData.UserId}`}
+        >
           <img
             src={commentData.User.Profile.avatarUrl}
             alt="user-avatar-comments-item"
@@ -102,21 +133,28 @@ const UserCommentItems = ({
           <div className="comments-bottom-section-wrapper-container">
             <div
               className="comments-reply-button"
-              onClick={() => openAddReplyBoxToggleHandler(!isOpenReplyBox)}>
+              onClick={() => openAddReplyBoxToggleHandler(!isOpenReplyBox)}
+            >
               Reply
             </div>
 
             {thisReplies && thisReplies.length > 0 && (
               <div
                 className="view-comments-reply-button"
-                onClick={() => viewReplyToggleHandler(!isViewReply)}>
-                {isViewReply ? "Hide " : "View "} {thisReplies.length}{" "}
-                {thisReplies.length < 2 ? "reply" : "replies"}{" "}
-                {checkForReplyOwner()}
+                onClick={() => viewReplyToggleHandler(!isViewReply)}
+              >
+                {!isLoadingCommentReply ? (
+                  <>
+                    {isViewReply ? "Hide " : "View "} {thisReplies.length}{" "}
+                    {thisReplies.length < 2 ? "reply" : "replies"}{" "}
+                    {checkForReplyOwner()}
+                  </>
+                ) : (
+                  <>Loading ...</>
+                )}
               </div>
             )}
           </div>
-
 
           {isOpenReplyBox && (
             <ReplyCommentInput
@@ -126,7 +164,6 @@ const UserCommentItems = ({
               setIsOpenReplyBox={setIsOpenReplyBox}
             />
           )}
-
 
           {/* Panggil component ReplyItem */}
           {isViewReply &&

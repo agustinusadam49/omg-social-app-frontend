@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useReducer } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import UserCommentItems from "../user-comment-items/UserCommentItems";
 import {
@@ -7,9 +7,19 @@ import {
 } from "../../apiCalls/commentsApiFetch";
 import { setIsAddNewComment } from "../../redux/slices/commentsSlice";
 import { Link } from "react-router-dom";
+import {
+  INITIAL_LOADING_STATE,
+  actionType,
+  loadingReducer,
+} from "../../utils/reducers/globalLoadingReducer";
+import RoundedLoader from "../rounded-loader/RoundedLoader";
 import "./Comments.scss";
 
 const Comments = ({ postId, postUserId }) => {
+  const [loadingState, mutate] = useReducer(
+    loadingReducer,
+    INITIAL_LOADING_STATE
+  );
   const dispatch = useDispatch();
   const currentUserAvatarFromSlice = useSelector(
     (state) => state.user.userAvatarPicture
@@ -31,6 +41,7 @@ const Comments = ({ postId, postUserId }) => {
   };
 
   const sendNewComment = () => {
+    mutate({ type: actionType.RUN_LOADING_STATUS });
     const newCommentPayloadBody = {
       postId: post_id,
       commentContent: comment,
@@ -40,6 +51,7 @@ const Comments = ({ postId, postUserId }) => {
         if (newCommentData.data.success) {
           setComment("");
           dispatch(setIsAddNewComment({ successAddNewComment: true }));
+          mutate({ type: actionType.STOP_LOADING_STATUS });
         }
       })
       .catch((error) => {
@@ -48,6 +60,7 @@ const Comments = ({ postId, postUserId }) => {
           "error message when add new comment:",
           errorMessageEmptyCommentField
         );
+        mutate({ type: actionType.STOP_LOADING_STATUS });
       });
   };
 
@@ -55,9 +68,11 @@ const Comments = ({ postId, postUserId }) => {
     const getDataCommentsByIdOfPost = (this_post_id) => {
       getAllCommentsDataByPostId(this_post_id)
         .then((commentByPostId) => {
-          const commentsByPostIdTotal = commentByPostId.data.totalCommentsByPostId;
+          const commentsByPostIdTotal =
+            commentByPostId.data.totalCommentsByPostId;
           if (commentsByPostIdTotal > 0) {
-            const commentsByPostIdDataArray = commentByPostId.data.commentsDataByPostId;
+            const commentsByPostIdDataArray =
+              commentByPostId.data.commentsDataByPostId;
             setThisPostCommentData(commentsByPostIdDataArray);
             setLastIndex(commentsByPostIdTotal - 1);
             dispatch(setIsAddNewComment({ successAddNewComment: false }));
@@ -76,6 +91,12 @@ const Comments = ({ postId, postUserId }) => {
     };
 
     getDataCommentsByIdOfPost(post_id);
+
+    return () => {
+      setThisPostCommentData([]);
+      setLastIndex(0);
+      dispatch(setIsAddNewComment({ successAddNewComment: false }));
+    };
   }, [post_id, addNewComment, dispatch]);
 
   return (
@@ -103,17 +124,27 @@ const Comments = ({ postId, postUserId }) => {
           onChange={(e) => setComment(e.target.value)}
         />
 
-        <button
-          className={
-            comment !== ""
-              ? "comments-button-send"
-              : "comments-button-send-disabled"
-          }
-          disabled={!comment}
-          onClick={sendNewComment}
-        >
-          Send
-        </button>
+        {!loadingState.status ? (
+          <button
+            className={
+              comment !== ""
+                ? "comments-button-send"
+                : "comments-button-send-disabled"
+            }
+            disabled={!comment}
+            onClick={sendNewComment}
+          >
+            Send
+          </button>
+        ) : (
+          <button className="comments-button-send">
+            <RoundedLoader
+              size={14}
+              baseColor="rgb(251, 226, 226)"
+              secondaryColor="green"
+            />
+          </button>
+        )}
       </div>
 
       {/* Line */}

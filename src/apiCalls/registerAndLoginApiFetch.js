@@ -1,4 +1,5 @@
 import axios from "axios";
+import { accessToken } from "../utils/getLocalStorage";
 
 const BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
@@ -22,29 +23,32 @@ export const userLogout = (userId, dataPayload) => {
   return axios.put(`${BASE_URL}users/logout/${userId}`, dataPayload);
 };
 
-export const getCurrentUserLogin = (userToken) => {
+export const getCurrentUserLogin = () => {
+  const user_access_token = accessToken();
   return axios.get(`${BASE_URL}users/get-current-user`, {
     headers: {
       "Content-Type": "application/json",
-      Authorization: `${userToken}`,
+      Authorization: `${user_access_token}`,
     },
   });
 };
 
-export const getAllUsersOmonginApp = (userToken) => {
+export const getAllUsersOmonginApp = () => {
+  const user_access_token = accessToken();
   return axios.get(`${BASE_URL}users/get-all-users`, {
     headers: {
       "Content-Type": "application/json",
-      Authorization: `${userToken}`,
+      Authorization: `${user_access_token}`,
     },
   });
 };
 
-export const getUserById = (userToken, user_Id) => {
+export const getUserById = (user_Id) => {
+  const user_access_token = accessToken();
   return axios.get(`${BASE_URL}users/${user_Id}`, {
     headers: {
       "Content-Type": "application/json",
-      Authorization: `${userToken}`,
+      Authorization: `${user_access_token}`,
     },
   });
 };
