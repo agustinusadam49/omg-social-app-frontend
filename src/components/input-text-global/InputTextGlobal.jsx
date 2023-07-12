@@ -14,7 +14,9 @@ const InputTextGlobal = ({
   additionalStylingClass = "",
   inputLabel = null,
   inputSecondErrorMessage = null,
+  ...props
 }) => {
+  const isDisabled = props?.disabled || false 
   const [seePassword, setSeePassword] = useState(false);
 
   const displayErrorMessages = () => {
@@ -68,12 +70,17 @@ const InputTextGlobal = ({
     return inputType === "date" ? "if-type-date" : "";
   };
 
+  const checkDisabled = () => {
+    return isDisabled ? "disabled" : ""
+  }
+
   const styleForInputTag = () => {
     const cssStyleArr = [
       "input-tag",
       isErrorMessage(),
       additionalStyling(),
       styleForTypeDate(),
+      checkDisabled(),
     ];
     const cssStyleStr = cssStyleArr.join(" ");
     // console.log("cssStyleStr:", cssStyleStr)
@@ -90,6 +97,7 @@ const InputTextGlobal = ({
           placeholder={inputPlaceholder}
           className={styleForInputTag()}
           type={!seePassword ? inputType : "text"}
+          {...props}
         />
         {displayEyeIcon()}
       </div>
