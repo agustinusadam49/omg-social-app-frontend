@@ -1,6 +1,7 @@
 // No Need Auth Pages Import
 import LoginPage from "../pages/login/Login";
 import RegisterPage from "../pages/register/Register";
+import ForgotPassword from "../pages/forgot-password/ForgotPassword";
 
 // Need Auth Pages Import
 
@@ -73,4 +74,10 @@ export const notNeedAuthpages = {
       return <RegisterPage />;
     },
   },
+  forgotPassword: {
+    path: "/forgot-password",
+    pageComponent: () => {
+      return <ForgotPassword />;
+    },
+  }
 };

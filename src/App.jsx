@@ -14,11 +14,26 @@ export default function App() {
   const access_token = accessToken();
   const isUserLoggedin = useSelector((state) => state.user.isUserAuthenticated);
 
+  const getNonAuthComponent = (pageKeyName) => {
+    return access_token
+      ? <Navigate to="/" />
+      : notNeedAuthpages[pageKeyName].pageComponent()
+  }
+
+  const getAuthComponent = (pageKeyName) => {
+    return needAuthpages[pageKeyName].pageComponent()
+  }
+
+  const getPath = (pageKeyName, isAuthPage = false) => {
+    if (isAuthPage) return needAuthpages[pageKeyName].path
+    return notNeedAuthpages[pageKeyName].path
+  }
+
   useCheckUserAuth({
     isUserLoggedin: isUserLoggedin,
     access_token: access_token,
     dispatch: dispatch,
-  })
+  });
 
   const needAuthCheckToken = () => {
     if (access_token) {
@@ -33,37 +48,23 @@ export default function App() {
       <Routes>
         <Route path="/" element={needAuthCheckToken()}>
           <Route path="" element={<NonProfilePages />}>
-            <Route index element={needAuthpages["home"].pageComponent()} />
-            <Route path={needAuthpages["events"].path} element={needAuthpages["events"].pageComponent()} />
-            <Route path={needAuthpages["search"].path} element={needAuthpages["search"].pageComponent()} />
+            <Route index element={getAuthComponent("home")} />
+            <Route path={getPath("events", true)} element={getAuthComponent("events")} />
+            <Route path={getPath("search", true)} element={getAuthComponent("search")} />
           </Route>
 
           <Route path="" element={<NotificationPages />}>
-            <Route path={needAuthpages["postnotif"].path} element={needAuthpages["postnotif"].pageComponent()} />
-            <Route path={needAuthpages["followernotif"].path} element={needAuthpages["followernotif"].pageComponent()} />
-            <Route path={needAuthpages["messagenotif"].path} element={needAuthpages["messagenotif"].pageComponent()} />
+            <Route path={getPath("postnotif", true)} element={getAuthComponent("postnotif")} />
+            <Route path={getPath("followernotif", true)} element={getAuthComponent("followernotif")} />
+            <Route path={getPath("messagenotif", true)} element={getAuthComponent("messagenotif")} />
           </Route>
 
-          <Route path={needAuthpages["profile"].path} element={needAuthpages["profile"].pageComponent()} />
+          <Route path={getPath("profile", true)} element={getAuthComponent("profile")} />
         </Route>
 
-        <Route
-          path={notNeedAuthpages["login"].path}
-          element={
-            access_token
-              ? (<Navigate to="/" />)
-              : (notNeedAuthpages["login"].pageComponent())
-          }
-        />
-
-        <Route
-          path={notNeedAuthpages["register"].path}
-          element={
-            access_token
-              ? (<Navigate to="/" />)
-              : (notNeedAuthpages["register"].pageComponent())
-          }
-        />
+        <Route path={getPath("login")} element={getNonAuthComponent("login")} />
+        <Route path={getPath("register")} element={getNonAuthComponent("register")} />
+        <Route path={getPath("forgotPassword")} element={getNonAuthComponent("forgotPassword")} />
       </Routes>
     </BrowserRouter>
   );

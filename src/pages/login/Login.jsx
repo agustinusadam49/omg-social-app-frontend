@@ -143,9 +143,9 @@ export default function Login() {
               </div>
             )}
 
-            <div className="login-forgot-wrapper">
+            <Link className="login-forgot-wrapper" to="/forgot-password">
               <span className="login-forgot">Forgot Password?</span>
-            </div>
+            </Link>
 
             <Link className="login-register-button" to="/register">
               Create a New Account
