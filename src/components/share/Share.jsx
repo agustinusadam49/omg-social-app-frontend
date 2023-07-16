@@ -1,10 +1,4 @@
-import React, {
-  useState,
-  useEffect,
-  memo,
-  useRef,
-  useCallback,
-} from "react";
+import React, { useState, useEffect, memo, useRef, useCallback } from "react";
 import {
   createNewPosting,
   uploadImagePosting,
@@ -76,6 +70,8 @@ const Share = ({ userNameFromParam }) => {
   );
 
   const doPosting = useCallback(() => {
+    const CLOUDINARY_KEY = process.env.REACT_APP_CLOUDINARY_FORM_DATA_KEY;
+
     setFinishPostingStatus(false);
     if (!caption) {
       toast.error("Minimal Caption harus terisi!");
@@ -93,7 +89,7 @@ const Share = ({ userNameFromParam }) => {
     if (fileImagePosting) {
       const formData = new FormData();
       formData.append("file", fileImagePosting);
-      formData.append("upload_preset", "g7pxfer7");
+      formData.append("upload_preset", CLOUDINARY_KEY);
 
       uploadImagePosting(formData, {
         onUploadProgress: (progressEvent) => {
