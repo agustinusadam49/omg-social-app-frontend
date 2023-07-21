@@ -16,6 +16,7 @@ const InputTextGlobal = ({
   additionalStylingClass = "",
   inputLabel = null,
   inputSecondErrorMessage = null,
+  ...props
 }) => {
   const [seePassword, setSeePassword] = useState(false);
 
@@ -96,6 +97,7 @@ const InputTextGlobal = ({
               onChange={(e) => setInputValue(e.target.value)}
               className="input-tag-date-icon"
               type={!seePassword ? inputType : "text"}
+              {...props}
             />
           </label>
 
@@ -105,6 +107,7 @@ const InputTextGlobal = ({
             placeholder={inputPlaceholder}
             className={styleForInputTag()}
             type={!seePassword ? inputType : "text"}
+            {...props}
           />
         </div>
       );
@@ -117,6 +120,7 @@ const InputTextGlobal = ({
         placeholder={inputPlaceholder}
         className={styleForInputTag()}
         type={!seePassword ? inputType : "text"}
+        {...props}
       />
     );
   };

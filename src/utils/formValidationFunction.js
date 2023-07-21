@@ -178,12 +178,30 @@ const formValidationV2 = (arrayToValidateCheck, setErrorMessage) => {
         validationCount++;
       }
     }
+
+    if (Array.isArray(arrayToValidateCheck[arrayKeys[i]])) {
+      const arrTemps = arrayToValidateCheck[arrayKeys[i]];
+      for (let idx = 0; idx < arrTemps.length; idx++) {
+        if (arrTemps[idx].isRequired) {
+          if (!arrTemps[idx].currentValue) {
+            error[arrayKeys[i]].push(`This field cannot be empty.`);
+            setErrorMessage(error);
+            validationCount++;
+          } else {
+            error[arrayKeys[i]].push("");
+            setErrorMessage(error);
+          }
+        }
+      }
+    }
   }
 
   if (validationCount < 1) {
     setErrorMessage(error);
     return true;
   }
+
+  return false
 };
 
 module.exports = {
