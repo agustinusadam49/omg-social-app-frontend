@@ -83,23 +83,19 @@ function Topbar({
     return inputPathName === currentPathName ? "#2c2891" : "#3571d9";
   };
 
-  const checkActiveBadgeFollowerNotif = () => {
-    if (totalFollowerNotif) {
-      return <span className="topbar-icon-badge">{totalFollowerNotif}</span>;
+  const checkActiveBadgeNotif = (notifType) => {
+    const notifications = {
+      follower: totalFollowerNotif,
+      message: totalMessageNotif,
+      post: totalPostNotif,
     }
-  };
 
-  const checkActiveBadgeMessageNotif = () => {
-    if (totalMessageNotif) {
-      return <span className="topbar-icon-badge">{totalMessageNotif}</span>;
-    }
-  };
+    const isNotifData = notifications[notifType]
 
-  const checkActiveBadgeNotifications = () => {
-    if (totalPostNotif) {
-      return <span className="topbar-icon-badge">{totalPostNotif}</span>;
+    if (isNotifData) {
+      return <span className="topbar-icon-badge">{isNotifData}</span>;
     }
-  };
+  }
 
   const openProfileMobileModal = (val) => {
     dispatch(setIsUserProfileMobileOpen({ isUserProfileMobileOpen: val }));
@@ -147,7 +143,7 @@ function Topbar({
                 className="topbar-icon-item"
               >
                 <PersonIcon className="topbar-notif-icon" />
-                {checkActiveBadgeFollowerNotif()}
+                {checkActiveBadgeNotif("follower")}
               </Link>
 
               <Link
@@ -159,7 +155,7 @@ function Topbar({
                 className="topbar-icon-item"
               >
                 <ChatIcon className="topbar-notif-icon" />
-                {checkActiveBadgeMessageNotif()}
+                {checkActiveBadgeNotif("message")}
               </Link>
 
               <Link
@@ -171,7 +167,7 @@ function Topbar({
                 className="topbar-icon-item"
               >
                 <NotificationsIcon className="topbar-notif-icon" />
-                {checkActiveBadgeNotifications()}
+                {checkActiveBadgeNotif("post")}
               </Link>
             </div>
           )}
