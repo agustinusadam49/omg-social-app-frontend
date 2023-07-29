@@ -1,8 +1,5 @@
 import React from "react";
 import {
-  // BrowserRouter,
-  // Routes,
-  // Route,
   Navigate,
   createBrowserRouter,
   RouterProvider,
@@ -14,12 +11,9 @@ import PageWithHeaderLayout from "./layout/page-with-header-layout/PageWithHeade
 import NonProfilePages from "./layout/page-with-header-layout/non-profile-pages/NonProfilePages";
 import NotificationPages from "./layout/page-with-header-layout/notification-pages/NotificationPages";
 import { useCheckUserAuth } from "./utils/checkUserAuth";
-// import { useIsUserLoggedin } from "./custom-hooks/useIsUserLoggedin";
 import "./App.scss";
 
 export default function App() {
-  // const isLoggedIn = useIsUserLoggedin();
-  // console.log("this is hooks useIsUserLoggedin", isLoggedIn);
   const dispatch = useDispatch();
   const access_token = accessToken();
   const isUserLoggedin = useSelector((state) => state.user.isUserAuthenticated);
@@ -46,14 +40,6 @@ export default function App() {
     access_token: access_token,
     dispatch: dispatch,
   });
-
-  // const needAuthCheckToken = () => {
-  //   if (access_token) {
-  //     return <PageWithHeaderLayout />;
-  //   } else {
-  //     return <Navigate to="/login" />;
-  //   }
-  // };
 
   const router = createBrowserRouter([
     {
@@ -117,54 +103,4 @@ export default function App() {
   ]);
 
   return <RouterProvider router={router} />;
-
-  // return (
-  //   <BrowserRouter>
-  //     <Routes>
-  //       <Route path="/" element={needAuthCheckToken()}>
-  //         <Route path="" element={<NonProfilePages />}>
-  //           <Route index element={getAuthComponent("home")} />
-  //           <Route
-  //             path={getPath("events", true)}
-  //             element={getAuthComponent("events")}
-  //           />
-  //           <Route
-  //             path={getPath("search", true)}
-  //             element={getAuthComponent("search")}
-  //           />
-  //         </Route>
-
-  //         <Route path="" element={<NotificationPages />}>
-  //           <Route
-  //             path={getPath("postnotif", true)}
-  //             element={getAuthComponent("postnotif")}
-  //           />
-  //           <Route
-  //             path={getPath("followernotif", true)}
-  //             element={getAuthComponent("followernotif")}
-  //           />
-  //           <Route
-  //             path={getPath("messagenotif", true)}
-  //             element={getAuthComponent("messagenotif")}
-  //           />
-  //         </Route>
-
-  //         <Route
-  //           path={getPath("profile", true)}
-  //           element={getAuthComponent("profile")}
-  //         />
-  //       </Route>
-
-  //       <Route path={getPath("login")} element={getNonAuthComponent("login")} />
-  //       <Route
-  //         path={getPath("register")}
-  //         element={getNonAuthComponent("register")}
-  //       />
-  //       <Route
-  //         path={getPath("forgotPassword")}
-  //         element={getNonAuthComponent("forgotPassword")}
-  //       />
-  //     </Routes>
-  //   </BrowserRouter>
-  // );
 }

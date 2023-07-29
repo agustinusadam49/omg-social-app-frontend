@@ -37,15 +37,4 @@ export default function PageWithHeaderLayout() {
   } else {
     return <Navigate to="/login" />;
   }
-  // return (
-  //   <div className="page-with-header-layout">
-  //     <Topbar />
-  //     <Outlet />
-  //     {isModalPostEdit && <PostModalEdit />}
-  //     {isMobile && isUserOnlineModalOpen && <UserOnlineInfoModal />}
-  //     {isMobile && isUserSuggestionModalOpen && <UserSuggestionModal />}
-  //     {isMobile && isProfileMobileModalOpen && <ProfileModalMobile />}
-  //     {isMobile && <MobileBottomNavigation />}
-  //   </div>
-  // );
 }
