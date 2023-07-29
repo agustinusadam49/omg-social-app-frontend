@@ -5,6 +5,7 @@ import React, {
   useRef,
   useMemo,
   useReducer,
+  useCallback,
 } from "react";
 import { Link } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
@@ -145,23 +146,23 @@ const MessageBox = ({ paramUserId }) => {
       });
   };
 
-  const hitApiGetMessagesData = (userIdFromUrlParam) => {
-    getAllMessagesData(userIdFromUrlParam)
-      .then((chatData) => {
-        const { totalMessages } = chatData.data;
-        if (totalMessages) {
-          const { messagesData } = chatData.data;
-          setAllMessages(messagesData);
-        } else {
-          setAllMessages([]);
-        }
-      })
-      .catch((error) => {
-        if (error.response) {
-          console.error("failed get messages data:", error.response);
-        }
-      });
-  };
+  const hitApiGetMessagesData = useCallback(async (userIdFromUrlParam) => {
+    try {
+      const chatData = await getAllMessagesData(userIdFromUrlParam);
+      const { totalMessages } = chatData.data;
+
+      if (totalMessages) {
+        const { messagesData } = chatData.data;
+        setAllMessages(messagesData);
+      } else {
+        setAllMessages([]);
+      }
+    } catch (error) {
+      if (error.response) {
+        console.error("failed get messages data:", error.response);
+      }
+    }
+  }, []);
 
   useEffect(() => {
     // socket.current = io(process.env.REACT_APP_SOCKET_IO_URL, {
@@ -290,7 +291,7 @@ const MessageBox = ({ paramUserId }) => {
     return () => {
       setAllMessages([]);
     };
-  }, [paramUserId, currentUserIdFromSlice]);
+  }, [paramUserId, currentUserIdFromSlice, hitApiGetMessagesData]);
 
   const mappedMessageForRendering = useMemo(() => {
     const messages = mappedMessages;
