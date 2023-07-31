@@ -1,5 +1,5 @@
 import React from "react";
-import { Outlet, Navigate } from "react-router-dom";
+import { Outlet, Navigate, useLocation } from "react-router-dom";
 import Topbar from "../../components/navbar-header/Topbar";
 import MobileBottomNavigation from "../../components/mobile-bottom-navigation/MobileBottomNavigation";
 import UserSuggestionModal from "../../components/user-suggestion-modal/UserSuggestionModal";
@@ -16,6 +16,7 @@ export default function PageWithHeaderLayout() {
   const isMobile = useScreenWidth("mb");
   const access_token = accessToken();
   const isLoggedIn = !!access_token;
+  const location = useLocation();
 
   const isUserSuggestionModalOpen = useSelector((state) => state.user.isUserSuggestionModalOpen);
   const isUserOnlineModalOpen = useSelector((state) => state.user.isUserOnlineModalOpen);
@@ -35,6 +36,6 @@ export default function PageWithHeaderLayout() {
       </div>
     );
   } else {
-    return <Navigate to="/login" />;
+    return <Navigate to="/login" state={{ from: location }} replace />;
   }
 }

@@ -36,23 +36,14 @@ export default function MobileBottomNavigation() {
 
   const { pathname } = useLocation();
 
-  const followerNotifFromSlice = useSelector((state) =>
-    state.notifications.followerNotif.filter((item) => !item.isRead)
-  );
-  const postNotifFromSlice = useSelector((state) =>
-    state.notifications.postNotif.filter((item) => !item.isRead)
-  );
-  const messageNotifFromSlice = useSelector((state) =>
-    state.notifications.messageNotif.filter((item) => !item.isRead)
-  );
-  const userSnapRegisteredStatus = useSelector(
-    (state) => state.user.snapUserLogout
-  );
+  const followerNotifFromSlice = useSelector((state) =>state.notifications.followerNotif.filter((item) => !item.isRead));
+  const postNotifFromSlice = useSelector((state) =>state.notifications.postNotif.filter((item) => !item.isRead));
+  const messageNotifFromSlice = useSelector((state) =>state.notifications.messageNotif.filter((item) => !item.isRead));
   const currentUserIdFromSlice = useSelector((state) => state.user.userId);
   const allUsersRegisterd = useSelector((state) => state.user.allUsers);
+  const isThereMessageNotif = useSelector((state) => state.user.isGetMessageNotif);
 
-  const [usersOnlineWithoutCurrentUser, setUsersOnlineWithoutCurrentUser] =
-    useState([]);
+  const [usersOnlineWithoutCurrentUser, setUsersOnlineWithoutCurrentUser] = useState([]);
 
   const currentPathName = useMemo(() => {
     const path = pathname;
@@ -142,7 +133,7 @@ export default function MobileBottomNavigation() {
       dispatch(setMessageNotif({ messageNotifData: [] }));
       dispatch(setPostNotif({ postNotifData: [] }));
     };
-  }, [userSnapRegisteredStatus, dispatch]);
+  }, [isThereMessageNotif, dispatch]);
 
   useEffect(() => {
     getAllUsersRegistered(dispatch);

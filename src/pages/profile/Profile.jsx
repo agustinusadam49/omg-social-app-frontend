@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useMemo } from "react";
 import Leftbar from "../../components/leftbar/Leftbar";
 import Feed from "../../components/feed/Feed";
-import Rightbar from "../../components/rightbar/Rightbar";
+import RightbarProfile from "../../components/rightbar-profile/RightbarProfile";
 import { useSelector, useDispatch } from "react-redux";
 import { userInfoLogin } from "../../redux/apiCalls";
 import { useParams } from "react-router-dom";
@@ -77,6 +77,12 @@ export default function Profile() {
     };
 
     hitApiUserById(userIdFromParamUrl);
+
+    return () => {
+      setUserProfilePictureById(null);
+      setUserAvatarById(null);
+      setUserShortBioById(null);
+    };
   }, [userIdFromParamUrl, dispatch]);
 
   useEffect(() => {
@@ -110,15 +116,9 @@ export default function Profile() {
         </div>
 
         <div className="profile-right-bottom">
-          {!isDesktop && (
-            <Rightbar profile userId={userId} username={username} />
-          )}
-
+          {!isDesktop && <RightbarProfile userId={userId} />}
           <Feed profile userId={userId} username={username} />
-
-          {isDesktop && (
-            <Rightbar profile userId={userId} username={username} />
-          )}
+          {isDesktop && <RightbarProfile userId={userId} />}
         </div>
       </div>
     </div>

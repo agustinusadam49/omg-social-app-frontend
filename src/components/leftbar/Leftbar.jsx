@@ -11,6 +11,7 @@ export default function Leftbar() {
   const dispatch = useDispatch();
   const currentUserIdFromSlice = useSelector((state) => state.user.userId);
   const allUsersRegisterd = useSelector((state) => state.user.allUsers);
+  const isThereMessageNotif = useSelector((state) => state.user.isGetMessageNotif);
   const [usersYouMayKnow, setUsersYouMayKnow] = useState([]);
 
   useEffect(() => {
@@ -22,7 +23,7 @@ export default function Leftbar() {
 
   useEffect(() => {
     getAllUsersRegistered(dispatch);
-  }, [dispatch]);
+  }, [isThereMessageNotif, dispatch]);
 
   return (
     <div className="leftbar">

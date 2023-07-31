@@ -6,7 +6,6 @@ import React, {
   useEffect,
   Fragment,
 } from "react";
-// import { Link } from "react-router-dom";
 import {
   formValidationV2,
   helpersWithMessage,
@@ -25,6 +24,7 @@ import {
   changeForgotPassword,
 } from "../../apiCalls/forgotPassword";
 import { useNavigate } from 'react-router-dom';
+import { useRedirectToHome } from "../../custom-hooks/useRedirectToHome";
 
 import "./ForgotPassword.scss";
 
@@ -198,6 +198,10 @@ export default function ForgotPassword() {
       localStorage.removeItem("user_email_forgot_password");
     };
   }, []);
+
+  useRedirectToHome({
+    isFromNonAuthPage: false
+  })
 
   return (
     <div className="forgot-password">
