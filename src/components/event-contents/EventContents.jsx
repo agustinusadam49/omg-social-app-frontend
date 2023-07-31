@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import { getAllUsersRegistered } from "../../redux/apiCalls";
-// import { accessToken } from "../../utils/getLocalStorage";
 import { hbdChecker } from "../../utils/birthdayChecker";
 import { useSelector, useDispatch } from "react-redux";
 
@@ -11,9 +10,6 @@ const EventContents = () => {
   const isAd = true;
 
   const allUsersRegisterd = useSelector((state) => state.user.allUsers);
-  const userSnapRegisteredStatus = useSelector(
-    (state) => state.user.snapUserLogout
-  );
 
   const [usersBirthday, setUsersBirthday] = useState([]);
 
@@ -28,7 +24,7 @@ const EventContents = () => {
 
   useEffect(() => {
     getAllUsersRegistered(dispatch);
-  }, [userSnapRegisteredStatus, dispatch]);
+  }, [dispatch]);
 
   return (
     <div className="event-contents">

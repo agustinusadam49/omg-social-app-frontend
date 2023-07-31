@@ -1,5 +1,5 @@
 import React, { useState, useRef, useReducer } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import {
   formValidationV2,
   helpersWithMessage,
@@ -17,15 +17,21 @@ import {
   loadingReducer,
 } from "../../utils/reducers/globalLoadingReducer";
 import RoundedLoader from "../../components/rounded-loader/RoundedLoader";
+import { useRedirectToHome } from "../../custom-hooks/useRedirectToHome";
+
 import "./Register.scss";
 
 export default function Register() {
+  const navigate = useNavigate();
+
   const [loadingState, mutate] = useReducer(
     loadingReducer,
     INITIAL_LOADING_STATE
   );
 
   const dispatch = useDispatch();
+
+  const [isFromNonAuthPage, setIsFromNonAuthPage] = useState(false);
 
   const fullnameRef = useRef();
   const usernameRef = useRef();
@@ -134,6 +140,8 @@ export default function Register() {
             setUserToken({ currentUserToken: successResponse.user_token })
           );
           dispatch(setIsAuthUser({ isAuth: true }));
+          setIsFromNonAuthPage(true);
+          navigate("/");
         })
         .catch((error) => {
           mutate({ type: actionType.STOP_LOADING_STATUS });
@@ -161,6 +169,10 @@ export default function Register() {
       doRegister();
     }
   };
+
+  useRedirectToHome({
+    isFromNonAuthPage: isFromNonAuthPage
+  })
 
   return (
     <div className="register">

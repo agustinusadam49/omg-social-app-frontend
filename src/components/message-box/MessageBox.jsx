@@ -14,7 +14,7 @@ import {
   getAllMessagesData,
   createNewMessageData,
 } from "../../apiCalls/messagesApiFetch";
-import { setSnapUserLogout } from "../../redux/slices/userSlice";
+import { setIsGetMessageNotif } from "../../redux/slices/userSlice";
 import { updateTheMessageById } from "../../apiCalls/messagesApiFetch";
 import { io } from "socket.io-client";
 import {
@@ -189,7 +189,7 @@ const MessageBox = ({ paramUserId }) => {
 
   useEffect(() => {
     socket.current.on("getNotifStatus", (notifStatus) => {
-      dispatch(setSnapUserLogout({ isUserLogout: notifStatus }));
+      dispatch(setIsGetMessageNotif({ isMessageNotif: notifStatus }));
     });
   }, [dispatch]);
 

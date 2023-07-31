@@ -14,7 +14,7 @@ export default function withNotifData(OriginalComponent) {
     const followerNotifFromSlice = useSelector((state) => state.notifications.followerNotif);
     const postNotifFromSlice = useSelector((state) => state.notifications.postNotif);
     const messageNotifFromSlice = useSelector((state) => state.notifications.messageNotif);
-    const userSnapRegisteredStatus = useSelector((state) => state.user.snapUserLogout);
+    const isThereMessageNotif = useSelector((state) => state.user.isGetMessageNotif)
 
     const followerNotifFiltered = useMemo(() => followerNotifFromSlice.filter((item) => !item.isRead), [followerNotifFromSlice]);
     const postNotifFiltered = useMemo(() => postNotifFromSlice.filter((item) => !item.isRead), [postNotifFromSlice]);
@@ -28,7 +28,7 @@ export default function withNotifData(OriginalComponent) {
         dispatch(setMessageNotif({ messageNotifData: [] }));
         dispatch(setPostNotif({ postNotifData: [] }));
       };
-    }, [userSnapRegisteredStatus, dispatch]);
+    }, [isThereMessageNotif, dispatch]);
 
     return (
       <OriginalComponent

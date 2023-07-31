@@ -11,9 +11,6 @@ export default function Rightbar() {
 
   const currentUserIdFromSlice = useSelector((state) => state.user.userId);
   const allUsersRegisterd = useSelector((state) => state.user.allUsers);
-  const userSnapRegisteredStatus = useSelector(
-    (state) => state.user.snapUserLogout
-  );
 
   const [usersOnlineWithoutCurrentUser, setUsersOnlineWithoutCurrentUser] = useState([]);
   const [usersBirthday, setUsersBirthday] = useState([]);
@@ -51,7 +48,7 @@ export default function Rightbar() {
 
   useEffect(() => {
     getAllUsersRegistered(dispatch);
-  }, [userSnapRegisteredStatus, dispatch]);
+  }, [dispatch]);
 
   const homeRightbar = () => {
     return (

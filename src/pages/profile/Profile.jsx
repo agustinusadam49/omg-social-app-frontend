@@ -77,6 +77,12 @@ export default function Profile() {
     };
 
     hitApiUserById(userIdFromParamUrl);
+
+    return () => {
+      setUserProfilePictureById(null);
+      setUserAvatarById(null);
+      setUserShortBioById(null);
+    };
   }, [userIdFromParamUrl, dispatch]);
 
   useEffect(() => {
@@ -110,15 +116,9 @@ export default function Profile() {
         </div>
 
         <div className="profile-right-bottom">
-          {!isDesktop && (
-            <RightbarProfile userId={userId} username={username} />
-          )}
-
+          {!isDesktop && <RightbarProfile userId={userId} />}
           <Feed profile userId={userId} username={username} />
-
-          {isDesktop && (
-            <RightbarProfile userId={userId} username={username} />
-          )}
+          {isDesktop && <RightbarProfile userId={userId} />}
         </div>
       </div>
     </div>

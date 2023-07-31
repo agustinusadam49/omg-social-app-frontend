@@ -1,5 +1,5 @@
 import React, { useState, useRef, useReducer } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { formValidationV2 } from "../../utils/formValidationFunction";
 import { setToLocalStorageWhenSuccess } from "../../utils/setLocalStorage";
 import { loginUser } from "../../apiCalls/registerAndLoginApiFetch";
@@ -13,14 +13,21 @@ import {
   loadingReducer,
 } from "../../utils/reducers/globalLoadingReducer";
 import RoundedLoader from "../../components/rounded-loader/RoundedLoader";
+import { useRedirectToHome } from "../../custom-hooks/useRedirectToHome";
+
 import "./Login.scss";
 
 export default function Login() {
+  const navigate = useNavigate();
+
   const [loadingState, mutate] = useReducer(
     loadingReducer,
     INITIAL_LOADING_STATE
   );
+
   const dispatch = useDispatch();
+
+  const [isFromNonAuthPage, setIsFromNonAuthPage] = useState(false);
 
   const emailRef = useRef();
   const passwordRef = useRef();
@@ -75,6 +82,8 @@ export default function Login() {
             })
           );
           dispatch(setIsAuthUser({ isAuth: true }));
+          setIsFromNonAuthPage(true);
+          navigate("/");
         })
         .catch((error) => {
           mutate({ type: actionType.STOP_LOADING_STATUS });
@@ -102,6 +111,10 @@ export default function Login() {
       doLogin();
     }
   };
+
+  useRedirectToHome({
+    isFromNonAuthPage: isFromNonAuthPage
+  })
 
   return (
     <div className="login">

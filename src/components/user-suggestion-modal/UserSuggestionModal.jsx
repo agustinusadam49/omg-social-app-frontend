@@ -12,6 +12,7 @@ export default function UserSuggestionModal() {
   const [usersYouMayKnow, setUsersYouMayKnow] = useState([]);
   const currentUserIdFromSlice = useSelector((state) => state.user.userId);
   const allUsersRegisterd = useSelector((state) => state.user.allUsers);
+  const isThereMessageNotif = useSelector((state) => state.user.isGetMessageNotif);
 
   const toggleActiveSuggestionModal = (value) => {
     dispatch(setIsUserSuggestionModalOpen({ isSuggestionModalOpen: value }));
@@ -26,7 +27,7 @@ export default function UserSuggestionModal() {
 
   useEffect(() => {
     getAllUsersRegistered(dispatch);
-  }, [dispatch]);
+  }, [isThereMessageNotif, dispatch]);
 
   return (
     <div className="content-container user-suggestion-modal">

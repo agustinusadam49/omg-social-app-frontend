@@ -54,9 +54,6 @@ export default function RightbarProfile({ userId }) {
   const currentUserFollower = currentUserData.followers;
   const currentUserFollowing = currentUserData.following;
   const allUsersRegisterd = useSelector((state) => state.user.allUsers);
-  const userSnapRegisteredStatus = useSelector(
-    (state) => state.user.snapUserLogout
-  );
 
   const [userProfile, setUserProfile] = useState(null);
   const [userFollower, setUserFollower] = useState([]);
@@ -87,6 +84,10 @@ export default function RightbarProfile({ userId }) {
 
       setMyFollower(userFollowerThisCurrentUser);
     }
+
+    return () => {
+      setMyFollower([]);
+    };
   }, [currentUserFollower, allUsersRegisterd]);
 
   const getCurrentUserFollowedBy = () => {
@@ -202,7 +203,7 @@ export default function RightbarProfile({ userId }) {
 
   useEffect(() => {
     getAllUsersRegistered(dispatch);
-  }, [userSnapRegisteredStatus, dispatch]);
+  }, [dispatch]);
 
   const displayFollowButton = () => {
     if (followState.loading || editSnap) {

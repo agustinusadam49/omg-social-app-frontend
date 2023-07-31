@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Link, useParams } from "react-router-dom";
 import { updateTheMessageById } from "../../apiCalls/messagesApiFetch";
 import { useSelector, useDispatch } from "react-redux";
-import { setSnapUserLogout } from "../../redux/slices/userSlice";
+import { setIsGetMessageNotif } from "../../redux/slices/userSlice";
 import GlobalImage from "../global-image/GlobalImage";
 import "./Friend-List.scss";
 
@@ -12,8 +12,8 @@ export default function FriendList({ user }) {
   const userDataIdFromProp = user.id;
   const messages = user.Messages;
   const currentUserIdFromSlice = useSelector((state) => state.user.userId);
-  const [incomingMessageNotifications, setIncomingMessageNotifications] =
-    useState([]);
+
+  const [incomingMessageNotifications, setIncomingMessageNotifications] = useState([]);
 
   const checkActiveBadgeNotifications = () => {
     if (incomingMessageNotifications.length) {
@@ -50,7 +50,7 @@ export default function FriendList({ user }) {
             }
           );
         }
-        dispatch(setSnapUserLogout({ isUserLogout: true }));
+        dispatch(setIsGetMessageNotif({ isMessageNotif: true }));
       }
     }
   }, [
