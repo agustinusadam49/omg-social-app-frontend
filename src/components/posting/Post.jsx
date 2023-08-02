@@ -70,6 +70,14 @@ export default function Post({ postedData }) {
     [postedDataLikes]
   );
 
+  const isVideo = useMemo(() => {
+    const urlFile = postedData?.postImageUrl || ""
+    const startIndex = (urlFile.length - 1) - 3
+    const lastIndex = urlFile.length
+    const fileFormat = urlFile.substring(startIndex, lastIndex)
+    return fileFormat === ".mp4"
+  }, [postedData])
+
   const openModalEditPost = (val) => {
     if (currentUserIdFromSlice !== postedData.UserId) return
     dispatch(setIsPostModalEditOpen({isPostModalEditOpen: val}))
@@ -328,7 +336,7 @@ export default function Post({ postedData }) {
             ""
           )}
 
-          {postedData?.postImageUrl ? (
+          {postedData?.postImageUrl && !isVideo ? (
             <img
               src={postedData.postImageUrl}
               alt="user-post-pict"
@@ -336,6 +344,11 @@ export default function Post({ postedData }) {
             />
           ) : (
             ""
+          )}
+
+
+          {isVideo && (
+            <video src={postedData.postImageUrl} controls className="post-img"></video>
           )}
         </div>
 

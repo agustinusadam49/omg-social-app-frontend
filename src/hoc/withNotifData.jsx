@@ -6,10 +6,12 @@ import {
   setMessageNotif,
   setPostNotif,
 } from "../redux/slices/notificationSlice";
+import {useScreenWidth} from "../utils/screenWidth"
 
 export default function withNotifData(OriginalComponent) {
   return () => {
     const dispatch = useDispatch();
+    const isDesktop = useScreenWidth("lg");
 
     const followerNotifFromSlice = useSelector((state) => state.notifications.followerNotif);
     const postNotifFromSlice = useSelector((state) => state.notifications.postNotif);
@@ -21,14 +23,16 @@ export default function withNotifData(OriginalComponent) {
     const messageNotifFiltered = useMemo(() => messageNotifFromSlice.filter((item) => !item.isRead), [messageNotifFromSlice]);
 
     useEffect(() => {
-      getNotificationsBelongsToLoggedUser(dispatch);
+      if (isDesktop) {
+        getNotificationsBelongsToLoggedUser(dispatch);
+      }
 
       return () => {
         dispatch(setFollowerNotif({ followerNotifData: [] }));
         dispatch(setMessageNotif({ messageNotifData: [] }));
         dispatch(setPostNotif({ postNotifData: [] }));
       };
-    }, [isThereMessageNotif, dispatch]);
+    }, [isThereMessageNotif, isDesktop, dispatch]);
 
     return (
       <OriginalComponent
