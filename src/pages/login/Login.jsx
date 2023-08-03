@@ -1,5 +1,5 @@
 import React, { useState, useRef, useReducer } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { formValidationV2 } from "../../utils/formValidationFunction";
 import { setToLocalStorageWhenSuccess } from "../../utils/setLocalStorage";
 import { loginUser } from "../../apiCalls/registerAndLoginApiFetch";
@@ -7,6 +7,7 @@ import { setIsAuthUser, setUserToken } from "../../redux/slices/userSlice";
 import { useDispatch } from "react-redux";
 import InputTextGlobal from "../../components/input-text-global/InputTextGlobal";
 import GlobalButton from "../../components/button/GlobalButton";
+import LeftSideWording from "../../components/auth-feature/LeftSideWording";
 import {
   INITIAL_LOADING_STATE,
   actionType,
@@ -19,6 +20,7 @@ import "./Login.scss";
 
 export default function Login() {
   const navigate = useNavigate();
+  const location = useLocation();
 
   const [loadingState, mutate] = useReducer(
     loadingReducer,
@@ -83,7 +85,8 @@ export default function Login() {
           );
           dispatch(setIsAuthUser({ isAuth: true }));
           setIsFromNonAuthPage(true);
-          navigate("/");
+          const from = location?.state?.from?.pathname || "/";
+          navigate(from, { replace: true });
         })
         .catch((error) => {
           mutate({ type: actionType.STOP_LOADING_STATUS });
@@ -119,14 +122,7 @@ export default function Login() {
   return (
     <div className="login">
       <div className="login-wrapper">
-        <div className="login-left">
-          <h3 className="login-logo">Omongin</h3>
-          <span className="login-description">
-            Jangan dipendem sendiri{" "}
-            <strong style={{ color: "#2C2891" }}> Omongin </strong> aja ke semua
-            orang.
-          </span>
-        </div>
+        <LeftSideWording />
 
         <div className="login-right">
           <div className="login-box" onKeyPress={doLoginEnter}>

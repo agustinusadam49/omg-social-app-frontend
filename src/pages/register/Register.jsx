@@ -11,6 +11,7 @@ import { setIsAuthUser, setUserToken } from "../../redux/slices/userSlice";
 import { useDispatch } from "react-redux";
 import InputTextGlobal from "../../components/input-text-global/InputTextGlobal";
 import GlobalButton from "../../components/button/GlobalButton";
+import LeftSideWording from "../../components/auth-feature/LeftSideWording";
 import {
   INITIAL_LOADING_STATE,
   actionType,
@@ -177,14 +178,7 @@ export default function Register() {
   return (
     <div className="register">
       <div className="register-wrapper">
-        <div className="register-left">
-          <h3 className="register-logo">Omongin</h3>
-          <span className="register-description">
-            {"Jangan dipendem sendiri "}
-            <strong style={{ color: "#2C2891" }}>Omongin</strong>
-            {" aja ke semua orang."}
-          </span>
-        </div>
+        <LeftSideWording />
 
         <div className="register-right">
           <div className="register-box" onKeyPress={doRegisterEnter}>

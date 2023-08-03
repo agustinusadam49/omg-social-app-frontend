@@ -13,6 +13,7 @@ import {
 } from "../../utils/formValidationFunction";
 import InputTextGlobal from "../../components/input-text-global/InputTextGlobal";
 import GlobalButton from "../../components/button/GlobalButton";
+import LeftSideWording from "../../components/auth-feature/LeftSideWording";
 import {
   INITIAL_LOADING_STATE,
   actionType,
@@ -206,14 +207,7 @@ export default function ForgotPassword() {
   return (
     <div className="forgot-password">
       <div className="forgot-password-wrapper">
-        <div className="forgot-password-left">
-          <h3 className="forgot-password-logo">Omongin</h3>
-          <span className="forgot-password-description">
-            Jangan dipendem sendiri{" "}
-            <strong style={{ color: "#2C2891" }}> Omongin </strong> aja ke semua
-            orang.
-          </span>
-        </div>
+        <LeftSideWording />
 
         <div className="forgot-password-right">
           <div
