@@ -1,0 +1,20 @@
+.van-detail-page {
+  padding: 20px;
+
+  .van-detail-page-title {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    font-size: larger;
+    font-weight: bolder;
+    margin-bottom: 20px;
+  }
+
+  .van-detail-card-wrapper {
+    display: flex;
+    flex-direction: column;
+    border: solid 1px black;
+    border-radius: 10px;
+    padding: 10px;
+  }
+}
