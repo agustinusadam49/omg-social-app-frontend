@@ -2,7 +2,7 @@ import { createBrowserRouter } from "react-router-dom";
 
 import PageWithHeaderLayout from "../layout/page-with-header-layout/PageWithHeaderLayout";
 import NonProfilePages from "../layout/page-with-header-layout/non-profile-pages/NonProfilePages";
-import NotificationPages from "../layout/page-with-header-layout/notification-pages/NotificationPages";
+// import NotificationPages from "../layout/page-with-header-layout/notification-pages/NotificationPages";
 
 import LoginPage from "../pages/login/Login";
 import RegisterPage from "../pages/register/Register";
@@ -19,12 +19,12 @@ import SearchPageContents from "../components/search-page-contents/SearchPageCon
 
 export const router = createBrowserRouter([
   {
-    path: "/",
+    // path: "/",
     element: <PageWithHeaderLayout />,
     errorElement: <ErrorPage />,
     children: [
       {
-        path: "",
+        path: "/",
         element: <NonProfilePages />,
         children: [
           {
@@ -39,12 +39,6 @@ export const router = createBrowserRouter([
             path: "search",
             element: <SearchPageContents />,
           },
-        ],
-      },
-      {
-        path: "",
-        element: <NotificationPages />,
-        children: [
           {
             path: "post-notifications",
             element: <PostNotifContents />,
