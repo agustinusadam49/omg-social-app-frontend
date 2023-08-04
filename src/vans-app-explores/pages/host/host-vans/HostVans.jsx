@@ -1,15 +1,15 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { dummyVansArr } from "../../../dummyData.js";
 import {
   mappedFromArrayToObj,
   orderVansByType,
-} from "../../van-utils/vansDataControls.js";
+} from "../../../van-utils/vansDataControls";
+import { dummyVansArr } from "../../../../dummyData";
 
-import "./Vans.scss";
+import "./HostVans.scss";
 
-export default function Vans() {
-  const [vans, setVans] = useState([]);
+export default function HostVans() {
+  const [hostVans, setHostVans] = useState([]);
   const [errorMessage, setErrorMessage] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -21,7 +21,7 @@ export default function Vans() {
           const vansOrderedArray = orderVansByType(vanObjMapped);
           resolve(vansOrderedArray);
         } else {
-          reject("Tidak ada data!");
+          reject("Maaf tidak ada Host Vans!");
         }
       }, 1000);
     });
@@ -31,11 +31,9 @@ export default function Vans() {
     const getVansData = async () => {
       setLoading(true);
       try {
-        const responseVansData = await myPromise;
-
+        const responseData = await myPromise;
         if (!isActive) return;
-
-        setVans(responseVansData);
+        setHostVans(responseData);
       } catch (error) {
         setErrorMessage(error);
       } finally {
@@ -52,25 +50,25 @@ export default function Vans() {
   }, []);
 
   return (
-    <div className="vans">
-      <div className="van-title">Vans List</div>
+    <div className="host-vans">
+      <div className="host-vans-title">Host Vans List</div>
 
       {loading && <div>Loading ... getting data</div>}
 
-      {!!vans.length && !loading && (
-        <div className="van-card-list">
-          {vans.map(function (van) {
+      {!!hostVans.length && !loading && (
+        <div className="host-vans-card-list">
+          {hostVans.map(function (hostVan) {
             return (
               <Link
-                to={`/vans/${van.id}`}
+                to={`/host/vans/${hostVan.id}`}
                 style={{ textDecoration: "none", color: "black" }}
-                key={van.id}
-                className="van-card-item"
+                key={hostVan.id}
+                className="host-van-card-item"
               >
-                <p>Van Name: {van.name}</p>
-                <p>Van Transmision: {van.transmision}</p>
-                <p>Van Build Year: {van.buildYear}</p>
-                <p>Van Type: {van.type}</p>
+                <p>Van Name: {hostVan.name}</p>
+                <p>Van Transmision: {hostVan.transmision}</p>
+                <p>Van Build Year: {hostVan.buildYear}</p>
+                <p>Van Type: {hostVan.type}</p>
               </Link>
             );
           })}

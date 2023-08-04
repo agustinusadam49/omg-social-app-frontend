@@ -1,56 +1,58 @@
 import React from "react";
-import { Link, useLocation } from "react-router-dom";
+import { NavLink, Link } from "react-router-dom";
 
 import "./TopbarVan.scss";
 
 export default function TopbarVan() {
-  const location = useLocation();
-  const { pathname } = location;
-  const currentPathname = pathname;
-
   return (
     <header className="vans-app-main-header">
       <Link
         to="/"
         style={{
           textDecoration: "none",
-          color: currentPathname === "/" ? "yellow" : "white",
           marginRight: "30px",
+          color: "white",
         }}
       >
         #VanLife
       </Link>
 
       <nav className="vans-app-main-nav">
-        <Link
+        <NavLink
           to="/about"
           style={{
             textDecoration: "none",
-            color: currentPathname === "/about" ? "yellow" : "white",
           }}
+          className={({ isActive }) =>
+            isActive ? "active-link" : "not-active-link"
+          }
         >
           About
-        </Link>
+        </NavLink>
 
-        <Link
+        <NavLink
           to="/host"
           style={{
             textDecoration: "none",
-            color: currentPathname === "/host" ? "yellow" : "white",
           }}
+          className={({ isActive }) =>
+            isActive ? "active-link" : "not-active-link"
+          }
         >
           Host
-        </Link>
+        </NavLink>
 
-        <Link
+        <NavLink
           to="/vans"
           style={{
             textDecoration: "none",
-            color: currentPathname === "/vans" ? "yellow" : "white",
           }}
+          className={({ isActive }) =>
+            isActive ? "active-link" : "not-active-link"
+          }
         >
           Vans
-        </Link>
+        </NavLink>
       </nav>
     </header>
   );

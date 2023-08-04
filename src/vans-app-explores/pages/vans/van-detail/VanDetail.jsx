@@ -13,9 +13,7 @@ export default function VanDetail() {
 
   useEffect(() => {
     const myPromise = new Promise((resolve, reject) => {
-      const vanDetail = dummyVansArr.find(
-        (dummyVan) => dummyVan.id === Number(params.id)
-      );
+      const vanDetail = dummyVansArr.find((dummyVan) => dummyVan.id === Number(params.id));
       setTimeout(() => {
         if (vanDetail) {
           resolve(vanDetail);
@@ -31,9 +29,7 @@ export default function VanDetail() {
       setLoading(true);
       try {
         const response = await myPromise;
-
         if (!isActive) return;
-
         setVan(response);
       } catch (error) {
         setErrorMessage(error);

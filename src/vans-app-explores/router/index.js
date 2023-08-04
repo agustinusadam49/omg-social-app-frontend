@@ -15,6 +15,11 @@ import Home from "../pages/home/Home.jsx";
 import Dashboard from "../pages/host/dashboard/Dashboard.jsx";
 import Income from "../pages/host/income/Income.jsx";
 import Reviews from "../pages/host/reviews/Reviews.jsx";
+import HostVans from "../pages/host/host-vans/HostVans.jsx";
+import HostVanDetail from "../pages/host/host-van-detail/HostVanDetail.jsx";
+import HostVanDetailDescriptions from "../pages/host/host-van-detail/host-van-detail-description/HostVanDetailDescriptions.jsx";
+import HostVanDetailPricing from "../pages/host/host-van-detail/host-van-detail-pricing/HostVanDetailPricing.jsx";
+import HostVanDetailPhotos from "../pages/host/host-van-detail/host-van-detail-photos/HostVanDetailPhotos.jsx";
 
 export const explorationRouter = createBrowserRouter(
   createRoutesFromElements(
@@ -28,6 +33,13 @@ export const explorationRouter = createBrowserRouter(
         <Route index element={<Dashboard />} />
         <Route path="income" element={<Income />} />
         <Route path="reviews" element={<Reviews />} />
+        <Route path="vans" element={<HostVans />} />
+
+        <Route path="vans/:id" element={<HostVanDetail />}>
+          <Route index element={<HostVanDetailDescriptions />}/>
+          <Route path="pricing" element={<HostVanDetailPricing />}/>
+          <Route path="photos" element={<HostVanDetailPhotos />}/>
+        </Route>
       </Route>
       {/* handle={{ layout: "no-header" }} */}
     </Route>

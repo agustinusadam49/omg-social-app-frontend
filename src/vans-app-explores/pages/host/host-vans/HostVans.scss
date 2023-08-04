@@ -1,8 +1,8 @@
-.vans {
+.host-vans {
   padding: 20px;
   min-height: 100vh;
 
-  .van-title {
+  .host-vans-title {
     display: flex;
     flex-direction: row;
     justify-content: center;
@@ -11,7 +11,7 @@
     margin-bottom: 20px;
   }
 
-  .van-card-list {
+  .host-vans-card-list {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -26,7 +26,7 @@
       row-gap: 10px;
     }
 
-    .van-card-item {
+    .host-van-card-item {
       border: solid 1px black;
       border-radius: 10px;
       padding: 10px;
