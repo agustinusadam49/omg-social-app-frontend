@@ -19,7 +19,6 @@ import SearchPageContents from "../components/search-page-contents/SearchPageCon
 
 export const router = createBrowserRouter([
   {
-    // path: "/",
     element: <PageWithHeaderLayout />,
     errorElement: <ErrorPage />,
     children: [
