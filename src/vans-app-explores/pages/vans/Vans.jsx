@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from "react";
+import React, { useCallback, useState } from "react";
 import { Link } from "react-router-dom";
+import { useFetchData } from "../../hooks/useFetchData.js";
 import { dummyVansArr } from "../../../dummyData.js";
 import {
   mappedFromArrayToObj,
@@ -10,32 +11,26 @@ import "./Vans.scss";
 
 export default function Vans() {
   const [vans, setVans] = useState([]);
-  const [errorMessage, setErrorMessage] = useState("");
-  const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    const myPromise = new Promise((resolve, reject) => {
+  const processGetVansV1 = useCallback((onValidate, setLoading, setErrorMessage) => {
+    const promiseToGetVans = new Promise((resolve, reject) => {
       setTimeout(() => {
         if (!!dummyVansArr.length) {
           const vanObjMapped = mappedFromArrayToObj(dummyVansArr);
-          const vansOrderedArray = orderVansByType(vanObjMapped);
-          resolve(vansOrderedArray);
+          const orderedVansArray = orderVansByType(vanObjMapped);
+          resolve(orderedVansArray);
         } else {
-          reject("Tidak ada data!");
+          reject("Tidak ada data vans!");
         }
       }, 1000);
     });
 
-    let isActive = true;
-
-    const getVansData = async () => {
+    const hitGetVansPromise = async () => {
       setLoading(true);
       try {
-        const responseVansData = await myPromise;
-
-        if (!isActive) return;
-
-        setVans(responseVansData);
+        const responses = await promiseToGetVans;
+        if (!onValidate()) return;
+        setVans(responses);
       } catch (error) {
         setErrorMessage(error);
       } finally {
@@ -43,13 +38,10 @@ export default function Vans() {
       }
     };
 
-    getVansData();
-
-    return () => {
-      isActive = false;
-      setLoading(false);
-    };
+    hitGetVansPromise();
   }, []);
+
+  const { loading, errorMessage } = useFetchData(processGetVansV1);
 
   return (
     <div className="vans">
