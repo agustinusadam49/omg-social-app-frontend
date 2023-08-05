@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, Link } from "react-router-dom";
 import { dummyVansArr } from "../../../../dummyData";
 
 import "./VanDetail.scss";
@@ -48,6 +48,17 @@ export default function VanDetail() {
 
   return (
     <div className="van-detail-page">
+      <Link
+        to=".."
+        relative="path"
+        style={{
+          textDecoration: "none",
+          color: "black",
+        }}
+      >
+        {"<-"} Back to all vans
+      </Link>
+
       <div className="van-detail-page-title">Van Detail</div>
 
       {loading && <div>Loading ... getting data</div>}

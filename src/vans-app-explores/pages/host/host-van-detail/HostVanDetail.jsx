@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, Fragment } from "react";
 import {
   useParams,
   Link,
@@ -86,7 +86,7 @@ export default function HostVanDetail() {
       {loading && <div>Loading ... getting data</div>}
 
       {!!hostVanDetail && (
-        <>
+        <Fragment>
           <div className="host-van-detail-card-wrapper">
             <p>Van Name: {hostVanDetail.name}</p>
             <p>Van Transmision: {hostVanDetail.transmision}</p>
@@ -127,7 +127,7 @@ export default function HostVanDetail() {
           </header>
 
           <Outlet context={{ hostVanDetail }} />
-        </>
+        </Fragment>
       )}
 
       {!!errorMessage && <div>Error Message: {errorMessage}</div>}
