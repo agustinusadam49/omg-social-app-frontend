@@ -1,10 +1,10 @@
 import React from "react";
-import { useHostVanDetailData } from "../HostVanDetail";
+import { useOutletContext } from "react-router-dom";
 
 import "./HostVanDetailPricing.scss";
 
 export default function HostVanDetailPricing() {
-  const { hostVanDetail } = useHostVanDetailData();
+  const { hostVanDetail } = useOutletContext();
 
   const formatPriceToRupiah = (priceInput) => {
     const stringPriceInputAndReverse = String(priceInput)

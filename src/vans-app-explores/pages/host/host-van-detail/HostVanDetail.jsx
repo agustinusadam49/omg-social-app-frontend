@@ -1,11 +1,5 @@
 import React, { useState, useEffect, Fragment } from "react";
-import {
-  useParams,
-  Link,
-  NavLink,
-  Outlet,
-  useOutletContext,
-} from "react-router-dom";
+import { useParams, Link, NavLink, Outlet } from "react-router-dom";
 import { dummyVansArr } from "../../../../dummyData";
 
 import "./HostVanDetail.scss";
@@ -133,8 +127,4 @@ export default function HostVanDetail() {
       {!!errorMessage && <div>Error Message: {errorMessage}</div>}
     </div>
   );
-}
-
-export function useHostVanDetailData() {
-  return useOutletContext();
 }

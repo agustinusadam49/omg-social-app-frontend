@@ -1,10 +1,10 @@
 import React from "react";
-import { useHostVanDetailData } from "../HostVanDetail";
+import { useOutletContext } from "react-router-dom";
 
 import "./HostVanDetailDescriptions.scss";
 
 export default function HostVanDetailDescriptions() {
-  const { hostVanDetail } = useHostVanDetailData();
+  const { hostVanDetail } = useOutletContext();
 
   return (
     <div className="host-van-detail-descriptions">

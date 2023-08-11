@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useCallback } from "react";
 import { useParams, Link } from "react-router-dom";
+import { useFetchData } from "../../../hooks/useFetchData";
 import { dummyVansArr } from "../../../../dummyData";
 
 import "./VanDetail.scss";
@@ -8,43 +9,41 @@ export default function VanDetail() {
   const params = useParams();
 
   const [van, setVan] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const [errorMessage, setErrorMessage] = useState("");
 
-  useEffect(() => {
-    const myPromise = new Promise((resolve, reject) => {
-      const vanDetail = dummyVansArr.find((dummyVan) => dummyVan.id === Number(params.id));
-      setTimeout(() => {
-        if (vanDetail) {
-          resolve(vanDetail);
-        } else {
-          reject(`Van detail dengan id: ${params.id} tidak dapat ditemukan!`);
+  const processGetVanById = useCallback(
+    (onValidate, setLoading, setErrorMessage) => {
+      const myPromise = new Promise((resolve, reject) => {
+        const vanDetail = dummyVansArr.find(
+          (dummyVan) => dummyVan.id === Number(params.id)
+        );
+        setTimeout(() => {
+          if (vanDetail) {
+            resolve(vanDetail);
+          } else {
+            reject(`Van detail dengan id: ${params.id} tidak dapat ditemukan!`);
+          }
+        }, 1000);
+      });
+
+      const getVanDetailById = async () => {
+        setLoading(true);
+        try {
+          const response = await myPromise;
+          if (!onValidate()) return;
+          setVan(response);
+        } catch (error) {
+          setErrorMessage(error);
+        } finally {
+          setLoading(false);
         }
-      }, 1000);
-    });
+      };
 
-    let isActive = true;
+      getVanDetailById();
+    },
+    [params.id]
+  );
 
-    const getVanDetailById = async () => {
-      setLoading(true);
-      try {
-        const response = await myPromise;
-        if (!isActive) return;
-        setVan(response);
-      } catch (error) {
-        setErrorMessage(error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    getVanDetailById();
-
-    return () => {
-      isActive = false;
-      setVan(null);
-    };
-  }, [params.id]);
+  const { loading, errorMessage } = useFetchData(processGetVanById);
 
   return (
     <div className="van-detail-page">
