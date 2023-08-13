@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useLocation } from "react-router-dom";
 import { useFetchData } from "../../../hooks/useFetchData";
 import { dummyVansArr } from "../../../../dummyData";
 
@@ -7,6 +7,9 @@ import "./VanDetail.scss";
 
 export default function VanDetail() {
   const params = useParams();
+  const location = useLocation();
+
+  const queryParamsToBackAllVans = `?${location.state?.search}` || "";
 
   const [van, setVan] = useState(null);
 
@@ -45,10 +48,12 @@ export default function VanDetail() {
 
   const { loading, errorMessage } = useFetchData(processGetVanById);
 
+
+
   return (
     <div className="van-detail-page">
       <Link
-        to=".."
+        to={`..${queryParamsToBackAllVans}`}
         relative="path"
         style={{
           textDecoration: "none",

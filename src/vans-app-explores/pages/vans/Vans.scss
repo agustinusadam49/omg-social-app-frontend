@@ -11,6 +11,55 @@
     margin-bottom: 20px;
   }
 
+  .van-options-wording {
+    font-size: 14px;
+    font-weight: bold;
+    margin-bottom: 8px;
+  }
+
+  .van-types-wrapper {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px;
+    border-radius: 10px;
+    margin-bottom: 10px;
+    background-color: bisque;
+
+    @media only screen and (min-width: 1024px) {
+      width: 360px;
+    }
+
+    .van-type-button {
+      cursor: pointer;
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: center;
+      padding: 10px;
+      font-size: 10px;
+      border-radius: 10px;
+      background-color: grey;
+      color: white;
+
+      &.active {
+        background-color: aqua;
+        color: purple;
+      }
+
+      &:hover {
+        background-color: aqua;
+        color: purple;
+      }
+
+      @media only screen and (min-width: 1024px) {
+        padding: 10px 20px;
+      }
+    }
+  }
+
   .van-card-list {
     display: flex;
     flex-direction: column;
