@@ -150,9 +150,10 @@ const getFirstError = (arrError) => {
   return arrError;
 };
 
-const formValidationV2 = (arrayToValidateCheck, setErrorMessage) => {
+const formValidationV2 = (arrayToValidateCheck) => {
   const arrayKeys = Object.keys(arrayToValidateCheck);
   const error = {};
+  let isValid = false;
 
   for (let keyIndex = 0; keyIndex < arrayKeys.length; keyIndex++) {
     error[arrayKeys[keyIndex]] = [];
@@ -164,7 +165,6 @@ const formValidationV2 = (arrayToValidateCheck, setErrorMessage) => {
     if (arrayToValidateCheck[arrayKeys[i]].isRequired === true) {
       if (!arrayToValidateCheck[arrayKeys[i]].currentValue) {
         error[arrayKeys[i]].push(`This field cannot be empty.`);
-        setErrorMessage(error);
         validationCount++;
       }
     }
@@ -174,7 +174,6 @@ const formValidationV2 = (arrayToValidateCheck, setErrorMessage) => {
       const { message, isValid } = arrayToValidateCheck[arrayKeys[i]]?.function;
       if (!isValid) {
         error[arrayKeys[i]].push(message);
-        setErrorMessage(error);
         validationCount++;
       }
     }
@@ -185,11 +184,9 @@ const formValidationV2 = (arrayToValidateCheck, setErrorMessage) => {
         if (arrTemps[idx].isRequired) {
           if (!arrTemps[idx].currentValue) {
             error[arrayKeys[i]].push(`This field cannot be empty.`);
-            setErrorMessage(error);
             validationCount++;
           } else {
             error[arrayKeys[i]].push("");
-            setErrorMessage(error);
           }
         }
       }
@@ -197,11 +194,16 @@ const formValidationV2 = (arrayToValidateCheck, setErrorMessage) => {
   }
 
   if (validationCount < 1) {
-    setErrorMessage(error);
-    return true;
+    isValid = true
+  } else {
+    isValid = false
   }
 
-  return false
+  return {
+    isValid,
+    errorMessage: error
+  }
+
 };
 
 module.exports = {

@@ -1,6 +1,5 @@
-import React, { useState, useRef, useReducer } from "react";
+import React, { useState, useReducer, useMemo } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
-import { formValidationV2 } from "../../utils/formValidationFunction";
 import { setToLocalStorageWhenSuccess } from "../../utils/setLocalStorage";
 import { loginUser } from "../../apiCalls/registerAndLoginApiFetch";
 import { setIsAuthUser, setUserToken } from "../../redux/slices/userSlice";
@@ -15,6 +14,8 @@ import {
 } from "../../utils/reducers/globalLoadingReducer";
 import RoundedLoader from "../../components/rounded-loader/RoundedLoader";
 import { useRedirectToHome } from "../../custom-hooks/useRedirectToHome";
+import { useFormValidation } from "../../custom-hooks/useFormValidation";
+import { getFirstError } from "../../utils/formValidationFunction";
 
 import "./Login.scss";
 
@@ -31,41 +32,65 @@ export default function Login() {
 
   const [isFromNonAuthPage, setIsFromNonAuthPage] = useState(false);
 
-  const emailRef = useRef();
-  const passwordRef = useRef();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
 
-  const [errorMessage, setErrorMessage] = useState({
-    email: [],
-    password: [],
+  const [secondaryErrorObj, setSecondaryErrorObj] = useState({
+    email: "",
+    password: "",
+  });
+
+  const [valuesOnBlur, setValuesOnBlur] = useState({
+    email: false,
+    password: false,
   });
 
   const clearLoginField = () => {
-    emailRef.current.value = "";
-    passwordRef.current.value = "";
+    setEmail("");
+    setPassword("");
+    setSecondaryErrorObj({
+      email: "",
+      password: "",
+    });
+    setValuesOnBlur({
+      email: false,
+      password: false,
+    });
     mutate({ type: actionType.STOP_LOADING_STATUS });
   };
 
-  const doLogin = () => {
-    if (loadingState.status) return;
-
-    const loginValidationCheck = {
+  const loginValidationCheck = useMemo(
+    () => ({
       email: {
-        currentValue: emailRef.current.value,
+        currentValue: email,
         isRequired: true,
       },
       password: {
-        currentValue: passwordRef.current.value,
+        currentValue: password,
         isRequired: true,
       },
-    };
+    }),
+    [email, password]
+  );
 
-    const isValid = formValidationV2(loginValidationCheck, setErrorMessage);
+  const { isValid, errorMessage } = useFormValidation({
+    rulesSchema: loginValidationCheck,
+  });
+
+  const doLogin = () => {
+    handleAllOnBlurToTrue(true);
+    setSecondaryErrorObj({
+      email: "",
+      password: "",
+    });
+
+    if (loadingState.status) return;
 
     if (isValid) {
       mutate({ type: actionType.RUN_LOADING_STATUS });
       const payloadLogin = {
-        userEmail: loginValidationCheck.email.currentValue,
-        userPassword: loginValidationCheck.password.currentValue,
+        userEmail: email,
+        userPassword: password,
       };
 
       loginUser(payloadLogin)
@@ -91,19 +116,21 @@ export default function Login() {
         .catch((error) => {
           mutate({ type: actionType.STOP_LOADING_STATUS });
           const errorMessageFromServer = error.response.data.err.errorMessage;
-          const errorForState = {
-            email: [],
-            password: [],
-          };
           if (errorMessageFromServer.includes("email")) {
-            errorForState["email"].push(errorMessageFromServer);
-            setErrorMessage(errorForState);
+            setSecondaryErrorObj((oldObjVal) => ({
+              ...oldObjVal,
+              email: errorMessageFromServer,
+            }));
           } else if (errorMessageFromServer.includes("Password")) {
-            errorForState["password"].push(errorMessageFromServer);
-            setErrorMessage(errorForState);
+            setSecondaryErrorObj((oldObjVal) => ({
+              ...oldObjVal,
+              password: errorMessageFromServer,
+            }));
           } else {
-            errorForState["email"].push(errorMessageFromServer);
-            setErrorMessage(errorForState);
+            setSecondaryErrorObj((oldObjVal) => ({
+              ...oldObjVal,
+              email: errorMessageFromServer,
+            }));
           }
         });
     }
@@ -116,8 +143,54 @@ export default function Login() {
   };
 
   useRedirectToHome({
-    isFromNonAuthPage: isFromNonAuthPage
-  })
+    isFromNonAuthPage: isFromNonAuthPage,
+  });
+
+  const handleSetValuesOnBlur = (value, type) => {
+    if (value) {
+      setValuesOnBlur((oldObjVal) => ({
+        ...oldObjVal,
+        [type]: true,
+      }));
+    }
+  };
+
+  const handleAllOnBlurToTrue = (boolVal) => {
+    const onBlurObjKeys = Object.keys(valuesOnBlur);
+
+    for (let i = 0; i < onBlurObjKeys.length; i++) {
+      setValuesOnBlur((oldValObj) => ({
+        ...oldValObj,
+        [onBlurObjKeys[i]]: boolVal,
+      }));
+    }
+  };
+
+  const handleInputErrorMessage = (type) => {
+    return valuesOnBlur[type] ? getFirstError(errorMessage[type]) : [];
+  };
+
+  const handleOnChangeEmail = (val) => {
+    setEmail(val);
+
+    if (secondaryErrorObj.email && (val || !val)) {
+      setSecondaryErrorObj((oldObjVal) => ({
+        ...oldObjVal,
+        email: "",
+      }));
+    }
+  };
+
+  const handleOnChangePassword = (val) => {
+    setPassword(val);
+
+    if (secondaryErrorObj.password && (val || !val)) {
+      setSecondaryErrorObj((oldObjVal) => ({
+        ...oldObjVal,
+        password: "",
+      }));
+    }
+  };
 
   return (
     <div className="login">
@@ -127,17 +200,21 @@ export default function Login() {
         <div className="login-right">
           <div className="login-box" onKeyPress={doLoginEnter}>
             <InputTextGlobal
-              inputRef={emailRef}
+              value={email}
+              onChange={(e) => handleOnChangeEmail(e.target.value)}
+              onBlur={(e) => handleSetValuesOnBlur(e.target.value, "fullname")}
               inputPlaceholder={"Email"}
-              inputErrorMessage={errorMessage.email}
+              inputErrorMessage={handleInputErrorMessage("email")}
+              inputSecondErrorMessage={secondaryErrorObj.email}
             />
 
             <InputTextGlobal
-              inputRef={passwordRef}
+              value={password}
+              onChange={(e) => handleOnChangePassword(e.target.value)}
               inputPlaceholder={"password"}
               inputType={"password"}
-              inputErrorMessage={errorMessage.password}
-              inputSecondErrorMessage={errorMessage["other"]}
+              inputErrorMessage={handleInputErrorMessage("password")}
+              inputSecondErrorMessage={secondaryErrorObj.password}
             />
 
             {!loadingState.status ? (

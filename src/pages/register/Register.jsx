@@ -1,7 +1,6 @@
-import React, { useState, useRef, useReducer } from "react";
+import React, { useState, useReducer, useMemo } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import {
-  formValidationV2,
   helpersWithMessage,
   getFirstError,
 } from "../../utils/formValidationFunction";
@@ -19,6 +18,7 @@ import {
 } from "../../utils/reducers/globalLoadingReducer";
 import RoundedLoader from "../../components/rounded-loader/RoundedLoader";
 import { useRedirectToHome } from "../../custom-hooks/useRedirectToHome";
+import { useFormValidation } from "../../custom-hooks/useFormValidation";
 
 import "./Register.scss";
 
@@ -34,59 +34,55 @@ export default function Register() {
 
   const [isFromNonAuthPage, setIsFromNonAuthPage] = useState(false);
 
-  const fullnameRef = useRef();
-  const usernameRef = useRef();
-  const emailRef = useRef();
-  const passwordRef = useRef();
-  const confirmPasswordRef = useRef();
+  const [fullname, setFullname] = useState("");
+  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
 
-  const [errorMessage, setErrorMessage] = useState({
-    fullname: [],
-    username: [],
-    email: [],
-    password: [],
-    confirmPassword: [],
+  const [emailErrorFromBE, setEmailErrorFromBE] = useState("")
+
+  const [valuesOnBlur, setValuesOnBlur] = useState({
+    fullname: false,
+    username: false,
+    email: false,
+    password: false,
+    confirmPassword: false,
   });
 
   const clearRegisterField = () => {
-    fullnameRef.current.value = "";
-    usernameRef.current.value = "";
-    emailRef.current.value = "";
-    passwordRef.current.value = "";
-    confirmPasswordRef.current.value = "";
+    setFullname("");
+    setUsername("");
+    setEmail("");
+    setPassword("");
+    setConfirmPassword("");
     mutate({ type: actionType.STOP_LOADING_STATUS });
   };
 
-  const doRegister = () => {
-    if (loadingState.status) return;
-
-    const registrationValidateCheck = {
+  const registrationValidateCheck = useMemo(
+    () => ({
       fullname: {
-        currentValue: fullnameRef.current.value,
+        currentValue: fullname,
         isRequired: true,
       },
       username: {
-        currentValue: usernameRef.current.value,
+        currentValue: username,
         isRequired: true,
       },
       email: {
-        currentValue: emailRef.current.value,
+        currentValue: email,
         isRequired: true,
-        function: helpersWithMessage(
-          "email tidak valid",
-          emailRef.current.value,
-          (val) => {
-            const emailValue = val;
-            return emailValue.includes("@") && emailValue.includes(".com");
-          }
-        ),
+        function: helpersWithMessage("email tidak valid", email, (val) => {
+          const emailValue = val;
+          return emailValue.includes("@") && emailValue.includes(".com");
+        }),
       },
       password: {
-        currentValue: passwordRef.current.value,
+        currentValue: password,
         isRequired: true,
         function: helpersWithMessage(
           "Password harus memiliki minimal 4 dan maximal 16 characters",
-          passwordRef.current.value,
+          password,
           (val) => {
             const minCharacterLength = 4;
             const maxCharacterLength = 16;
@@ -99,33 +95,41 @@ export default function Register() {
         ),
       },
       confirmPassword: {
-        currentValue: confirmPasswordRef.current.value,
+        currentValue: confirmPassword,
         isRequired: true,
         function: helpersWithMessage(
           "password tidak sama!",
-          confirmPasswordRef.current.value,
+          confirmPassword,
           (val) => {
             const confirmPasswordValue = val;
-            const passwordValue = passwordRef.current.value;
+            const passwordValue = password;
             return confirmPasswordValue === passwordValue;
           }
         ),
       },
-    };
+    }),
+    [fullname, username, email, password, confirmPassword]
+  );
 
-    const isValid = formValidationV2(
-      registrationValidateCheck,
-      setErrorMessage
-    );
+  const { isValid, errorMessage } = useFormValidation({
+    rulesSchema: registrationValidateCheck,
+  });
+
+  const doRegister = () => {
+    handleAllOnBlurToTrue(true);
+
+    if (loadingState.status) return;
 
     if (isValid) {
       mutate({ type: actionType.RUN_LOADING_STATUS });
       const payloadRegistration = {
-        userFullname: registrationValidateCheck.fullname.currentValue,
-        userName: registrationValidateCheck.username.currentValue,
-        userEmail: registrationValidateCheck.email.currentValue,
-        userPassword: registrationValidateCheck.password.currentValue,
+        userFullname: fullname,
+        userName: username,
+        userEmail: email,
+        userPassword: password,
       };
+
+      console.log("payloadRegistration:", payloadRegistration);
 
       registerNewUser(payloadRegistration)
         .then((userResponseRegister) => {
@@ -147,17 +151,9 @@ export default function Register() {
         .catch((error) => {
           mutate({ type: actionType.STOP_LOADING_STATUS });
           const errorMessageFromServer = error.response.data.err.errorMessage;
-          const errorForState = {
-            fullname: [],
-            username: [],
-            email: [],
-            password: [],
-            confirmPassword: [],
-          };
 
           if (errorMessageFromServer.toLowerCase().includes("email")) {
-            errorForState["email"].push(errorMessageFromServer);
-            setErrorMessage(errorForState);
+            setEmailErrorFromBE(errorMessageFromServer)
           } else {
             console.log("error need to be handled", errorMessageFromServer);
           }
@@ -172,8 +168,40 @@ export default function Register() {
   };
 
   useRedirectToHome({
-    isFromNonAuthPage: isFromNonAuthPage
-  })
+    isFromNonAuthPage: isFromNonAuthPage,
+  });
+
+  const handleSetValuesOnBlur = (value, type) => {
+    if (value) {
+      setValuesOnBlur((oldObjVal) => ({
+        ...oldObjVal,
+        [type]: true,
+      }));
+    }
+  };
+
+  const handleInputErrorMessage = (type) => {
+    return valuesOnBlur[type] ? getFirstError(errorMessage[type]) : [];
+  };
+
+  const handleAllOnBlurToTrue = (boolVal) => {
+    const onBlurObjKeys = Object.keys(valuesOnBlur);
+
+    for (let i = 0; i < onBlurObjKeys.length; i++) {
+      setValuesOnBlur((oldValObj) => ({
+        ...oldValObj,
+        [onBlurObjKeys[i]]: boolVal,
+      }));
+    }
+  };
+
+  const handleOnChangeEmail = (val) => {
+    setEmail(val)
+
+    if (emailErrorFromBE && val) {
+      setEmailErrorFromBE("")
+    }
+  }
 
   return (
     <div className="register">
@@ -183,35 +211,46 @@ export default function Register() {
         <div className="register-right">
           <div className="register-box" onKeyPress={doRegisterEnter}>
             <InputTextGlobal
-              inputRef={fullnameRef}
+              value={fullname}
+              onChange={(e) => setFullname(e.target.value)}
+              onBlur={(e) => handleSetValuesOnBlur(e.target.value, "fullname")}
               inputPlaceholder={"Fullname"}
-              inputErrorMessage={getFirstError(errorMessage.fullname)}
+              inputErrorMessage={handleInputErrorMessage("fullname")}
             />
 
             <InputTextGlobal
-              inputRef={usernameRef}
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
               inputPlaceholder={"Username"}
-              inputErrorMessage={getFirstError(errorMessage.username)}
+              inputErrorMessage={handleInputErrorMessage("username")}
+              onBlur={(e) => handleSetValuesOnBlur(e.target.value, "username")}
             />
 
             <InputTextGlobal
-              inputRef={emailRef}
+              value={email}
+              onChange={(e) => handleOnChangeEmail(e.target.value)}
+              onBlur={(e) => handleSetValuesOnBlur(e.target.value, "email")}
               inputPlaceholder={"Email"}
-              inputErrorMessage={getFirstError(errorMessage.email)}
+              inputErrorMessage={handleInputErrorMessage("email")}
+              inputSecondErrorMessage={emailErrorFromBE}
             />
 
             <InputTextGlobal
-              inputRef={passwordRef}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
               inputPlaceholder={"Password"}
+              onBlur={(e) => handleSetValuesOnBlur(e.target.value, "password")}
               inputType={"password"}
-              inputErrorMessage={getFirstError(errorMessage.password)}
+              inputErrorMessage={handleInputErrorMessage("password")}
             />
 
             <InputTextGlobal
-              inputRef={confirmPasswordRef}
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              onBlur={(e) => handleSetValuesOnBlur(e.target.value, "confirmPassword")}
               inputPlaceholder={"Password Confirmation"}
               inputType={"password"}
-              inputErrorMessage={getFirstError(errorMessage.confirmPassword)}
+              inputErrorMessage={handleInputErrorMessage("confirmPassword")}
             />
 
             {!loadingState.status ? (

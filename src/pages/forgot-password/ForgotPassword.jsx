@@ -1,13 +1,11 @@
 import React, {
   useState,
-  useRef,
   useReducer,
   useMemo,
   useEffect,
   Fragment,
 } from "react";
 import {
-  formValidationV2,
   helpersWithMessage,
   getFirstError,
 } from "../../utils/formValidationFunction";
@@ -24,8 +22,9 @@ import {
   getUserByEmail,
   changeForgotPassword,
 } from "../../apiCalls/forgotPassword";
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from "react-router-dom";
 import { useRedirectToHome } from "../../custom-hooks/useRedirectToHome";
+import { useFormValidation } from "../../custom-hooks/useFormValidation";
 
 import "./ForgotPassword.scss";
 
@@ -39,68 +38,117 @@ export default function ForgotPassword() {
 
   const [emailInLocalStorage, setEmailInLocalStorage] = useState("");
 
-  const emailRef = useRef();
-  const passwordRef = useRef();
-  const confirmPasswordRef = useRef();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
 
-  const [errorMessageCheckEmail, setErrorMessageCheckEmail] = useState({
-    email: [],
+  const [secondaryErrorObj, setSecondaryErrorObj] = useState({
+    email: "",
+    password: "",
+    confirmPassword: "",
   });
 
-  const [errorMessagePassword, setErrorMessagePassword] = useState({
-    password: [],
-    confirmPassword: [],
+  const [valuesOnBlur, setValuesOnBlur] = useState({
+    email: false,
+    password: false,
+    confirmPassword: false,
   });
 
-  const clearField = () => {
-    emailRef.current.value = "";
-    passwordRef.current.value = "";
-    confirmPasswordRef.current.value = "";
-  };
-
-  const doChangePassword = () => {
-    if (loadingState.status) return;
-
-    const passwordValidationCheck = {
-      password: {
-        currentValue: passwordRef.current.value,
+  const checkEmailRules = useMemo(
+    () => ({
+      email: {
+        currentValue: email,
         isRequired: true,
+        function: helpersWithMessage("email tidak valid", email, (val) => {
+          const emailValue = val;
+          return emailValue.includes("@") && emailValue.includes(".com");
+        }),
+      },
+    }),
+    [email]
+  );
+
+  const passwordRules = useMemo(
+    () => ({
+      password: {
+        currentValue: password,
+        isRequired: true,
+        function: helpersWithMessage(
+          "Password harus memiliki minimal 4 dan maximal 16 characters",
+          password,
+          (val) => {
+            const minCharacterLength = 4;
+            const maxCharacterLength = 16;
+            const passwordValue = val;
+            return (
+              passwordValue.length >= minCharacterLength &&
+              passwordValue.length <= maxCharacterLength
+            );
+          }
+        ),
       },
       confirmPassword: {
-        currentValue: confirmPasswordRef.current.value,
+        currentValue: confirmPassword,
         isRequired: true,
         function: helpersWithMessage(
           "password tidak sama!",
-          confirmPasswordRef.current.value,
+          confirmPassword,
           (val) => {
             const confirmPasswordValue = val;
-            const passwordValue = passwordRef.current.value;
+            const passwordValue = password;
             return confirmPasswordValue === passwordValue;
           }
         ),
       },
-    };
+    }),
+    [password, confirmPassword]
+  );
 
-    const isPasswordValid = formValidationV2(
-      passwordValidationCheck,
-      setErrorMessagePassword
-    );
+  const { isValid, errorMessage } = useFormValidation({
+    rulesSchema: checkEmailRules,
+  });
+
+  const { isValid: isPasswordValid, errorMessage: errorMessagePassword } =
+    useFormValidation({
+      rulesSchema: passwordRules,
+    });
+
+  const clearField = () => {
+    setEmail("");
+    setPassword("");
+    setConfirmPassword("");
+    setSecondaryErrorObj({
+      email: "",
+      password: "",
+      confirmPassword: "",
+    });
+    setValuesOnBlur({
+      email: false,
+      password: false,
+      confirmPassword: false,
+    });
+  };
+
+  const doChangePassword = () => {
+    handleAllOnBlurToTrue(true);
+
+    if (loadingState.status) return;
 
     if (isPasswordValid) {
       mutate({ type: actionType.RUN_LOADING_STATUS });
       const payload = {
-        userPassword: passwordValidationCheck.password.currentValue,
+        userPassword: password,
       };
 
-      const emailParam = emailRef.current.value;
+      const emailParam = email;
 
       changeForgotPassword(emailParam, payload)
         .then((response) => {
-          const success = response.data.success
+          const success = response.data.success;
           if (success) {
             mutate({ type: actionType.STOP_LOADING_STATUS });
-            clearField()
-            navigate("/login")
+            clearField();
+            navigate("/login");
           }
         })
         .catch((error) => {
@@ -111,33 +159,15 @@ export default function ForgotPassword() {
   };
 
   const doEmailCheck = () => {
+    handleAllOnBlurToTrue(true);
+
     if (loadingState.status) return;
-
-    const emailValidationCheck = {
-      email: {
-        currentValue: emailRef.current.value,
-        isRequired: true,
-        function: helpersWithMessage(
-          "email tidak valid",
-          emailRef.current.value,
-          (val) => {
-            const emailValue = val;
-            return emailValue.includes("@") && emailValue.includes(".com");
-          }
-        ),
-      },
-    };
-
-    const isValid = formValidationV2(
-      emailValidationCheck,
-      setErrorMessageCheckEmail
-    );
 
     if (isValid) {
       mutate({ type: actionType.RUN_LOADING_STATUS });
 
       const payloadCheckEmail = {
-        userEmail: emailValidationCheck.email.currentValue,
+        userEmail: email,
       };
 
       getUserByEmail(payloadCheckEmail.userEmail)
@@ -158,13 +188,12 @@ export default function ForgotPassword() {
         .catch((error) => {
           mutate({ type: actionType.STOP_LOADING_STATUS });
           const errorMessageFromServer = error.response.data.err.message;
-          const errorForState = {
-            email: [],
-          };
 
           if (errorMessageFromServer.toLowerCase().includes("email")) {
-            errorForState["email"].push(errorMessageFromServer);
-            setErrorMessageCheckEmail(errorForState);
+            setSecondaryErrorObj((oldObjVal) => ({
+              ...oldObjVal,
+              email: errorMessageFromServer,
+            }));
           }
         });
     }
@@ -191,7 +220,7 @@ export default function ForgotPassword() {
     );
 
     if (userEmailInLocalStorage) {
-      emailRef.current.value = userEmailInLocalStorage;
+      setEmail(userEmailInLocalStorage);
       setEmailInLocalStorage(userEmailInLocalStorage);
     }
 
@@ -201,8 +230,47 @@ export default function ForgotPassword() {
   }, []);
 
   useRedirectToHome({
-    isFromNonAuthPage: false
-  })
+    isFromNonAuthPage: false,
+  });
+
+  const handleSetValuesOnBlur = (value, type) => {
+    if (value) {
+      setValuesOnBlur((oldObjVal) => ({
+        ...oldObjVal,
+        [type]: true,
+      }));
+    }
+  };
+
+  const handleInputErrorMessage = (type) => {
+    return valuesOnBlur[type] ? getFirstError(errorMessage[type]) : [];
+  };
+
+  const handleInputErrorMessagePassword = (type) => {
+    return valuesOnBlur[type] ? getFirstError(errorMessagePassword[type]) : [];
+  };
+
+  const handleAllOnBlurToTrue = (boolVal) => {
+    const onBlurObjKeys = Object.keys(valuesOnBlur);
+
+    for (let i = 0; i < onBlurObjKeys.length; i++) {
+      setValuesOnBlur((oldValObj) => ({
+        ...oldValObj,
+        [onBlurObjKeys[i]]: boolVal,
+      }));
+    }
+  };
+
+  const handleOnChangeEmail = (val) => {
+    setEmail(val);
+
+    if (secondaryErrorObj.email && (val || !val)) {
+      setSecondaryErrorObj((oldObjVal) => ({
+        ...oldObjVal,
+        email: "",
+      }));
+    }
+  };
 
   return (
     <div className="forgot-password">
@@ -215,29 +283,40 @@ export default function ForgotPassword() {
             onKeyPress={handleChangePasswordWithEnter}
           >
             <InputTextGlobal
-              inputRef={emailRef}
+              value={email}
+              onChange={(e) => handleOnChangeEmail(e.target.value)}
+              onBlur={(e) => handleSetValuesOnBlur(e.target.value, "email")}
               inputPlaceholder={"Masukan Email"}
-              inputErrorMessage={getFirstError(errorMessageCheckEmail.email)}
+              inputErrorMessage={handleInputErrorMessage("email")}
+              inputSecondErrorMessage={secondaryErrorObj.email}
               disabled={isEmailValidated}
             />
 
             {isEmailValidated && (
               <Fragment>
                 <InputTextGlobal
-                  inputRef={passwordRef}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  onBlur={(e) =>
+                    handleSetValuesOnBlur(e.target.value, "password")
+                  }
                   inputPlaceholder={"New Password"}
                   inputType={"password"}
-                  inputErrorMessage={getFirstError(
-                    errorMessagePassword.password
+                  inputErrorMessage={handleInputErrorMessagePassword(
+                    "password"
                   )}
                 />
 
                 <InputTextGlobal
-                  inputRef={confirmPasswordRef}
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  onBlur={(e) =>
+                    handleSetValuesOnBlur(e.target.value, "confirmPassword")
+                  }
                   inputPlaceholder={"New Password Confirmation"}
                   inputType={"password"}
-                  inputErrorMessage={getFirstError(
-                    errorMessagePassword.confirmPassword
+                  inputErrorMessage={handleInputErrorMessagePassword(
+                    "confirmPassword"
                   )}
                 />
               </Fragment>

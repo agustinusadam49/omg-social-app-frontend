@@ -7,9 +7,15 @@ export const useRedirectToHome = ({ isFromNonAuthPage }) => {
   const navigate = useNavigate();
 
   useEffect(() => {
+    let isSubscribed = true
     const isThereIsAccessToken = !!access_token;
     if (isThereIsAccessToken === true && !isFromNonAuthPage) {
+      if (!isSubscribed) return
       navigate("/");
+    }
+
+    return () => {
+      isSubscribed = false
     }
   }, [access_token, isFromNonAuthPage, navigate]);
 };
