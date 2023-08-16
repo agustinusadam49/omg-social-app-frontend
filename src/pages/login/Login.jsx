@@ -202,7 +202,7 @@ export default function Login() {
             <InputTextGlobal
               value={email}
               onChange={(e) => handleOnChangeEmail(e.target.value)}
-              onBlur={(e) => handleSetValuesOnBlur(e.target.value, "fullname")}
+              onBlur={(e) => handleSetValuesOnBlur(e.target.value, "email")}
               inputPlaceholder={"Email"}
               inputErrorMessage={handleInputErrorMessage("email")}
               inputSecondErrorMessage={secondaryErrorObj.email}
@@ -211,6 +211,7 @@ export default function Login() {
             <InputTextGlobal
               value={password}
               onChange={(e) => handleOnChangePassword(e.target.value)}
+              onBlur={(e) => handleSetValuesOnBlur(e.target.value, "password")}
               inputPlaceholder={"password"}
               inputType={"password"}
               inputErrorMessage={handleInputErrorMessage("password")}
