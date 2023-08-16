@@ -17,7 +17,7 @@ const getAppToRun = (appName) => {
 
 ReactDOM.render(
   <Provider store={store}>
-    {getAppToRun("vansExplore")}
+    {getAppToRun("omgSocial")}
   </Provider>,
   document.getElementById("root")
 );

@@ -59,7 +59,7 @@ export default function Login() {
     mutate({ type: actionType.STOP_LOADING_STATUS });
   };
 
-  const loginValidationCheck = useMemo(
+  const loginRulesSchema = useMemo(
     () => ({
       email: {
         currentValue: email,
@@ -74,7 +74,7 @@ export default function Login() {
   );
 
   const { isValid, errorMessage } = useFormValidation({
-    rulesSchema: loginValidationCheck,
+    rulesSchema: loginRulesSchema,
   });
 
   const doLogin = () => {

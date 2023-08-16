@@ -59,7 +59,7 @@ export default function Register() {
     mutate({ type: actionType.STOP_LOADING_STATUS });
   };
 
-  const registrationValidateCheck = useMemo(
+  const registrationRulesSchema = useMemo(
     () => ({
       fullname: {
         currentValue: fullname,
@@ -112,7 +112,7 @@ export default function Register() {
   );
 
   const { isValid, errorMessage } = useFormValidation({
-    rulesSchema: registrationValidateCheck,
+    rulesSchema: registrationRulesSchema,
   });
 
   const doRegister = () => {
