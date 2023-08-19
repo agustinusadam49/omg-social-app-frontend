@@ -8,6 +8,7 @@ const GlobalButton = ({
   isDisabled,
   ...props
 }) => {
+  const { children } = props;
   return (
     <button
       className={classStyleName}
@@ -15,7 +16,7 @@ const GlobalButton = ({
       {...props}
       disabled={isDisabled}
     >
-      {buttonLabel}
+      {children || buttonLabel}
     </button>
   );
 };

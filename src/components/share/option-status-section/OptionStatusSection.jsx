@@ -2,7 +2,10 @@ import React, { useMemo, useEffect, useState } from "react";
 import { userInfoLogin } from "../../../redux/apiCalls";
 import { useSelector, useDispatch } from "react-redux";
 
-import "./OptionStatusSection.scss";
+import OptionStatusWrapper from "./option-status-wrapper/OptionStatusWrapper";
+import OptionStatusItem from "./option-status-item/OptionStatusItem";
+import OptionStatusName from "./option-status-name/OptionStatusName";
+import OptionStatusDescription from "./option-status-description/OptionStatusDescription";
 
 export default function OptionStatusSection({ setActiveStatus, activeStatus }) {
   const dispatch = useDispatch();
@@ -65,19 +68,20 @@ export default function OptionStatusSection({ setActiveStatus, activeStatus }) {
   }, [dispatch]);
 
   return (
-    <div className="option-status-section">
-      {shareOptionStatus.map((status, index) => (
-        <div
-          key={index}
-          className={`share-status-option-item ${
-            activeStatus === status.name ? "active" : ""
-          }`}
-          onClick={() => toggleActiveStatus(status.name)}
-        >
-          <div className="share-status-name">{getStatus(status.name)}</div>
-          <div className="share-status-description">{status.description}</div>
-        </div>
-      ))}
-    </div>
+    <OptionStatusWrapper>
+      {shareOptionStatus.map((status, index) => {
+        const { name, description } = status;
+        return (
+          <OptionStatusItem
+            key={index}
+            isActive={activeStatus === name}
+            onClick={() => toggleActiveStatus(name)}
+          >
+            <OptionStatusName statusName={getStatus(name)} />
+            <OptionStatusDescription statusDescription={description} />
+          </OptionStatusItem>
+        );
+      })}
+    </OptionStatusWrapper>
   );
 }
