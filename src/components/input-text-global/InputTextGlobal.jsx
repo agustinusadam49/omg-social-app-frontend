@@ -3,11 +3,7 @@ import VisibilityIcon from "@mui/icons-material/Visibility";
 import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
 import "./InputTextGlobal.scss";
 
-// This input text global component does not need use value and onchange,
-// instead of using inputRef, for now it used in login and register page
-
 const InputTextGlobal = ({
-  inputRef,
   inputErrorMessage,
   inputPlaceholder = "",
   inputType = "text",
@@ -93,7 +89,6 @@ const InputTextGlobal = ({
       <div className="input-text-wrapper-v1">
         {displayLabel()}
         <input
-          ref={inputRef}
           placeholder={inputPlaceholder}
           className={styleForInputTag()}
           type={!seePassword ? inputType : "text"}

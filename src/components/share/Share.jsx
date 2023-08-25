@@ -11,7 +11,7 @@ import FinishPostingStatus from "./finish-posting-status/FinishPostingStatus";
 import ErrorMessageCaption from "./error-message-caption/ErrorMessageCaption";
 import SharePreviewImageSection from "./share-preview-image-section/SharePreviewImageSection";
 import ShareBottomSection from "./share-bottom-section/ShareBottomSection";
-import OptionStatusSection from "./option-status-section/OptionStatusSection";
+import OptionStatus from "../option-status/OptionStatus";
 import { useAutomaticCloseMessageToast } from "../../utils/automaticCloseMessageToast";
 import { useToast } from "../../utils/useToast";
 
@@ -174,7 +174,7 @@ const Share = ({ userNameFromParam }) => {
           />
         )}
 
-        <OptionStatusSection
+        <OptionStatus
           setActiveStatus={setActiveStatus}
           activeStatus={activeStatus}
         />
