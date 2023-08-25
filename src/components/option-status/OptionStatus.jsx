@@ -1,5 +1,5 @@
 import React, { useMemo, useEffect, useState } from "react";
-import { userInfoLogin } from "../../../redux/apiCalls";
+import { userInfoLogin } from "../../redux/apiCalls";
 import { useSelector, useDispatch } from "react-redux";
 
 import OptionStatusWrapper from "./option-status-wrapper/OptionStatusWrapper";
