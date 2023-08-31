@@ -20,6 +20,7 @@ import HostVanDetail from "../pages/host/host-van-detail/HostVanDetail.jsx";
 import HostVanDetailDescriptions from "../pages/host/host-van-detail/host-van-detail-description/HostVanDetailDescriptions.jsx";
 import HostVanDetailPricing from "../pages/host/host-van-detail/host-van-detail-pricing/HostVanDetailPricing.jsx";
 import HostVanDetailPhotos from "../pages/host/host-van-detail/host-van-detail-photos/HostVanDetailPhotos.jsx";
+import NotFound from "../pages/not-found/NotFound.jsx";
 
 export const explorationRouter = createBrowserRouter(
   createRoutesFromElements(
@@ -41,7 +42,7 @@ export const explorationRouter = createBrowserRouter(
           <Route path="photos" element={<HostVanDetailPhotos />}/>
         </Route>
       </Route>
-      {/* handle={{ layout: "no-header" }} */}
+      <Route path="*" element={<NotFound />}/>
     </Route>
   )
 );

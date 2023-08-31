@@ -75,6 +75,7 @@ export default function HostVanDetail() {
       >
         {"<-"} Back to all vans
       </Link>
+
       <div className="host-van-detail-title">Host Van Detail</div>
 
       {loading && <div>Loading ... getting data</div>}
