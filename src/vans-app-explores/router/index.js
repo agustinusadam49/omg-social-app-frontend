@@ -4,11 +4,11 @@ import {
   Route,
 } from "react-router-dom";
 
-// import LayoutSwitcher from "../layout/layout-switcher/LayoutSwitcher.jsx";
 import PageWithHeaderLayout from "../layout/page-with-header-layout/PageWithHeaderLayout.jsx";
 import HostLayout from "../layout/host-layout/HostLayout.jsx";
+import AuthRequired from "../layout/auth-required/AuthRequired.jsx";
 
-import Vans from "../pages/vans/Vans.jsx";
+import Vans, { loader as vansLoader } from "../pages/vans/Vans.jsx";
 import VanDetail from "../pages/vans/van-detail/VanDetail.jsx";
 import About from "../pages/about/About.jsx";
 import Home from "../pages/home/Home.jsx";
@@ -21,15 +21,24 @@ import HostVanDetailDescriptions from "../pages/host/host-van-detail/host-van-de
 import HostVanDetailPricing from "../pages/host/host-van-detail/host-van-detail-pricing/HostVanDetailPricing.jsx";
 import HostVanDetailPhotos from "../pages/host/host-van-detail/host-van-detail-photos/HostVanDetailPhotos.jsx";
 import NotFound from "../pages/not-found/NotFound.jsx";
+import LoginVan from "../pages/login/LoginVan.jsx";
 
-export const explorationRouter = createBrowserRouter(
-  createRoutesFromElements(
-    <Route path="/" element={<PageWithHeaderLayout />}>
-      <Route index element={<Home />} />
-      <Route path="about" element={<About />} />
-      <Route path="vans" element={<Vans />} />
-      <Route path="vans/:id" element={<VanDetail />} />
+import ErrorOccurElement from "../components/error/Error.jsx";
 
+const routes = createRoutesFromElements(
+  <Route path="/" element={<PageWithHeaderLayout />}>
+    <Route index element={<Home />} />
+    <Route path="about" element={<About />} />
+
+    <Route
+      path="vans"
+      element={<Vans />}
+      loader={vansLoader}
+      errorElement={<ErrorOccurElement />}
+    />
+    <Route path="vans/:id" element={<VanDetail />} />
+
+    <Route element={<AuthRequired />}>
       <Route path="host" element={<HostLayout />}>
         <Route index element={<Dashboard />} />
         <Route path="income" element={<Income />} />
@@ -37,12 +46,16 @@ export const explorationRouter = createBrowserRouter(
         <Route path="vans" element={<HostVans />} />
 
         <Route path="vans/:id" element={<HostVanDetail />}>
-          <Route index element={<HostVanDetailDescriptions />}/>
-          <Route path="pricing" element={<HostVanDetailPricing />}/>
-          <Route path="photos" element={<HostVanDetailPhotos />}/>
+          <Route index element={<HostVanDetailDescriptions />} />
+          <Route path="pricing" element={<HostVanDetailPricing />} />
+          <Route path="photos" element={<HostVanDetailPhotos />} />
         </Route>
       </Route>
-      <Route path="*" element={<NotFound />}/>
     </Route>
-  )
+
+    <Route path="login" element={<LoginVan />} />
+    <Route path="*" element={<NotFound />} />
+  </Route>
 );
+
+export const explorationRouter = createBrowserRouter(routes);
