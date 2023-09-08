@@ -1,13 +1,15 @@
 import React, { useState, useMemo } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate, useLocation, Navigate } from "react-router-dom";
 import { useFormValidation } from "../../../custom-hooks/useFormValidation";
 import InputTextGlobal from "../../../components/input-text-global/InputTextGlobal";
 import GlobalButton from "../../../components/button/GlobalButton";
 import { getFirstError } from "../../../utils/formValidationFunction";
+import { isAuth } from "../../van-utils/isAuth";
 
 import "./LoginVan.scss";
 
 export default function LoginVan() {
+  const isUserAuth = isAuth();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -126,6 +128,10 @@ export default function LoginVan() {
       }));
     }
   };
+
+  if (isUserAuth) {
+    return <Navigate to="/"/>
+  }
 
   return (
     <div className="login-van-page">

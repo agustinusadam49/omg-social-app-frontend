@@ -13,36 +13,6 @@ import {
 
 import "./Vans.scss";
 
-export const loader = () => {
-  const promiseToGetVans = new Promise((resolve, reject) => {
-    setTimeout(() => {
-      if (!!dummyVansArr.length) {
-        const vanObjMapped = mappedFromArrayToObj(dummyVansArr);
-        const orderedVansArray = orderVansByType(vanObjMapped);
-        resolve(orderedVansArray);
-      } else {
-        const errorObj = {
-          message: "Tidak dapat menemukan data vans!",
-          statusText: "Bad Request",
-          code: 400,
-        };
-        reject(errorObj);
-      }
-    }, 1000);
-  });
-
-  const hitGetVansPromise = async () => {
-    try {
-      const responses = await promiseToGetVans;
-      return responses;
-    } catch (error) {
-      throw error;
-    }
-  };
-
-  return hitGetVansPromise();
-};
-
 export default function Vans() {
   const vans = useLoaderData();
 
@@ -225,3 +195,33 @@ export default function Vans() {
     </div>
   );
 }
+
+export const loader = () => {
+  const promiseToGetVans = new Promise((resolve, reject) => {
+    setTimeout(() => {
+      if (!!dummyVansArr.length) {
+        const vanObjMapped = mappedFromArrayToObj(dummyVansArr);
+        const orderedVansArray = orderVansByType(vanObjMapped);
+        resolve(orderedVansArray);
+      } else {
+        const errorObj = {
+          message: "Tidak dapat menemukan data vans!",
+          statusText: "Bad Request",
+          code: 400,
+        };
+        reject(errorObj);
+      }
+    }, 1000);
+  });
+
+  const hitGetVansPromise = async () => {
+    try {
+      const responses = await promiseToGetVans;
+      return responses;
+    } catch (error) {
+      throw error;
+    }
+  };
+
+  return hitGetVansPromise();
+};
