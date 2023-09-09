@@ -10,6 +10,7 @@ import {
   mappedFromArrayToObj,
   orderVansByType,
 } from "../../van-utils/vansDataControls.js";
+import { requiredAuth } from "../../van-utils/requiredAuth.js"
 
 import "./Vans.scss";
 
@@ -196,7 +197,7 @@ export default function Vans() {
   );
 }
 
-export const loader = () => {
+export const loader = async () => {
   const promiseToGetVans = new Promise((resolve, reject) => {
     setTimeout(() => {
       if (!!dummyVansArr.length) {
@@ -222,6 +223,8 @@ export const loader = () => {
       throw error;
     }
   };
+
+  await requiredAuth()
 
   return hitGetVansPromise();
 };
