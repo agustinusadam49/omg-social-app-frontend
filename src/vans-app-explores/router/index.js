@@ -8,14 +8,20 @@ import PageWithHeaderLayout from "../layout/page-with-header-layout/PageWithHead
 import HostLayout from "../layout/host-layout/HostLayout.jsx";
 
 import Vans, { loader as vansLoader } from "../pages/vans/Vans.jsx";
-import VanDetail from "../pages/vans/van-detail/VanDetail.jsx";
+import VanDetail, {
+  loader as vanDetailLoader,
+} from "../pages/vans/van-detail/VanDetail.jsx";
 import About from "../pages/about/About.jsx";
 import Home from "../pages/home/Home.jsx";
 import Dashboard from "../pages/host/dashboard/Dashboard.jsx";
 import Income from "../pages/host/income/Income.jsx";
 import Reviews from "../pages/host/reviews/Reviews.jsx";
-import HostVans from "../pages/host/host-vans/HostVans.jsx";
-import HostVanDetail from "../pages/host/host-van-detail/HostVanDetail.jsx";
+import HostVans, {
+  loader as hostVanLoader,
+} from "../pages/host/host-vans/HostVans.jsx";
+import HostVanDetail, {
+  loader as hostVanDetailLoader,
+} from "../pages/host/host-van-detail/HostVanDetail.jsx";
 import HostVanDetailDescriptions from "../pages/host/host-van-detail/host-van-detail-description/HostVanDetailDescriptions.jsx";
 import HostVanDetailPricing from "../pages/host/host-van-detail/host-van-detail-pricing/HostVanDetailPricing.jsx";
 import HostVanDetailPhotos from "../pages/host/host-van-detail/host-van-detail-photos/HostVanDetailPhotos.jsx";
@@ -42,7 +48,8 @@ const routes = createRoutesFromElements(
     <Route
       path="vans/:id"
       element={<VanDetail />}
-      loader={async () => await requiredAuth()}
+      loader={vanDetailLoader}
+      errorElement={<ErrorOccurElement />}
     />
 
     <Route path="host" element={<HostLayout />}>
@@ -64,13 +71,15 @@ const routes = createRoutesFromElements(
       <Route
         path="vans"
         element={<HostVans />}
-        loader={async () => await requiredAuth()}
+        loader={hostVanLoader}
+        errorElement={<ErrorOccurElement />}
       />
 
       <Route
         path="vans/:id"
         element={<HostVanDetail />}
-        loader={async () => await requiredAuth()}
+        loader={hostVanDetailLoader}
+        errorElement={<ErrorOccurElement />}
       >
         <Route
           index
