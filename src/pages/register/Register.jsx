@@ -17,7 +17,7 @@ import {
   loadingReducer,
 } from "../../utils/reducers/globalLoadingReducer";
 import RoundedLoader from "../../components/rounded-loader/RoundedLoader";
-import { useRedirectToHome } from "../../custom-hooks/useRedirectToHome";
+// import { useRedirectToHome } from "../../custom-hooks/useRedirectToHome";
 import { useFormValidation } from "../../custom-hooks/useFormValidation";
 
 import "./Register.scss";
@@ -32,7 +32,7 @@ export default function Register() {
 
   const dispatch = useDispatch();
 
-  const [isFromNonAuthPage, setIsFromNonAuthPage] = useState(false);
+  // const [isFromNonAuthPage, setIsFromNonAuthPage] = useState(false);
 
   const [fullname, setFullname] = useState("");
   const [username, setUsername] = useState("");
@@ -145,7 +145,7 @@ export default function Register() {
             setUserToken({ currentUserToken: successResponse.user_token })
           );
           dispatch(setIsAuthUser({ isAuth: true }));
-          setIsFromNonAuthPage(true);
+          // setIsFromNonAuthPage(true);
           navigate("/");
         })
         .catch((error) => {
@@ -167,9 +167,9 @@ export default function Register() {
     }
   };
 
-  useRedirectToHome({
-    isFromNonAuthPage: isFromNonAuthPage,
-  });
+  // useRedirectToHome({
+  //   isFromNonAuthPage: isFromNonAuthPage,
+  // });
 
   const handleSetValuesOnBlur = (value, type) => {
     if (value) {

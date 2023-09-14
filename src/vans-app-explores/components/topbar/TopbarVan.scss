@@ -8,20 +8,26 @@
   align-items: center;
   justify-content: space-between;
   padding: 0px 10px;
+  font-size: 14px;
 
   .vans-app-main-nav {
     display: flex;
     flex-direction: row;
     align-items: center;
     justify-content: space-between;
-    width: 160px;
-  }
+    width: 200px;
 
-  .active-link {
-    color: yellow;
-  }
+    .active-link {
+      color: yellow;
+    }
 
-  .not-active-link {
-    color: white;
+    .not-active-link {
+      color: white;
+    }
+
+    .logout-button {
+      color: rgb(244, 82, 82);
+      cursor: pointer;
+    }
   }
 }

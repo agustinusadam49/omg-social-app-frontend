@@ -1,8 +1,8 @@
 import { createBrowserRouter } from "react-router-dom";
 
 import PageWithHeaderLayout from "../layout/page-with-header-layout/PageWithHeaderLayout";
+import PageWithoutHeaderLayout from "../layout/page-without-header-layout/PageWithoutHeaderLayout";
 import NonProfilePages from "../layout/page-with-header-layout/non-profile-pages/NonProfilePages";
-// import NotificationPages from "../layout/page-with-header-layout/notification-pages/NotificationPages";
 
 import LoginPage from "../pages/login/Login";
 import RegisterPage from "../pages/register/Register";
@@ -59,15 +59,20 @@ export const router = createBrowserRouter([
     ],
   },
   {
-    path: "/login",
-    element: <LoginPage />,
-  },
-  {
-    path: "/register",
-    element: <RegisterPage />,
-  },
-  {
-    path: "/forgot-password",
-    element: <ForgotPassword />,
+    element: <PageWithoutHeaderLayout />,
+    children: [
+      {
+        path: "/login",
+        element: <LoginPage />,
+      },
+      {
+        path: "/register",
+        element: <RegisterPage />,
+      },
+      {
+        path: "/forgot-password",
+        element: <ForgotPassword />,
+      },
+    ],
   },
 ]);

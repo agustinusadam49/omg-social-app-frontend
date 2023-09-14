@@ -123,158 +123,108 @@
       gap: 15px;
     }
 
-    .rightbar-title {
-      font-size: 14px;
-      font-weight: 500;
-      margin-bottom: 10px;
-    }
-
-    .rightbar-info {
-      background-color: white;
+    .edit-profile-button {
+      border: none;
+      border-radius: 8px;
       width: 100%;
-      border-radius: 10px;
-      font-size: 12px;
-      padding: 10px;
-      box-sizing: border-box;
-      -webkit-box-shadow: 0px 0px 16px -8px rgba(0, 0, 0, 0.68);
-      box-shadow: 0px 0px 16px -8px rgba(0, 0, 0, 0.68);
-
-      @media only screen and (min-width: 1024px) {
-        margin-bottom: 10px;
-        border-radius: 5px;
-      }
-
-      .rightbar-info-item {
-        margin-bottom: 6px;
-        display: flex;
-        flex-direction: column;
-        align-items: baseline;
-
-        .rightbar-info-key {
-          font-weight: 500;
-          margin-right: 4px;
-          color: #555;
-
-          .user-following-info {
-            width: fit-content;
-            font-size: 9px;
-            padding: 4px;
-            border-radius: 6px;
-            margin-left: 6px;
-            background-color: rgb(109, 109, 240);
-            color: white;
-          }
-        }
-
-        .rightbar-info-value {
-          font-weight: 300;
-          font-size: 12px;
-        }
-      }
-
-      .edit-profile-button {
-        border: none;
-        border-radius: 8px;
-        width: 100%;
-        background-color: #605beb;
-        color: white;
-        cursor: pointer;
-        text-align: center;
-        padding: 12px 0px;
-        margin-top: 10px;
-        box-sizing: border-box;
-        font-size: 11px;
-
-        @media only screen and (min-width: 1024px) {
-          padding: 8px 0px;
-          font-size: 12px;
-        }
-      }
-
-      .edit-profile-button:last-child {
-        margin-top: 14px;
-
-        @media only screen and (min-width: 1024px) {
-          margin-top: 12px;
-        }
-      }
-    }
-
-    .rightbar-followings-wrapper {
-      width: 100%;
-      height: fit-content;
-      padding: 10px;
-      background-color: white;
-      border-radius: 10px;
-      -webkit-box-shadow: 0px 0px 16px -8px rgba(0, 0, 0, 0.68);
-      box-shadow: 0px 0px 16px -8px rgba(0, 0, 0, 0.68);
+      background-color: #605beb;
+      color: white;
+      cursor: pointer;
+      text-align: center;
+      padding: 12px 0px;
       margin-top: 10px;
+      box-sizing: border-box;
+      font-size: 11px;
 
       @media only screen and (min-width: 1024px) {
-        border-radius: 5px;
-        margin-top: 0;
-        margin-bottom: 10px;
-      }
-
-      .rightbar-title-user-follower {
-        font-size: 14px;
-        font-weight: 500;
-        margin-bottom: 10px;
-      }
-
-      .rightbar-followings {
-        width: 100%;
-        display: flex;
-        flex-direction: row;
-        flex-wrap: wrap;
-        justify-content: space-between;
-        box-sizing: border-box;
-
-        .rightbar-following {
-          flex-shrink: 2;
-          display: flex;
-          flex-direction: column;
-          cursor: pointer;
-          width: 100%;
-          height: 100%;
-
-          @media only screen and (min-width: 320px) {
-            width: 30%;
-            height: 30%;
-          }
-
-          @media only screen and (min-width: 480px) {
-            width: 48%;
-            height: 48%;
-          }
-
-          .rightbar-following-img-wrapper {
-            width: 100%;
-            height: 100px;
-
-            .rightbar-following-img {
-              width: 100%;
-              height: 100%;
-              border-radius: 5px;
-              object-fit: fill;
-
-              @media only screen and (min-width: 320px) {
-                object-fit: cover;
-              }
-            }
-          }
-
-          .rightbar-following-name {
-            text-align: center;
-            font-size: 12px;
-            font-weight: 500;
-          }
-        }
-
-        .rightbar-following:last-child {
-          margin-bottom: 0px;
-        }
+        padding: 8px 0px;
+        font-size: 12px;
       }
     }
+
+    .edit-profile-button:last-child {
+      margin-top: 14px;
+
+      @media only screen and (min-width: 1024px) {
+        margin-top: 12px;
+      }
+    }
+
+    // .rightbar-followings-wrapper {
+    //   width: 100%;
+    //   height: fit-content;
+    //   padding: 10px;
+    //   background-color: white;
+    //   border-radius: 10px;
+    //   -webkit-box-shadow: 0px 0px 16px -8px rgba(0, 0, 0, 0.68);
+    //   box-shadow: 0px 0px 16px -8px rgba(0, 0, 0, 0.68);
+    //   margin-top: 10px;
+
+    //   @media only screen and (min-width: 1024px) {
+    //     border-radius: 5px;
+    //     margin-top: 0;
+    //     margin-bottom: 10px;
+    //   }
+
+    //   .rightbar-title-user-follower {
+    //     font-size: 14px;
+    //     font-weight: 500;
+    //     margin-bottom: 10px;
+    //   }
+
+    //   .rightbar-followings {
+    //     width: 100%;
+    //     display: flex;
+    //     flex-direction: row;
+    //     flex-wrap: wrap;
+    //     justify-content: space-between;
+    //     box-sizing: border-box;
+
+    //     .rightbar-following {
+    //       flex-shrink: 2;
+    //       display: flex;
+    //       flex-direction: column;
+    //       cursor: pointer;
+    //       width: 100%;
+    //       height: 100%;
+
+    //       @media only screen and (min-width: 320px) {
+    //         width: 30%;
+    //         height: 30%;
+    //       }
+
+    //       @media only screen and (min-width: 480px) {
+    //         width: 48%;
+    //         height: 48%;
+    //       }
+
+    //       .rightbar-following-img-wrapper {
+    //         width: 100%;
+    //         height: 100px;
+
+    //         .rightbar-following-img {
+    //           width: 100%;
+    //           height: 100%;
+    //           border-radius: 5px;
+    //           object-fit: fill;
+
+    //           @media only screen and (min-width: 320px) {
+    //             object-fit: cover;
+    //           }
+    //         }
+    //       }
+
+    //       .rightbar-following-name {
+    //         text-align: center;
+    //         font-size: 12px;
+    //         font-weight: 500;
+    //       }
+    //     }
+
+    //     .rightbar-following:last-child {
+    //       margin-bottom: 0px;
+    //     }
+    //   }
+    // }
   }
 }

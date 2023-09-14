@@ -13,7 +13,7 @@ import {
   loadingReducer,
 } from "../../utils/reducers/globalLoadingReducer";
 import RoundedLoader from "../../components/rounded-loader/RoundedLoader";
-import { useRedirectToHome } from "../../custom-hooks/useRedirectToHome";
+// import { useRedirectToHome } from "../../custom-hooks/useRedirectToHome";
 import { useFormValidation } from "../../custom-hooks/useFormValidation";
 import { getFirstError } from "../../utils/formValidationFunction";
 
@@ -30,7 +30,7 @@ export default function Login() {
 
   const dispatch = useDispatch();
 
-  const [isFromNonAuthPage, setIsFromNonAuthPage] = useState(false);
+  // const [isFromNonAuthPage, setIsFromNonAuthPage] = useState(false);
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -109,7 +109,7 @@ export default function Login() {
             })
           );
           dispatch(setIsAuthUser({ isAuth: true }));
-          setIsFromNonAuthPage(true);
+          // setIsFromNonAuthPage(true);
           const from = location?.state?.from?.pathname || "/";
           navigate(from, { replace: true });
         })
@@ -142,9 +142,9 @@ export default function Login() {
     }
   };
 
-  useRedirectToHome({
-    isFromNonAuthPage: isFromNonAuthPage,
-  });
+  // useRedirectToHome({
+  //   isFromNonAuthPage: isFromNonAuthPage,
+  // });
 
   const handleSetValuesOnBlur = (value, type) => {
     if (value) {

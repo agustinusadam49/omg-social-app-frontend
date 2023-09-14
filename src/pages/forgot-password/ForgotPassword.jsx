@@ -23,7 +23,7 @@ import {
   changeForgotPassword,
 } from "../../apiCalls/forgotPassword";
 import { useNavigate } from "react-router-dom";
-import { useRedirectToHome } from "../../custom-hooks/useRedirectToHome";
+// import { useRedirectToHome } from "../../custom-hooks/useRedirectToHome";
 import { useFormValidation } from "../../custom-hooks/useFormValidation";
 
 import "./ForgotPassword.scss";
@@ -229,9 +229,9 @@ export default function ForgotPassword() {
     };
   }, []);
 
-  useRedirectToHome({
-    isFromNonAuthPage: false,
-  });
+  // useRedirectToHome({
+  //   isFromNonAuthPage: false,
+  // });
 
   const handleSetValuesOnBlur = (value, type) => {
     if (value) {

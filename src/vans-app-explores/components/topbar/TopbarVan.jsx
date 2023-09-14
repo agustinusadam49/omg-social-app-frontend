@@ -1,9 +1,18 @@
 import React from "react";
-import { NavLink, Link } from "react-router-dom";
+import { NavLink, Link, useNavigate } from "react-router-dom";
+import { isAuth } from "../../van-utils/isAuth";
 
 import "./TopbarVan.scss";
 
 export default function TopbarVan() {
+  const isUserAuth = isAuth();
+  const navigate = useNavigate();
+
+  const doLogout = () => {
+    localStorage.clear();
+    navigate("/login");
+  };
+
   return (
     <header className="vans-app-main-header">
       <Link
@@ -53,6 +62,24 @@ export default function TopbarVan() {
         >
           Vans
         </NavLink>
+
+        {!isUserAuth ? (
+          <NavLink
+            to="/login"
+            style={{
+              textDecoration: "none",
+            }}
+            className={({ isActive }) =>
+              isActive ? "active-link" : "not-active-link"
+            }
+          >
+            Login
+          </NavLink>
+        ) : (
+          <div className="logout-button" onClick={doLogout}>
+            Logout
+          </div>
+        )}
       </nav>
     </header>
   );

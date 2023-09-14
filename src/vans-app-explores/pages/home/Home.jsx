@@ -14,6 +14,8 @@ const INITIAL_WHAT_YOU_GET = [
 export default function Home() {
   const [whatYouGet, setWhatYouGet] = useState(INITIAL_WHAT_YOU_GET);
 
+  const [currentOption, setCurrentOption] = useState("otherOption")
+
   const [benefitsOnBlur, setBenefitsOnBlur] = useState([
     {
       benefit: false,
@@ -158,6 +160,13 @@ export default function Home() {
           onClick={submitBenefit}
         />
       </div>
+
+      <select value={currentOption} onChange={(e) => setCurrentOption(e.target.value)}>
+        <option value="someOption">Some option</option>
+        <option value="otherOption">Other option</option>
+      </select>
+
+      <div>Current Option: {currentOption || "belum pilih"}</div>
     </div>
   );
 }
