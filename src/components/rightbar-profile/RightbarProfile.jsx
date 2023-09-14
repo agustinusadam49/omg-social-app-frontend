@@ -1,5 +1,4 @@
 import React, { useState, useEffect, Fragment, useReducer } from "react";
-import { Link } from "react-router-dom";
 import EditProfileModal from "../edit-profile-modal/EditProfileModal";
 import GlobalButton from "../button/GlobalButton";
 import { formatBirthDate } from "../../utils/formatDate";
@@ -11,6 +10,10 @@ import {
   deleteFollowById,
 } from "../../apiCalls/followsApiFetch";
 import { createNewNotification } from "../../apiCalls/notificationsApiFetch";
+import RightbarInfoSection from "./rightbar-info-section/RightbarInfoSection";
+import RightbarInfoTitle from "./rightbar-info-title/RightbarInfoTitle";
+import RightbarInfoItem from "./rightbar-info-item/RightbarInfoItem";
+import RightbarFollowingSection from "./rightbar-following-section/RightbarFollowingSection";
 
 import "./RightbarProfile.scss";
 
@@ -229,222 +232,176 @@ export default function RightbarProfile({ userId }) {
   };
 
   const profileRightbar = (userProfileDataLogin, userDataMain) => {
+    const infoItems = [
+      {
+        primaryLabel: "Fullname",
+        secondaryLabel: null,
+        mainValue: userDataMain.userFullname ? userDataMain.userFullname : "-",
+      },
+      {
+        primaryLabel: "User Name",
+        secondaryLabel: null,
+        mainValue: userDataMain.userName ? userDataMain.userName : "-",
+      },
+      {
+        primaryLabel: "Email",
+        secondaryLabel: null,
+        mainValue: userDataMain.userEmail ? userDataMain.userEmail : "-",
+      },
+      {
+        primaryLabel: "Biodata",
+        secondaryLabel: null,
+        mainValue: userProfileDataLogin.biodata
+          ? userProfileDataLogin.biodata
+          : "-",
+      },
+      {
+        primaryLabel: "Address",
+        secondaryLabel: null,
+        mainValue: userProfileDataLogin.address
+          ? userProfileDataLogin.address
+          : "-",
+      },
+      {
+        primaryLabel: "Birth Date",
+        secondaryLabel: null,
+        mainValue: userProfileDataLogin.birthDate
+          ? formatBirthDate(userProfileDataLogin.birthDate)
+          : "-",
+      },
+      {
+        primaryLabel: "Status",
+        secondaryLabel: null,
+        mainValue: userProfileDataLogin.status
+          ? userProfileDataLogin.status
+          : "-",
+      },
+      {
+        primaryLabel: "Quotes",
+        secondaryLabel: null,
+        mainValue: userProfileDataLogin.quotes
+          ? userProfileDataLogin.quotes
+          : "-",
+      },
+      {
+        primaryLabel: "PhoneNumber",
+        secondaryLabel: null,
+        mainValue: userProfileDataLogin.phoneNumber
+          ? userProfileDataLogin.phoneNumber
+          : "-",
+      },
+      {
+        primaryLabel: "City",
+        secondaryLabel: null,
+        mainValue: userProfileDataLogin.currentCity
+          ? userProfileDataLogin.currentCity
+          : "-",
+      },
+      {
+        primaryLabel: "Nationality",
+        secondaryLabel: null,
+        mainValue: userProfileDataLogin.nationality
+          ? userProfileDataLogin.nationality
+          : "-",
+      },
+      {
+        primaryLabel: "Relationship",
+        secondaryLabel: null,
+        mainValue: userProfileDataLogin.relationship
+          ? userProfileDataLogin.relationship
+          : "-",
+      },
+    ];
+
     return (
       <Fragment>
         {currentUserIdFromSlice !== user_id && displayFollowButton()}
 
-        <div className="rightbar-info">
-          <h4 className="rightbar-title">User Information</h4>
-          <div className="rightbar-info-item">
-            <span className="rightbar-info-key">Fullname:</span>
-            <span className="rightbar-info-value">
-              {userDataMain.userFullname ? userDataMain.userFullname : "-"}
-            </span>
-          </div>
+        <RightbarInfoSection>
+          <RightbarInfoTitle>User Information</RightbarInfoTitle>
 
-          <div className="rightbar-info-item">
-            <span className="rightbar-info-key">User Name:</span>
-            <span className="rightbar-info-value">
-              {userDataMain.userName ? userDataMain.userName : "-"}
-            </span>
-          </div>
-
-          <div className="rightbar-info-item">
-            <span className="rightbar-info-key">Email:</span>
-            <span className="rightbar-info-value">
-              {userDataMain.userEmail ? userDataMain.userEmail : "-"}
-            </span>
-          </div>
-
-          <div className="rightbar-info-item">
-            <span className="rightbar-info-key">Biodata:</span>
-            <span className="rightbar-info-value">
-              {userProfileDataLogin.biodata
-                ? userProfileDataLogin.biodata
-                : "-"}
-            </span>
-          </div>
-
-          <div className="rightbar-info-item">
-            <span className="rightbar-info-key">Address:</span>
-            <span className="rightbar-info-value">
-              {userProfileDataLogin.address
-                ? userProfileDataLogin.address
-                : "-"}
-            </span>
-          </div>
-
-          <div className="rightbar-info-item">
-            <span className="rightbar-info-key">Birth Date:</span>
-            <span className="rightbar-info-value">
-              {userProfileDataLogin.birthDate
-                ? formatBirthDate(userProfileDataLogin.birthDate)
-                : "-"}
-            </span>
-          </div>
-
-          <div className="rightbar-info-item">
-            <span className="rightbar-info-key">Status:</span>
-            <span className="rightbar-info-value">
-              {userProfileDataLogin.status ? userProfileDataLogin.status : "-"}
-            </span>
-          </div>
-
-          <div className="rightbar-info-item">
-            <span className="rightbar-info-key">Quotes:</span>
-            <span className="rightbar-info-value">
-              {userProfileDataLogin.quotes ? userProfileDataLogin.quotes : "-"}
-            </span>
-          </div>
-
-          <div className="rightbar-info-item">
-            <span className="rightbar-info-key">PhoneNumber:</span>
-            <span className="rightbar-info-value">
-              {userProfileDataLogin.phoneNumber
-                ? userProfileDataLogin.phoneNumber
-                : "-"}
-            </span>
-          </div>
-
-          <div className="rightbar-info-item">
-            <span className="rightbar-info-key">City:</span>
-            <span className="rightbar-info-value">
-              {userProfileDataLogin.currentCity
-                ? userProfileDataLogin.currentCity
-                : "-"}
-            </span>
-          </div>
-
-          <div className="rightbar-info-item">
-            <span className="rightbar-info-key">Nationality:</span>
-            <span className="rightbar-info-value">
-              {userProfileDataLogin.nationality
-                ? userProfileDataLogin.nationality
-                : "-"}
-            </span>
-          </div>
-
-          <div className="rightbar-info-item">
-            <span className="rightbar-info-key">Relationship:</span>
-            <span className="rightbar-info-value">
-              {userProfileDataLogin.relationship
-                ? userProfileDataLogin.relationship
-                : "-"}
-            </span>
-          </div>
+          {infoItems.map((infoItem, idx) => (
+            <RightbarInfoItem
+              key={idx}
+              leftLabel={infoItem.primaryLabel}
+              rightLabel={infoItem.secondaryLabel}
+              infoValue={infoItem.mainValue}
+            />
+          ))}
 
           {currentUserIdFromSlice !== user_id && (
-            <div className="rightbar-info-item">
-              <span className="rightbar-info-key">
-                Follower: {getFollowingStatus()}
-              </span>
-              <span className="rightbar-info-value">
-                {userFollowerTotal.length ? userFollowerTotal.length : "-"}
-              </span>
-            </div>
-          )}
+            <Fragment>
+              <RightbarInfoItem
+                leftLabel="Follower"
+                rightLabel={getFollowingStatus()}
+                infoValue={
+                  userFollowerTotal.length ? userFollowerTotal.length : "-"
+                }
+              />
 
-          {currentUserIdFromSlice !== user_id && (
-            <div className="rightbar-info-item">
-              <span className="rightbar-info-key">
-                Following:
-                {getCurrentUserFollowedBy()}
-              </span>
-              <span className="rightbar-info-value">
-                {userFollowing.length ? userFollowing.length : "-"}
-              </span>
-            </div>
+              <RightbarInfoItem
+                leftLabel="Following"
+                rightLabel={getCurrentUserFollowedBy()}
+                infoValue={userFollowing.length ? userFollowing.length : "-"}
+              />
+            </Fragment>
           )}
 
           {currentUserIdFromSlice === user_id && (
-            <div className="rightbar-info-item">
-              <span className="rightbar-info-key">Follower:</span>
-              <span className="rightbar-info-value">
-                {currentUserFollower ? currentUserFollower.length : "-"}
-              </span>
-            </div>
+            <Fragment>
+              <RightbarInfoItem
+                leftLabel="Follower"
+                infoValue={
+                  currentUserFollower ? currentUserFollower.length : "-"
+                }
+              />
+
+              <RightbarInfoItem
+                leftLabel="Following"
+                infoValue={
+                  currentUserFollowing ? currentUserFollowing.length : "-"
+                }
+              />
+            </Fragment>
           )}
 
           {currentUserIdFromSlice === user_id && (
-            <div className="rightbar-info-item">
-              <span className="rightbar-info-key">Following:</span>
-              <span className="rightbar-info-value">
-                {currentUserFollowing ? currentUserFollowing.length : "-"}
-              </span>
-            </div>
-          )}
+            <Fragment>
+              <GlobalButton
+                buttonLabel={"Edit Your Avatar and Cover Url"}
+                classStyleName={"edit-profile-button"}
+                onClick={() => openModalEditAvatarAndCoverUrl(true)}
+              />
 
-          {currentUserIdFromSlice === user_id && (
-            <GlobalButton
-              buttonLabel={"Edit Your Avatar and Cover Url"}
-              classStyleName={"edit-profile-button"}
-              onClick={() => openModalEditAvatarAndCoverUrl(true)}
-            />
+              <GlobalButton
+                buttonLabel={"Edit Your Profile"}
+                classStyleName={"edit-profile-button"}
+                onClick={() => openModalEditProfile(true)}
+              />
+            </Fragment>
           )}
-
-          {currentUserIdFromSlice === user_id && (
-            <GlobalButton
-              buttonLabel={"Edit Your Profile"}
-              classStyleName={"edit-profile-button"}
-              onClick={() => openModalEditProfile(true)}
-            />
-          )}
-        </div>
+        </RightbarInfoSection>
 
         {!!userFollowerTotal.length && currentUserIdFromSlice !== user_id && (
-          <div className="rightbar-followings-wrapper">
-            <h4 className="rightbar-title-user-follower">
-              {`${userDataMain.userName}'s`} Followers
-            </h4>
-
-            <div className="rightbar-followings">
-              {userFollowerTotal.map((user, index) => (
-                <Link
-                  to={`/profile/${user.User.userName}/user-id/${user.User.id}`}
-                  style={{ textDecoration: "none", color: "black" }}
-                  key={index}
-                  className="rightbar-following"
-                >
-                  <div className="rightbar-following-img-wrapper">
-                    <img
-                      src={user.User.Profile.avatarUrl}
-                      alt="following-user"
-                      className="rightbar-following-img"
-                    />
-                  </div>
-                  <div className="rightbar-following-name">
-                    {user.User.userName}
-                  </div>
-                </Link>
-              ))}
-            </div>
-          </div>
+          <RightbarFollowingSection
+            title={`${userDataMain.userName}'s Followers`}
+            followers={userFollowerTotal.map((user) => ({
+              id: user.User.id,
+              username: user.User.userName,
+              avatarUrl: user.User.Profile.avatarUrl,
+            }))}
+          />
         )}
 
         {!!myFollower.length && currentUserIdFromSlice === user_id && (
-          <div className="rightbar-followings-wrapper">
-            <h4 className="rightbar-title-user-follower">Your Followers</h4>
-
-            <div className="rightbar-followings">
-              {myFollower.map((user, index) => (
-                <Link
-                  to={`/profile/${user.userName}/user-id/${user.id}`}
-                  style={{ textDecoration: "none", color: "black" }}
-                  key={index}
-                  className="rightbar-following"
-                >
-                  <div className="rightbar-following-img-wrapper">
-                    <img
-                      src={user.Profile.avatarUrl}
-                      alt="following-user"
-                      className="rightbar-following-img"
-                    />
-                  </div>
-                  <div className="rightbar-following-name">{user.userName}</div>
-                </Link>
-              ))}
-            </div>
-          </div>
+          <RightbarFollowingSection
+            title="Your Followers"
+            followers={myFollower.map((user) => ({
+              id: user.id,
+              username: user.userName,
+              avatarUrl: user.Profile.avatarUrl,
+            }))}
+          />
         )}
       </Fragment>
     );
