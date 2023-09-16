@@ -64,5 +64,9 @@
     font-weight: 500;
     cursor: pointer;
     color: white;
+
+    &:hover {
+      background-color: #332f95;
+    }
   }
 }

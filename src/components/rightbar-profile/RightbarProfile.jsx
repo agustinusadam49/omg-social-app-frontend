@@ -5,6 +5,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { getUserById } from "../../apiCalls/registerAndLoginApiFetch";
 
 import RightbarUserInformation from "./rightbar-user-information/RightbarUserInformation";
+import RightbarFollowingSection from "./rightbar-user-information/rightbar-following-section/RightbarFollowingSection";
 
 import "./RightbarProfile.scss";
 
@@ -12,8 +13,10 @@ export default function RightbarProfile({ userId }) {
   const dispatch = useDispatch();
   const user_id = parseInt(userId);
 
+  const allUsersRegisterd = useSelector((state) => state.user.allUsers);
   const currentUserIdFromSlice = useSelector((state) => state.user.userId);
   const currentUserData = useSelector((state) => state.user.currentUsers);
+  const currentUserFollower = currentUserData.followers;
 
   const [userProfile, setUserProfile] = useState(null);
   const [userFollower, setUserFollower] = useState([]);
@@ -26,6 +29,7 @@ export default function RightbarProfile({ userId }) {
   ] = useState(false);
   const [editSnap, setEditSnap] = useState(false);
   const [userFollowerTotal, setUserFollowerTotal] = useState([]);
+  const [myFollower, setMyFollower] = useState([]);
 
   const openModalEditProfile = (valueStatus) => {
     setIsModalEditProfileOpen(valueStatus);
@@ -59,6 +63,28 @@ export default function RightbarProfile({ userId }) {
       }
     }
   }, [currentUserData, userProfile, currentUserIdFromSlice, user_id]);
+
+  useEffect(() => {
+    if (currentUserFollower && allUsersRegisterd) {
+      const userFollowerMap = new Map();
+      for (let i = 0; i < currentUserFollower.length; i++) {
+        userFollowerMap.set(
+          `${currentUserFollower[i].UserId}`,
+          currentUserFollower[i].UserId
+        );
+      }
+
+      const userFollowerThisCurrentUser = allUsersRegisterd.filter((user) =>
+        userFollowerMap.has(`${user.id}`)
+      );
+
+      setMyFollower(userFollowerThisCurrentUser);
+    }
+
+    return () => {
+      setMyFollower([]);
+    };
+  }, [currentUserFollower, allUsersRegisterd]);
 
   useEffect(() => {
     const hitApiUserById = (idOfUserInParamUrl) => {
@@ -108,6 +134,28 @@ export default function RightbarProfile({ userId }) {
             setEditSnap={setEditSnap}
             openModalEditAvatarAndCoverUrl={openModalEditAvatarAndCoverUrl}
             openModalEditProfile={openModalEditProfile}
+          />
+        )}
+
+        {!!userFollowerTotal.length && currentUserIdFromSlice !== user_id && (
+          <RightbarFollowingSection
+            title={`${mainUserData.userName}'s Followers`}
+            followers={userFollowerTotal.map((user) => ({
+              id: user.User.id,
+              username: user.User.userName,
+              avatarUrl: user.User.Profile.avatarUrl,
+            }))}
+          />
+        )}
+
+        {!!myFollower.length && currentUserIdFromSlice === user_id && (
+          <RightbarFollowingSection
+            title="Your Followers"
+            followers={myFollower.map((user) => ({
+              id: user.id,
+              username: user.userName,
+              avatarUrl: user.Profile.avatarUrl,
+            }))}
           />
         )}
       </div>

@@ -1,10 +1,9 @@
-import React, { useState, useEffect, Fragment, useReducer } from "react";
+import React, { Fragment, useReducer } from "react";
 import { useSelector } from "react-redux";
 
 import RightbarInfoSection from "./rightbar-info-section/RightbarInfoSection";
 import RightbarInfoTitle from "./rightbar-info-title/RightbarInfoTitle";
 import RightbarInfoItem from "./rightbar-info-item/RightbarInfoItem";
-import RightbarFollowingSection from "./rightbar-following-section/RightbarFollowingSection";
 
 import GlobalButton from "../../button/GlobalButton";
 
@@ -16,7 +15,7 @@ import {
 } from "../../../apiCalls/followsApiFetch";
 import { createNewNotification } from "../../../apiCalls/notificationsApiFetch";
 
-import "./RightbarUserInformation.scss"
+import "./RightbarUserInformation.scss";
 
 const INITIAL_FOLLOW_STATE = {
   loading: false,
@@ -65,12 +64,9 @@ export default function RightbarUserInformation({
   const currentUserNameFromSlice = useSelector((state) => state.user.userName);
   const currentUserIdFromSlice = useSelector((state) => state.user.userId);
   const currentUserData = useSelector((state) => state.user.currentUsers);
-  const allUsersRegisterd = useSelector((state) => state.user.allUsers);
 
   const currentUserFollower = currentUserData.followers;
   const currentUserFollowing = currentUserData.following;
-
-  const [myFollower, setMyFollower] = useState([]);
 
   const followHandler = () => {
     const followDataId = userFollower.length ? userFollower[0].id : 0;
@@ -267,28 +263,6 @@ export default function RightbarUserInformation({
     },
   ];
 
-  useEffect(() => {
-    if (currentUserFollower && allUsersRegisterd) {
-      const userFollowerMap = new Map();
-      for (let i = 0; i < currentUserFollower.length; i++) {
-        userFollowerMap.set(
-          `${currentUserFollower[i].UserId}`,
-          currentUserFollower[i].UserId
-        );
-      }
-
-      const userFollowerThisCurrentUser = allUsersRegisterd.filter((user) =>
-        userFollowerMap.has(`${user.id}`)
-      );
-
-      setMyFollower(userFollowerThisCurrentUser);
-    }
-
-    return () => {
-      setMyFollower([]);
-    };
-  }, [currentUserFollower, allUsersRegisterd]);
-
   return (
     <Fragment>
       {currentUserIdFromSlice !== user_id && displayFollowButton()}
@@ -355,28 +329,6 @@ export default function RightbarUserInformation({
           </Fragment>
         )}
       </RightbarInfoSection>
-
-      {!!userFollowerTotal.length && currentUserIdFromSlice !== user_id && (
-        <RightbarFollowingSection
-          title={`${userDataMain.userName}'s Followers`}
-          followers={userFollowerTotal.map((user) => ({
-            id: user.User.id,
-            username: user.User.userName,
-            avatarUrl: user.User.Profile.avatarUrl,
-          }))}
-        />
-      )}
-
-      {!!myFollower.length && currentUserIdFromSlice === user_id && (
-        <RightbarFollowingSection
-          title="Your Followers"
-          followers={myFollower.map((user) => ({
-            id: user.id,
-            username: user.userName,
-            avatarUrl: user.Profile.avatarUrl,
-          }))}
-        />
-      )}
     </Fragment>
   );
 }
