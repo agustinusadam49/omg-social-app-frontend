@@ -13,7 +13,6 @@ export default function RightbarProfile({ userId }) {
   const dispatch = useDispatch();
   const user_id = parseInt(userId);
 
-  const allUsersRegisterd = useSelector((state) => state.user.allUsers);
   const currentUserIdFromSlice = useSelector((state) => state.user.userId);
   const currentUserData = useSelector((state) => state.user.currentUsers);
   const currentUserFollower = currentUserData.followers;
@@ -22,29 +21,26 @@ export default function RightbarProfile({ userId }) {
   const [userFollower, setUserFollower] = useState([]);
   const [userFollowing, setUserFollowing] = useState([]);
   const [mainUserData, setMainUserData] = useState(null);
-  const [isModalEditProfileOpen, setIsModalEditProfileOpen] = useState(false);
-  const [
-    isModalEditAvatarAndCoverUrlOpen,
-    setIsModalEditAvatarAndCoverUrlOpen,
-  ] = useState(false);
   const [editSnap, setEditSnap] = useState(false);
   const [userFollowerTotal, setUserFollowerTotal] = useState([]);
   const [myFollower, setMyFollower] = useState([]);
+  const [isModalProfileOpen, setIsModalProfileOpen] = useState(false);
+  const [isModalAvatarOpen, setIsModalAvatarOpen] = useState(false);
 
   const openModalEditProfile = (valueStatus) => {
-    setIsModalEditProfileOpen(valueStatus);
+    setIsModalProfileOpen(valueStatus);
   };
 
   const openModalEditAvatarAndCoverUrl = (valueStatus) => {
-    setIsModalEditAvatarAndCoverUrlOpen(valueStatus);
+    setIsModalAvatarOpen(valueStatus);
   };
 
   const closeModalEditProfile = (valueStatus) => {
-    setIsModalEditProfileOpen(valueStatus);
+    setIsModalProfileOpen(valueStatus);
   };
 
   const closeModalEditAvatarAndCoverUrl = (valueStatus) => {
-    setIsModalEditAvatarAndCoverUrlOpen(valueStatus);
+    setIsModalAvatarOpen(valueStatus);
   };
 
   const doSnapForEditProfile = (valueStatus) => {
@@ -65,26 +61,20 @@ export default function RightbarProfile({ userId }) {
   }, [currentUserData, userProfile, currentUserIdFromSlice, user_id]);
 
   useEffect(() => {
-    if (currentUserFollower && allUsersRegisterd) {
-      const userFollowerMap = new Map();
-      for (let i = 0; i < currentUserFollower.length; i++) {
-        userFollowerMap.set(
-          `${currentUserFollower[i].UserId}`,
-          currentUserFollower[i].UserId
-        );
-      }
-
-      const userFollowerThisCurrentUser = allUsersRegisterd.filter((user) =>
-        userFollowerMap.has(`${user.id}`)
+    if (currentUserFollower) {
+      setMyFollower(
+        currentUserFollower.map((user) => ({
+          id: user.id,
+          username: user.userName,
+          avatarUrl: user.Profile.avatarUrl,
+        }))
       );
-
-      setMyFollower(userFollowerThisCurrentUser);
     }
 
     return () => {
       setMyFollower([]);
     };
-  }, [currentUserFollower, allUsersRegisterd]);
+  }, [currentUserFollower]);
 
   useEffect(() => {
     const hitApiUserById = (idOfUserInParamUrl) => {
@@ -98,7 +88,13 @@ export default function RightbarProfile({ userId }) {
           setUserFollower(
             follower.filter((item) => item.UserId === currentUserIdFromSlice)
           );
-          setUserFollowerTotal(follower);
+          setUserFollowerTotal(
+            follower.map((user) => ({
+              id: user.User.id,
+              username: user.User.userName,
+              avatarUrl: user.User.Profile.avatarUrl,
+            }))
+          );
           setUserFollowing(following);
           setEditSnap(false);
         })
@@ -140,27 +136,19 @@ export default function RightbarProfile({ userId }) {
         {!!userFollowerTotal.length && currentUserIdFromSlice !== user_id && (
           <RightbarFollowingSection
             title={`${mainUserData.userName}'s Followers`}
-            followers={userFollowerTotal.map((user) => ({
-              id: user.User.id,
-              username: user.User.userName,
-              avatarUrl: user.User.Profile.avatarUrl,
-            }))}
+            followers={userFollowerTotal}
           />
         )}
 
         {!!myFollower.length && currentUserIdFromSlice === user_id && (
           <RightbarFollowingSection
             title="Your Followers"
-            followers={myFollower.map((user) => ({
-              id: user.id,
-              username: user.userName,
-              avatarUrl: user.Profile.avatarUrl,
-            }))}
+            followers={myFollower}
           />
         )}
       </div>
 
-      {isModalEditProfileOpen && (
+      {isModalProfileOpen && (
         <EditProfileModal
           userProfileData={userProfile}
           closeModalEditProfile={closeModalEditProfile}
@@ -169,7 +157,7 @@ export default function RightbarProfile({ userId }) {
         />
       )}
 
-      {isModalEditAvatarAndCoverUrlOpen && (
+      {isModalAvatarOpen && (
         <EditProfileModal
           userProfileData={userProfile}
           closeModalEditProfile={closeModalEditAvatarAndCoverUrl}

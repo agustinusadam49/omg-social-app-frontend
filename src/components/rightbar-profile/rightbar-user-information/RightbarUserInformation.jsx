@@ -284,15 +284,13 @@ export default function RightbarUserInformation({
             <RightbarInfoItem
               leftLabel="Follower"
               rightLabel={getFollowingStatus()}
-              infoValue={
-                userFollowerTotal.length ? userFollowerTotal.length : "-"
-              }
+              infoValue={userFollowerTotal.length}
             />
 
             <RightbarInfoItem
               leftLabel="Following"
               rightLabel={getCurrentUserFollowedBy()}
-              infoValue={userFollowing.length ? userFollowing.length : "-"}
+              infoValue={userFollowing.length}
             />
           </Fragment>
         )}
@@ -301,14 +299,12 @@ export default function RightbarUserInformation({
           <Fragment>
             <RightbarInfoItem
               leftLabel="Follower"
-              infoValue={currentUserFollower ? currentUserFollower.length : "-"}
+              infoValue={currentUserFollower.length}
             />
 
             <RightbarInfoItem
               leftLabel="Following"
-              infoValue={
-                currentUserFollowing ? currentUserFollowing.length : "-"
-              }
+              infoValue={currentUserFollowing.length}
             />
           </Fragment>
         )}
