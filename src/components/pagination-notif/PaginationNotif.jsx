@@ -1,7 +1,6 @@
 import React, { Fragment, useEffect, useMemo, useState } from "react";
 import {
   useNavigate,
-  // useSearchParams,
   useLocation,
 } from "react-router-dom";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
@@ -23,15 +22,11 @@ export default function PaginationNotif({
   };
   const query = useQuery();
   const pageName = useMemo(() => query.get("pageName"), [query]);
-  // console.log("query:", query.get("pageName"))
-  // const [searchParams] = useSearchParams();
-  // let pageName = searchParams.get("pageName");
 
   let navigate = useNavigate();
 
   let notifDataFromSlice = notifDataSlices;
   const notifObjData = notifDataObj;
-  // const [objKeyOfNotif, setObjKeyOfNotif] = useState([]);
   const [startIndexPaginationRange, setStartIndexPaginationRange] = useState(0);
   const [endIndexPaginationRange, setEndIndexPaginationRange] = useState(3);
 
@@ -103,19 +98,12 @@ export default function PaginationNotif({
       const objKeyArr = Object.keys(notifDataObj);
       return objKeyArr;
     }
-  }, [notifDataObj])
+  }, [notifDataObj]);
 
   const objKeyOfNotifLastIndex = useMemo(
     () => objKeyOfNotif[objKeyOfNotif.length - 1],
     [objKeyOfNotif]
   );
-
-  // useEffect(() => {
-  //   if (notifDataObj) {
-  //     const objKeyArr = Object.keys(notifDataObj);
-  //     setObjKeyOfNotif(objKeyArr);
-  //   }
-  // }, [notifDataObj]);
 
   useEffect(() => {
     const theLength = notifObjData[activePageIndex]?.length;
