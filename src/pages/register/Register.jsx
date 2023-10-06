@@ -17,7 +17,6 @@ import {
   loadingReducer,
 } from "../../utils/reducers/globalLoadingReducer";
 import RoundedLoader from "../../components/rounded-loader/RoundedLoader";
-// import { useRedirectToHome } from "../../custom-hooks/useRedirectToHome";
 import { useFormValidation } from "../../custom-hooks/useFormValidation";
 
 import "./Register.scss";
@@ -32,15 +31,13 @@ export default function Register() {
 
   const dispatch = useDispatch();
 
-  // const [isFromNonAuthPage, setIsFromNonAuthPage] = useState(false);
-
   const [fullname, setFullname] = useState("");
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
 
-  const [emailErrorFromBE, setEmailErrorFromBE] = useState("")
+  const [emailErrorFromBE, setEmailErrorFromBE] = useState("");
 
   const [valuesOnBlur, setValuesOnBlur] = useState({
     fullname: false,
@@ -145,7 +142,6 @@ export default function Register() {
             setUserToken({ currentUserToken: successResponse.user_token })
           );
           dispatch(setIsAuthUser({ isAuth: true }));
-          // setIsFromNonAuthPage(true);
           navigate("/");
         })
         .catch((error) => {
@@ -153,7 +149,7 @@ export default function Register() {
           const errorMessageFromServer = error.response.data.err.errorMessage;
 
           if (errorMessageFromServer.toLowerCase().includes("email")) {
-            setEmailErrorFromBE(errorMessageFromServer)
+            setEmailErrorFromBE(errorMessageFromServer);
           } else {
             console.log("error need to be handled", errorMessageFromServer);
           }
@@ -166,10 +162,6 @@ export default function Register() {
       doRegister();
     }
   };
-
-  // useRedirectToHome({
-  //   isFromNonAuthPage: isFromNonAuthPage,
-  // });
 
   const handleSetValuesOnBlur = (value, type) => {
     if (value) {
@@ -196,12 +188,12 @@ export default function Register() {
   };
 
   const handleOnChangeEmail = (val) => {
-    setEmail(val)
+    setEmail(val);
 
     if (emailErrorFromBE && val) {
-      setEmailErrorFromBE("")
+      setEmailErrorFromBE("");
     }
-  }
+  };
 
   return (
     <div className="register">
@@ -247,23 +239,28 @@ export default function Register() {
             <InputTextGlobal
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
-              onBlur={(e) => handleSetValuesOnBlur(e.target.value, "confirmPassword")}
+              onBlur={(e) =>
+                handleSetValuesOnBlur(e.target.value, "confirmPassword")
+              }
               inputPlaceholder={"Password Confirmation"}
               inputType={"password"}
               inputErrorMessage={handleInputErrorMessage("confirmPassword")}
             />
 
-            {!loadingState.status ? (
-              <GlobalButton
-                buttonLabel="Sign Up"
-                classStyleName="register-button"
-                onClick={doRegister}
-              />
-            ) : (
-              <div className="register-button-loading">
-                <RoundedLoader baseColor="gray" secondaryColor="white" />
-              </div>
-            )}
+            <GlobalButton
+              buttonLabel="Sign Up"
+              classStyleName="register-button"
+              onClick={doRegister}
+              loading={loadingState.status}
+              isDisabled={loadingState.status}
+              renderLabel={({ label, isLoading }) => {
+                return !isLoading ? (
+                  <div>{label}</div>
+                ) : (
+                  <RoundedLoader baseColor="gray" secondaryColor="white" />
+                );
+              }}
+            />
 
             <Link className="register-login-button" to="/login">
               Log In
