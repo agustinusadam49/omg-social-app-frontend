@@ -13,7 +13,6 @@ import {
   loadingReducer,
 } from "../../utils/reducers/globalLoadingReducer";
 import RoundedLoader from "../../components/rounded-loader/RoundedLoader";
-// import { useRedirectToHome } from "../../custom-hooks/useRedirectToHome";
 import { useFormValidation } from "../../custom-hooks/useFormValidation";
 import { getFirstError } from "../../utils/formValidationFunction";
 
@@ -29,8 +28,6 @@ export default function Login() {
   );
 
   const dispatch = useDispatch();
-
-  // const [isFromNonAuthPage, setIsFromNonAuthPage] = useState(false);
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -109,7 +106,6 @@ export default function Login() {
             })
           );
           dispatch(setIsAuthUser({ isAuth: true }));
-          // setIsFromNonAuthPage(true);
           const from = location?.state?.from?.pathname || "/";
           navigate(from, { replace: true });
         })
@@ -141,10 +137,6 @@ export default function Login() {
       doLogin();
     }
   };
-
-  // useRedirectToHome({
-  //   isFromNonAuthPage: isFromNonAuthPage,
-  // });
 
   const handleSetValuesOnBlur = (value, type) => {
     if (value) {
@@ -218,17 +210,20 @@ export default function Login() {
               inputSecondErrorMessage={secondaryErrorObj.password}
             />
 
-            {!loadingState.status ? (
-              <GlobalButton
-                buttonLabel="Log In"
-                classStyleName="login-button"
-                onClick={doLogin}
-              />
-            ) : (
-              <div className="login-button-loading">
-                <RoundedLoader baseColor="gray" secondaryColor="white" />
-              </div>
-            )}
+            <GlobalButton
+              buttonLabel="Log In"
+              classStyleName="login-button"
+              onClick={doLogin}
+              loading={loadingState.status}
+              isDisabled={loadingState.status}
+              renderLabel={({ label, isLoading }) =>
+                !isLoading ? (
+                  <div>{label}</div>
+                ) : (
+                  <RoundedLoader baseColor="gray" secondaryColor="white" />
+                )
+              }
+            />
 
             <Link className="login-forgot-wrapper" to="/forgot-password">
               <span className="login-forgot">Forgot Password?</span>

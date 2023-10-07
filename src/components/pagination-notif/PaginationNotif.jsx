@@ -1,11 +1,8 @@
-import React, { Fragment, useEffect, useMemo, useState } from "react";
-import {
-  useNavigate,
-  // useSearchParams,
-  useLocation,
-} from "react-router-dom";
-import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
-import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
+import React, { useEffect, useMemo, useState } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
+import PaginationButtonItems from "./pagination-button-items/PaginationButtonItems";
+import PaginationButtonChevron from "./pagination-button-chevron/PaginationButtonChevron";
+
 import "./PaginationNotif.scss";
 
 export default function PaginationNotif({
@@ -23,15 +20,11 @@ export default function PaginationNotif({
   };
   const query = useQuery();
   const pageName = useMemo(() => query.get("pageName"), [query]);
-  // console.log("query:", query.get("pageName"))
-  // const [searchParams] = useSearchParams();
-  // let pageName = searchParams.get("pageName");
 
   let navigate = useNavigate();
 
   let notifDataFromSlice = notifDataSlices;
   const notifObjData = notifDataObj;
-  // const [objKeyOfNotif, setObjKeyOfNotif] = useState([]);
   const [startIndexPaginationRange, setStartIndexPaginationRange] = useState(0);
   const [endIndexPaginationRange, setEndIndexPaginationRange] = useState(3);
 
@@ -39,83 +32,17 @@ export default function PaginationNotif({
     setActivePageIndex(inputItem.pageName);
   };
 
-  const handleNextOrPreviousPage = (directionType) => {
-    if (notifDataObj) {
-      const notifObjKeyArr = Object.keys(notifDataObj);
-      const nextOrPreviousPageIndex =
-        directionType === "next"
-          ? notifObjKeyArr.indexOf(activePageIndex) + 1
-          : notifObjKeyArr.indexOf(activePageIndex) - 1;
-      const nextOrPreviousPageName = notifObjKeyArr[nextOrPreviousPageIndex];
-      if (!nextOrPreviousPageName) return;
-      setActivePageIndex(nextOrPreviousPageName);
-    }
-  };
-
-  const displayPageNumberButton = () => {
-    if (notifDataObj) {
-      const totalDataNotif = notifDataFromSlice.length;
-      const notifDataKeyArr = Object.keys(notifDataObj);
-      const lastIndexOfDataKeyArr = notifDataKeyArr.length - 1;
-      const maxPageNumArr = [];
-      const finalEndAlternatif =
-        totalDataNotif <= 3
-          ? 0
-          : totalDataNotif <= 6
-          ? 1
-          : totalDataNotif <= 9
-          ? 2
-          : 3;
-      let start = startIndexPaginationRange;
-      let end =
-        totalDataNotif > 12 ? endIndexPaginationRange : finalEndAlternatif;
-
-      if (end > lastIndexOfDataKeyArr) {
-        end -= 1;
-        start -= 1;
-      }
-
-      for (let i = start; i <= end; i++) {
-        const objItem = { pageName: notifDataKeyArr[i], index: i };
-        maxPageNumArr.push(objItem);
-      }
-
-      return (
-        <Fragment>
-          {maxPageNumArr.map((item, index) => (
-            <div
-              className={`pagination-button-items ${
-                item.pageName === activePageIndex ? "active" : ""
-              }`}
-              key={index}
-              onClick={() => changeActivePage(item)}
-            >
-              {item.index + 1}
-            </div>
-          ))}
-        </Fragment>
-      );
-    }
-  };
-
   const objKeyOfNotif = useMemo(() => {
     if (notifDataObj) {
       const objKeyArr = Object.keys(notifDataObj);
       return objKeyArr;
     }
-  }, [notifDataObj])
+  }, [notifDataObj]);
 
   const objKeyOfNotifLastIndex = useMemo(
     () => objKeyOfNotif[objKeyOfNotif.length - 1],
     [objKeyOfNotif]
   );
-
-  // useEffect(() => {
-  //   if (notifDataObj) {
-  //     const objKeyArr = Object.keys(notifDataObj);
-  //     setObjKeyOfNotif(objKeyArr);
-  //   }
-  // }, [notifDataObj]);
 
   useEffect(() => {
     const theLength = notifObjData[activePageIndex]?.length;
@@ -233,33 +160,35 @@ export default function PaginationNotif({
   return (
     <div className="pagination-container">
       <div className="pagination-wrapper">
-        <div
-          className={`pagination-button-items previous ${
-            activePageIndex === "page1" ? "disabled" : ""
-          }`}
-          onClick={() => handleNextOrPreviousPage("prev")}
-        >
-          <ArrowBackIosNewIcon
-            className={`left-icon ${
-              activePageIndex === "page1" ? "disabled" : ""
-            }`}
+        {notifDataObj && (
+          <PaginationButtonChevron
+            notifDataObj={notifDataObj}
+            activePageIndex={activePageIndex}
+            objKeyOfNotifLastIndex={objKeyOfNotifLastIndex}
+            setActivePageIndex={setActivePageIndex}
+            direction="previous"
           />
-        </div>
+        )}
 
-        {displayPageNumberButton()}
-
-        <div
-          className={`pagination-button-items next ${
-            activePageIndex === objKeyOfNotifLastIndex ? "disabled" : ""
-          }`}
-          onClick={() => handleNextOrPreviousPage("next")}
-        >
-          <ArrowForwardIosIcon
-            className={`right-icon ${
-              activePageIndex === objKeyOfNotifLastIndex ? "disabled" : ""
-            }`}
+        {notifDataObj && (
+          <PaginationButtonItems
+            notifDataObj={notifDataObj}
+            notifDataFromSlice={notifDataFromSlice}
+            startIndexPaginationRange={startIndexPaginationRange}
+            endIndexPaginationRange={endIndexPaginationRange}
+            activePageIndex={activePageIndex}
+            changeActivePage={changeActivePage}
           />
-        </div>
+        )}
+
+        {notifDataObj && (
+          <PaginationButtonChevron
+            notifDataObj={notifDataObj}
+            activePageIndex={activePageIndex}
+            objKeyOfNotifLastIndex={objKeyOfNotifLastIndex}
+            setActivePageIndex={setActivePageIndex}
+          />
+        )}
       </div>
     </div>
   );
