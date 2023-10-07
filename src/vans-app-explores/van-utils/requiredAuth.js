@@ -5,7 +5,7 @@ export const requiredAuth = async () => {
   const isUserAuth = isAuth();
 
   if (!isUserAuth) {
-    throw redirect("/login");
+    throw redirect("/login?message=You must login first!");
   }
 
   return null

@@ -1,8 +1,14 @@
 import React, { useState, useMemo } from "react";
-import { useNavigate, useLocation, Navigate } from "react-router-dom";
+import {
+  useNavigate,
+  useLocation,
+  Navigate,
+  useSearchParams,
+} from "react-router-dom";
 import { useFormValidation } from "../../../custom-hooks/useFormValidation";
 import InputTextGlobal from "../../../components/input-text-global/InputTextGlobal";
 import GlobalButton from "../../../components/button/GlobalButton";
+import RequiredLoginMessage from "../../components/required-login-message/RequiredLoginMessage";
 import { getFirstError } from "../../../utils/formValidationFunction";
 import { isAuth } from "../../van-utils/isAuth";
 
@@ -15,6 +21,10 @@ export default function LoginVan() {
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+
+  const [searchParams] = useSearchParams();
+
+  const messageRequiredLogin = searchParams.get("message");
 
   const [secondaryErrorObj, setSecondaryErrorObj] = useState({
     email: "",
@@ -130,7 +140,7 @@ export default function LoginVan() {
   };
 
   if (isUserAuth) {
-    return <Navigate to="/"/>
+    return <Navigate to="/" />;
   }
 
   return (
@@ -138,6 +148,10 @@ export default function LoginVan() {
       <h2>Login to Vans App</h2>
 
       <div className="form-login-wrapper-card">
+        {messageRequiredLogin && (
+          <RequiredLoginMessage message={messageRequiredLogin} />
+        )}
+
         <InputTextGlobal
           value={email}
           onChange={(e) => handleOnChangeEmail(e.target.value)}
