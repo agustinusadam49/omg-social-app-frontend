@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import EditProfileModal from "../edit-profile-modal/EditProfileModal";
+import EditAvatarModal from "../edit-avatar-modal/EditAvatarModal";
 import { userInfoLogin, getAllUsersRegistered } from "../../redux/apiCalls";
 import { useSelector, useDispatch } from "react-redux";
 import { getUserById } from "../../apiCalls/registerAndLoginApiFetch";
@@ -148,21 +149,19 @@ export default function RightbarProfile({ userId }) {
         )}
       </div>
 
+      {isModalAvatarOpen && (
+        <EditAvatarModal
+          userProfileData={userProfile}
+          closeModalEditProfile={closeModalEditAvatarAndCoverUrl}
+          doSnapForEditProfile={doSnapForEditProfile}
+        />
+      )}
+
       {isModalProfileOpen && (
         <EditProfileModal
           userProfileData={userProfile}
           closeModalEditProfile={closeModalEditProfile}
           doSnapForEditProfile={doSnapForEditProfile}
-          modalActive={"edit-profile"}
-        />
-      )}
-
-      {isModalAvatarOpen && (
-        <EditProfileModal
-          userProfileData={userProfile}
-          closeModalEditProfile={closeModalEditAvatarAndCoverUrl}
-          doSnapForEditProfile={doSnapForEditProfile}
-          modalActive={"edit-avatar-and-cover-url"}
         />
       )}
     </div>

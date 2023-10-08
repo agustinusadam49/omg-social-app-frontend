@@ -1,0 +1,15 @@
+.top-content {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+
+  .edit-profile-modal-content {
+    font-size: 14px;
+    font-weight: 500;
+  }
+
+  .modal-close-button {
+    cursor: pointer;
+  }
+}
