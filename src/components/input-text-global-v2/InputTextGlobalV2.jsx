@@ -55,7 +55,11 @@ const InputTextGlobal = ({
 
   const displayLabel = () => {
     if (inputLabel) {
-      return <label className={`input-label-text-global ${isErrorMessage()}`}>{inputLabel}</label>;
+      return (
+        <label className={`input-label-text-global ${isErrorMessage()}`}>
+          {inputLabel}
+        </label>
+      );
     }
   };
 
@@ -90,11 +94,11 @@ const InputTextGlobal = ({
       return (
         <div className={styleForWrapperInputDate()}>
           <label htmlFor="date-icon" className="input-tag-date-icon-wrapper">
-            <CalendarMonthIcon className={`calendar-month-icon ${isErrorMessage()}`} />
+            <CalendarMonthIcon
+              className={`calendar-month-icon ${isErrorMessage()}`}
+            />
             <input
               id="date-icon"
-              value={inputValue}
-              onChange={(e) => setInputValue(e.target.value)}
               className="input-tag-date-icon"
               type={!seePassword ? inputType : "text"}
               {...props}
@@ -102,8 +106,6 @@ const InputTextGlobal = ({
           </label>
 
           <input
-            value={inputValue}
-            onChange={(e) => setInputValue(e.target.value)}
             placeholder={inputPlaceholder}
             className={styleForInputTag()}
             type={!seePassword ? inputType : "text"}
@@ -115,8 +117,6 @@ const InputTextGlobal = ({
 
     return (
       <input
-        value={inputValue}
-        onChange={(e) => setInputValue(e.target.value)}
         placeholder={inputPlaceholder}
         className={styleForInputTag()}
         type={!seePassword ? inputType : "text"}
