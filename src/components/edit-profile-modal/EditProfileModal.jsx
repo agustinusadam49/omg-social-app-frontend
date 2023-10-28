@@ -6,7 +6,10 @@ import EditProfileModalWrapper from "../edit-profile-modal-wrapper/EditProfileMo
 import TopContent from "../edit-profile-modal-wrapper/top-content/TopContent";
 import MiddleContent from "../edit-profile-modal-wrapper/middle-content/MiddleContent";
 import BottomContent from "../edit-profile-modal-wrapper/bottom-content/BottomContent";
-import { getFirstError } from "../../utils/formValidationFunction";
+import {
+  getFirstError,
+  helpersWithMessage,
+} from "../../utils/formValidationFunction";
 import { useFormValidation } from "../../custom-hooks/useFormValidation";
 
 import "./EditProfileModal.scss";
@@ -23,10 +26,18 @@ const EditProfileModal = ({
   const [birthdate, setBirthdate] = useState(userProfileData.birthDate || "");
   const [statusUser, setStatusUser] = useState(userProfileData.status || "");
   const [quotes, setQuotes] = useState(userProfileData.quotes || "");
-  const [userPhoneNumber, setUserPhoneNumber] = useState(userProfileData.phoneNumber || "");
-  const [userCurrentCity, setUserCurrentCity] = useState(userProfileData.currentCity || "");
-  const [userNationality, setUserNationality] = useState(userProfileData.nationality || "");
-  const [userRelationship, setUserRelationship] = useState(userProfileData.relationship || "");
+  const [userPhoneNumber, setUserPhoneNumber] = useState(
+    userProfileData.phoneNumber || ""
+  );
+  const [userCurrentCity, setUserCurrentCity] = useState(
+    userProfileData.currentCity || ""
+  );
+  const [userNationality, setUserNationality] = useState(
+    userProfileData.nationality || ""
+  );
+  const [userRelationship, setUserRelationship] = useState(
+    userProfileData.relationship || ""
+  );
   const [valuesOnBlur, setValuesOnBlur] = useState({
     biodata: false,
     addressData: false,
@@ -60,7 +71,7 @@ const EditProfileModal = ({
   const processingEditProfile = () => {
     let profilePayloadObj = {};
 
-    const profileDataToValidateCheck = {
+    profilePayloadObj = {
       biodata: biodata,
       address: addressData,
       birthDate: birthdate,
@@ -70,18 +81,6 @@ const EditProfileModal = ({
       currentCity: userCurrentCity,
       nationality: userNationality,
       relationship: userRelationship,
-    };
-
-    profilePayloadObj = {
-      biodata: profileDataToValidateCheck.biodata,
-      address: profileDataToValidateCheck.address,
-      birthDate: profileDataToValidateCheck.birthDate,
-      status: profileDataToValidateCheck.status,
-      quotes: profileDataToValidateCheck.quotes,
-      phoneNumber: profileDataToValidateCheck.phoneNumber,
-      currentCity: profileDataToValidateCheck.currentCity,
-      nationality: profileDataToValidateCheck.nationality,
-      relationship: profileDataToValidateCheck.relationship,
     };
 
     hitApiEditProfile(profileId, profilePayloadObj);
@@ -94,7 +93,33 @@ const EditProfileModal = ({
       birthdate: { currentValue: birthdate, isRequired: true },
       statusUser: { currentValue: statusUser, isRequired: true },
       quotes: { currentValue: quotes, isRequired: true },
-      userPhoneNumber: { currentValue: userPhoneNumber, isRequired: true },
+      userPhoneNumber: {
+        currentValue: userPhoneNumber,
+        isRequired: true,
+        validationCollections: [
+          helpersWithMessage(
+            "Nomor HP harus memiliki minimal 10 dan maximal 13 digit",
+            userPhoneNumber,
+            (val) => {
+              const minCharacterLength = 10;
+              const maxCharacterLength = 13;
+
+              return (
+                val.length >= minCharacterLength &&
+                val.length <= maxCharacterLength
+              );
+            }
+          ),
+          helpersWithMessage(
+            "Nomor HP harus berupa angka digit",
+            userPhoneNumber,
+            (val) => {
+              const isOnlyNumberTest = /^\d+$/.test(val);
+              return isOnlyNumberTest;
+            }
+          ),
+        ],
+      },
       userCurrentCity: { currentValue: userCurrentCity, isRequired: true },
       userNationality: { currentValue: userNationality, isRequired: true },
       userRelationship: { currentValue: userRelationship, isRequired: true },
@@ -160,7 +185,7 @@ const EditProfileModal = ({
           <InputTextGlobalV2
             inputLabel={"Biodata"}
             value={biodata}
-            onChange={(e) =>setBiodata(e.target.value)}
+            onChange={(e) => setBiodata(e.target.value)}
             inputPlaceholder={"Masukkan biodata-mu"}
             onBlur={(e) => handleSetValuesOnBlur(e.target.value, "biodata")}
             inputErrorMessage={handleInputErrorMessage("biodata")}
@@ -170,7 +195,7 @@ const EditProfileModal = ({
           <InputTextGlobalV2
             inputLabel={"Alamat"}
             value={addressData}
-            onChange={(e) =>setAddressData(e.target.value)}
+            onChange={(e) => setAddressData(e.target.value)}
             inputPlaceholder={"Masukkan alamat-mu"}
             onBlur={(e) => handleSetValuesOnBlur(e.target.value, "addressData")}
             inputErrorMessage={handleInputErrorMessage("addressData")}
@@ -180,7 +205,7 @@ const EditProfileModal = ({
           <InputTextGlobalV2
             inputLabel={"Tanggal Lahir"}
             value={birthdate}
-            onChange={(e) =>setBirthdate(e.target.value)}
+            onChange={(e) => setBirthdate(e.target.value)}
             onBlur={(e) => handleSetValuesOnBlur(e.target.value, "birthdate")}
             inputErrorMessage={handleInputErrorMessage("birthdate")}
             inputType={"date"}
@@ -190,7 +215,7 @@ const EditProfileModal = ({
           <InputTextGlobalV2
             inputLabel={"Status"}
             value={statusUser}
-            onChange={(e) =>setStatusUser(e.target.value)}
+            onChange={(e) => setStatusUser(e.target.value)}
             inputPlaceholder={"Masukan status-mu"}
             onBlur={(e) => handleSetValuesOnBlur(e.target.value, "statusUser")}
             inputErrorMessage={handleInputErrorMessage("statusUser")}
@@ -200,7 +225,7 @@ const EditProfileModal = ({
           <InputTextGlobalV2
             inputLabel={"Quotes"}
             value={quotes}
-            onChange={(e) =>setQuotes(e.target.value)}
+            onChange={(e) => setQuotes(e.target.value)}
             inputPlaceholder={"Masukan quotes favorit-mu"}
             onBlur={(e) => handleSetValuesOnBlur(e.target.value, "quotes")}
             inputErrorMessage={handleInputErrorMessage("quotes")}
@@ -210,7 +235,7 @@ const EditProfileModal = ({
           <InputTextGlobalV2
             inputLabel={"Nomor Telephone"}
             value={userPhoneNumber}
-            onChange={(e) =>setUserPhoneNumber(e.target.value)}
+            onChange={(e) => setUserPhoneNumber(e.target.value)}
             inputPlaceholder={"Masukkan nomor telepon-mu"}
             onBlur={(e) =>
               handleSetValuesOnBlur(e.target.value, "userPhoneNumber")
@@ -222,7 +247,7 @@ const EditProfileModal = ({
           <InputTextGlobalV2
             inputLabel={"Kota Domisili"}
             value={userCurrentCity}
-            onChange={(e) =>setUserCurrentCity(e.target.value)}
+            onChange={(e) => setUserCurrentCity(e.target.value)}
             inputPlaceholder={"Masukkan nama kota kamu tinggal sekarang"}
             onBlur={(e) =>
               handleSetValuesOnBlur(e.target.value, "userCurrentCity")
@@ -234,7 +259,7 @@ const EditProfileModal = ({
           <InputTextGlobalV2
             inputLabel={"Kebangsaan"}
             value={userNationality}
-            onChange={(e) =>setUserNationality(e.target.value)}
+            onChange={(e) => setUserNationality(e.target.value)}
             inputPlaceholder={"Masukkan kebangsaan-mu"}
             onBlur={(e) =>
               handleSetValuesOnBlur(e.target.value, "userNationality")
@@ -246,7 +271,7 @@ const EditProfileModal = ({
           <InputTextGlobalV2
             inputLabel={"Relationship"}
             value={userRelationship}
-            onChange={(e) =>setUserRelationship(e.target.value)}
+            onChange={(e) => setUserRelationship(e.target.value)}
             inputPlaceholder={"Masukkan hubungan-mu dengan siapa"}
             onBlur={(e) =>
               handleSetValuesOnBlur(e.target.value, "userRelationship")
