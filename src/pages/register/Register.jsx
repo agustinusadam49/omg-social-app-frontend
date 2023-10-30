@@ -18,6 +18,7 @@ import {
 } from "../../utils/reducers/globalLoadingReducer";
 import RoundedLoader from "../../components/rounded-loader/RoundedLoader";
 import { useFormValidation } from "../../custom-hooks/useFormValidation";
+import { setIsClicked } from "../../redux/slices/buttonsSlice";
 
 import "./Register.scss";
 
@@ -39,20 +40,13 @@ export default function Register() {
 
   const [emailErrorFromBE, setEmailErrorFromBE] = useState("");
 
-  const [valuesOnBlur, setValuesOnBlur] = useState({
-    fullname: false,
-    username: false,
-    email: false,
-    password: false,
-    confirmPassword: false,
-  });
-
   const clearRegisterField = () => {
     setFullname("");
     setUsername("");
     setEmail("");
     setPassword("");
     setConfirmPassword("");
+    dispatch(setIsClicked({ payload: false }));
     mutate({ type: actionType.STOP_LOADING_STATUS });
   };
 
@@ -113,7 +107,7 @@ export default function Register() {
   });
 
   const doRegister = () => {
-    handleAllOnBlurToTrue(true);
+    dispatch(setIsClicked({ payload: true }));
 
     if (loadingState.status) return;
 
@@ -163,28 +157,8 @@ export default function Register() {
     }
   };
 
-  const handleSetValuesOnBlur = (value, type) => {
-    if (value) {
-      setValuesOnBlur((oldObjVal) => ({
-        ...oldObjVal,
-        [type]: true,
-      }));
-    }
-  };
-
   const handleInputErrorMessage = (type) => {
-    return valuesOnBlur[type] ? getFirstError(errorMessage[type]) : [];
-  };
-
-  const handleAllOnBlurToTrue = (boolVal) => {
-    const onBlurObjKeys = Object.keys(valuesOnBlur);
-
-    for (let i = 0; i < onBlurObjKeys.length; i++) {
-      setValuesOnBlur((oldValObj) => ({
-        ...oldValObj,
-        [onBlurObjKeys[i]]: boolVal,
-      }));
-    }
+    return getFirstError(errorMessage[type]);
   };
 
   const handleOnChangeEmail = (val) => {
@@ -205,7 +179,6 @@ export default function Register() {
             <InputTextGlobal
               value={fullname}
               onChange={(e) => setFullname(e.target.value)}
-              onBlur={(e) => handleSetValuesOnBlur(e.target.value, "fullname")}
               inputPlaceholder={"Fullname"}
               inputErrorMessage={handleInputErrorMessage("fullname")}
             />
@@ -215,13 +188,11 @@ export default function Register() {
               onChange={(e) => setUsername(e.target.value)}
               inputPlaceholder={"Username"}
               inputErrorMessage={handleInputErrorMessage("username")}
-              onBlur={(e) => handleSetValuesOnBlur(e.target.value, "username")}
             />
 
             <InputTextGlobal
               value={email}
               onChange={(e) => handleOnChangeEmail(e.target.value)}
-              onBlur={(e) => handleSetValuesOnBlur(e.target.value, "email")}
               inputPlaceholder={"Email"}
               inputErrorMessage={handleInputErrorMessage("email")}
               inputSecondErrorMessage={emailErrorFromBE}
@@ -231,7 +202,6 @@ export default function Register() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               inputPlaceholder={"Password"}
-              onBlur={(e) => handleSetValuesOnBlur(e.target.value, "password")}
               inputType={"password"}
               inputErrorMessage={handleInputErrorMessage("password")}
             />
@@ -239,9 +209,6 @@ export default function Register() {
             <InputTextGlobal
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
-              onBlur={(e) =>
-                handleSetValuesOnBlur(e.target.value, "confirmPassword")
-              }
               inputPlaceholder={"Password Confirmation"}
               inputType={"password"}
               inputErrorMessage={handleInputErrorMessage("confirmPassword")}

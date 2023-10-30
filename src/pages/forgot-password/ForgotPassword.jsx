@@ -25,10 +25,13 @@ import {
 import { useNavigate } from "react-router-dom";
 // import { useRedirectToHome } from "../../custom-hooks/useRedirectToHome";
 import { useFormValidation } from "../../custom-hooks/useFormValidation";
+import { useDispatch } from "react-redux";
+import { setIsClicked } from "../../redux/slices/buttonsSlice";
 
 import "./ForgotPassword.scss";
 
 export default function ForgotPassword() {
+  const dispatch = useDispatch();
   const [loadingState, mutate] = useReducer(
     loadingReducer,
     INITIAL_LOADING_STATE
@@ -46,12 +49,6 @@ export default function ForgotPassword() {
     email: "",
     password: "",
     confirmPassword: "",
-  });
-
-  const [valuesOnBlur, setValuesOnBlur] = useState({
-    email: false,
-    password: false,
-    confirmPassword: false,
   });
 
   const checkEmailRules = useMemo(
@@ -122,15 +119,11 @@ export default function ForgotPassword() {
       password: "",
       confirmPassword: "",
     });
-    setValuesOnBlur({
-      email: false,
-      password: false,
-      confirmPassword: false,
-    });
+    dispatch(setIsClicked({ payload: false }));
   };
 
   const doChangePassword = () => {
-    handleAllOnBlurToTrue(true);
+    dispatch(setIsClicked({ payload: true }));
 
     if (loadingState.status) return;
 
@@ -159,7 +152,7 @@ export default function ForgotPassword() {
   };
 
   const doEmailCheck = () => {
-    handleAllOnBlurToTrue(true);
+    dispatch(setIsClicked({ payload: true }));
 
     if (loadingState.status) return;
 
@@ -174,6 +167,7 @@ export default function ForgotPassword() {
         .then((response) => {
           const success = response.data.success;
           if (success) {
+            dispatch(setIsClicked({ payload: false }));
             const userData = response.data.data;
             const userEmailFromResponse = userData.userEmail;
             localStorage.setItem(
@@ -233,32 +227,12 @@ export default function ForgotPassword() {
   //   isFromNonAuthPage: false,
   // });
 
-  const handleSetValuesOnBlur = (value, type) => {
-    if (value) {
-      setValuesOnBlur((oldObjVal) => ({
-        ...oldObjVal,
-        [type]: true,
-      }));
-    }
-  };
-
   const handleInputErrorMessage = (type) => {
-    return valuesOnBlur[type] ? getFirstError(errorMessage[type]) : [];
+    return getFirstError(errorMessage[type]);
   };
 
   const handleInputErrorMessagePassword = (type) => {
-    return valuesOnBlur[type] ? getFirstError(errorMessagePassword[type]) : [];
-  };
-
-  const handleAllOnBlurToTrue = (boolVal) => {
-    const onBlurObjKeys = Object.keys(valuesOnBlur);
-
-    for (let i = 0; i < onBlurObjKeys.length; i++) {
-      setValuesOnBlur((oldValObj) => ({
-        ...oldValObj,
-        [onBlurObjKeys[i]]: boolVal,
-      }));
-    }
+    return getFirstError(errorMessagePassword[type]);
   };
 
   const handleOnChangeEmail = (val) => {
@@ -285,7 +259,6 @@ export default function ForgotPassword() {
             <InputTextGlobal
               value={email}
               onChange={(e) => handleOnChangeEmail(e.target.value)}
-              onBlur={(e) => handleSetValuesOnBlur(e.target.value, "email")}
               inputPlaceholder={"Masukan Email"}
               inputErrorMessage={handleInputErrorMessage("email")}
               inputSecondErrorMessage={secondaryErrorObj.email}
@@ -297,9 +270,6 @@ export default function ForgotPassword() {
                 <InputTextGlobal
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  onBlur={(e) =>
-                    handleSetValuesOnBlur(e.target.value, "password")
-                  }
                   inputPlaceholder={"New Password"}
                   inputType={"password"}
                   inputErrorMessage={handleInputErrorMessagePassword(
@@ -310,9 +280,6 @@ export default function ForgotPassword() {
                 <InputTextGlobal
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
-                  onBlur={(e) =>
-                    handleSetValuesOnBlur(e.target.value, "confirmPassword")
-                  }
                   inputPlaceholder={"New Password Confirmation"}
                   inputType={"password"}
                   inputErrorMessage={handleInputErrorMessagePassword(

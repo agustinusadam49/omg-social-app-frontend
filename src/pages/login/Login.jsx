@@ -15,6 +15,7 @@ import {
 import RoundedLoader from "../../components/rounded-loader/RoundedLoader";
 import { useFormValidation } from "../../custom-hooks/useFormValidation";
 import { getFirstError } from "../../utils/formValidationFunction";
+import { setIsClicked } from "../../redux/slices/buttonsSlice";
 
 import "./Login.scss";
 
@@ -37,11 +38,6 @@ export default function Login() {
     password: "",
   });
 
-  const [valuesOnBlur, setValuesOnBlur] = useState({
-    email: false,
-    password: false,
-  });
-
   const clearLoginField = () => {
     setEmail("");
     setPassword("");
@@ -49,10 +45,7 @@ export default function Login() {
       email: "",
       password: "",
     });
-    setValuesOnBlur({
-      email: false,
-      password: false,
-    });
+    dispatch(setIsClicked({ payload: false }));
     mutate({ type: actionType.STOP_LOADING_STATUS });
   };
 
@@ -75,7 +68,7 @@ export default function Login() {
   });
 
   const doLogin = () => {
-    handleAllOnBlurToTrue(true);
+    dispatch(setIsClicked({ payload: true }));
     setSecondaryErrorObj({
       email: "",
       password: "",
@@ -138,28 +131,8 @@ export default function Login() {
     }
   };
 
-  const handleSetValuesOnBlur = (value, type) => {
-    if (value) {
-      setValuesOnBlur((oldObjVal) => ({
-        ...oldObjVal,
-        [type]: true,
-      }));
-    }
-  };
-
-  const handleAllOnBlurToTrue = (boolVal) => {
-    const onBlurObjKeys = Object.keys(valuesOnBlur);
-
-    for (let i = 0; i < onBlurObjKeys.length; i++) {
-      setValuesOnBlur((oldValObj) => ({
-        ...oldValObj,
-        [onBlurObjKeys[i]]: boolVal,
-      }));
-    }
-  };
-
   const handleInputErrorMessage = (type) => {
-    return valuesOnBlur[type] ? getFirstError(errorMessage[type]) : [];
+    return getFirstError(errorMessage[type]);
   };
 
   const handleOnChangeEmail = (val) => {
@@ -194,7 +167,6 @@ export default function Login() {
             <InputTextGlobal
               value={email}
               onChange={(e) => handleOnChangeEmail(e.target.value)}
-              onBlur={(e) => handleSetValuesOnBlur(e.target.value, "email")}
               inputPlaceholder={"Email"}
               inputErrorMessage={handleInputErrorMessage("email")}
               inputSecondErrorMessage={secondaryErrorObj.email}
@@ -203,7 +175,6 @@ export default function Login() {
             <InputTextGlobal
               value={password}
               onChange={(e) => handleOnChangePassword(e.target.value)}
-              onBlur={(e) => handleSetValuesOnBlur(e.target.value, "password")}
               inputPlaceholder={"password"}
               inputType={"password"}
               inputErrorMessage={handleInputErrorMessage("password")}

@@ -11,6 +11,8 @@ import {
   helpersWithMessage,
 } from "../../utils/formValidationFunction";
 import { useFormValidation } from "../../custom-hooks/useFormValidation";
+import { useDispatch } from "react-redux";
+import { setIsClicked } from "../../redux/slices/buttonsSlice";
 
 import "./EditProfileModal.scss";
 
@@ -19,6 +21,7 @@ const EditProfileModal = ({
   userProfileData,
   doSnapForEditProfile,
 }) => {
+  const dispatch = useDispatch();
   const profileId = userProfileData.id;
 
   const [biodata, setBiodata] = useState(userProfileData.biodata || "");
@@ -38,20 +41,10 @@ const EditProfileModal = ({
   const [userRelationship, setUserRelationship] = useState(
     userProfileData.relationship || ""
   );
-  const [valuesOnBlur, setValuesOnBlur] = useState({
-    biodata: false,
-    addressData: false,
-    birthdate: false,
-    statusUser: false,
-    quotes: false,
-    userPhoneNumber: false,
-    userCurrentCity: false,
-    userNationality: false,
-    userRelationship: false,
-  });
 
   const closeModalEdit = (statusValue) => {
     closeModalEditProfile(statusValue);
+    dispatch(setIsClicked({ payload: false }));
   };
 
   const hitApiEditProfile = (idOfProfile, payloadData) => {
@@ -142,7 +135,7 @@ const EditProfileModal = ({
   });
 
   const doSaveEditProfile = () => {
-    handleAllOnBlurToTrue(true);
+    dispatch(setIsClicked({ payload: true }));
 
     if (isValid) {
       processingEditProfile();
@@ -150,27 +143,7 @@ const EditProfileModal = ({
   };
 
   const handleInputErrorMessage = (type) => {
-    return valuesOnBlur[type] ? getFirstError(errorMessage[type]) : [];
-  };
-
-  const handleSetValuesOnBlur = (value, type) => {
-    if (value) {
-      setValuesOnBlur((oldObjVal) => ({
-        ...oldObjVal,
-        [type]: true,
-      }));
-    }
-  };
-
-  const handleAllOnBlurToTrue = (boolVal) => {
-    const onBlurObjKeys = Object.keys(valuesOnBlur);
-
-    for (let i = 0; i < onBlurObjKeys.length; i++) {
-      setValuesOnBlur((oldValObj) => ({
-        ...oldValObj,
-        [onBlurObjKeys[i]]: boolVal,
-      }));
-    }
+    return getFirstError(errorMessage[type]);
   };
 
   return (
@@ -187,7 +160,6 @@ const EditProfileModal = ({
             value={biodata}
             onChange={(e) => setBiodata(e.target.value)}
             inputPlaceholder={"Masukkan biodata-mu"}
-            onBlur={(e) => handleSetValuesOnBlur(e.target.value, "biodata")}
             inputErrorMessage={handleInputErrorMessage("biodata")}
             additionalStylingClass={"if-edit-profile-style"}
           />
@@ -197,7 +169,6 @@ const EditProfileModal = ({
             value={addressData}
             onChange={(e) => setAddressData(e.target.value)}
             inputPlaceholder={"Masukkan alamat-mu"}
-            onBlur={(e) => handleSetValuesOnBlur(e.target.value, "addressData")}
             inputErrorMessage={handleInputErrorMessage("addressData")}
             additionalStylingClass={"if-edit-profile-style"}
           />
@@ -206,7 +177,6 @@ const EditProfileModal = ({
             inputLabel={"Tanggal Lahir"}
             value={birthdate}
             onChange={(e) => setBirthdate(e.target.value)}
-            onBlur={(e) => handleSetValuesOnBlur(e.target.value, "birthdate")}
             inputErrorMessage={handleInputErrorMessage("birthdate")}
             inputType={"date"}
             additionalStylingClass={"if-edit-profile-style-date"}
@@ -217,7 +187,6 @@ const EditProfileModal = ({
             value={statusUser}
             onChange={(e) => setStatusUser(e.target.value)}
             inputPlaceholder={"Masukan status-mu"}
-            onBlur={(e) => handleSetValuesOnBlur(e.target.value, "statusUser")}
             inputErrorMessage={handleInputErrorMessage("statusUser")}
             additionalStylingClass={"if-edit-profile-style"}
           />
@@ -227,7 +196,6 @@ const EditProfileModal = ({
             value={quotes}
             onChange={(e) => setQuotes(e.target.value)}
             inputPlaceholder={"Masukan quotes favorit-mu"}
-            onBlur={(e) => handleSetValuesOnBlur(e.target.value, "quotes")}
             inputErrorMessage={handleInputErrorMessage("quotes")}
             additionalStylingClass={"if-edit-profile-style"}
           />
@@ -237,9 +205,6 @@ const EditProfileModal = ({
             value={userPhoneNumber}
             onChange={(e) => setUserPhoneNumber(e.target.value)}
             inputPlaceholder={"Masukkan nomor telepon-mu"}
-            onBlur={(e) =>
-              handleSetValuesOnBlur(e.target.value, "userPhoneNumber")
-            }
             inputErrorMessage={handleInputErrorMessage("userPhoneNumber")}
             additionalStylingClass={"if-edit-profile-style"}
           />
@@ -249,9 +214,6 @@ const EditProfileModal = ({
             value={userCurrentCity}
             onChange={(e) => setUserCurrentCity(e.target.value)}
             inputPlaceholder={"Masukkan nama kota kamu tinggal sekarang"}
-            onBlur={(e) =>
-              handleSetValuesOnBlur(e.target.value, "userCurrentCity")
-            }
             inputErrorMessage={handleInputErrorMessage("userCurrentCity")}
             additionalStylingClass={"if-edit-profile-style"}
           />
@@ -261,9 +223,6 @@ const EditProfileModal = ({
             value={userNationality}
             onChange={(e) => setUserNationality(e.target.value)}
             inputPlaceholder={"Masukkan kebangsaan-mu"}
-            onBlur={(e) =>
-              handleSetValuesOnBlur(e.target.value, "userNationality")
-            }
             inputErrorMessage={handleInputErrorMessage("userNationality")}
             additionalStylingClass={"if-edit-profile-style"}
           />
@@ -273,9 +232,6 @@ const EditProfileModal = ({
             value={userRelationship}
             onChange={(e) => setUserRelationship(e.target.value)}
             inputPlaceholder={"Masukkan hubungan-mu dengan siapa"}
-            onBlur={(e) =>
-              handleSetValuesOnBlur(e.target.value, "userRelationship")
-            }
             inputErrorMessage={handleInputErrorMessage("userRelationship")}
             additionalStylingClass={"if-edit-profile-style"}
           />
