@@ -120,8 +120,6 @@ export default function Register() {
         userPassword: password,
       };
 
-      console.log("payloadRegistration:", payloadRegistration);
-
       registerNewUser(payloadRegistration)
         .then((userResponseRegister) => {
           mutate({ type: actionType.RUN_LOADING_STATUS });
@@ -164,7 +162,7 @@ export default function Register() {
   const handleOnChangeEmail = (val) => {
     setEmail(val);
 
-    if (emailErrorFromBE && val) {
+    if (emailErrorFromBE) {
       setEmailErrorFromBE("");
     }
   };

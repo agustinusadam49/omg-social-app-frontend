@@ -138,7 +138,7 @@ export default function Login() {
   const handleOnChangeEmail = (val) => {
     setEmail(val);
 
-    if (secondaryErrorObj.email && (val || !val)) {
+    if (secondaryErrorObj.email) {
       setSecondaryErrorObj((oldObjVal) => ({
         ...oldObjVal,
         email: "",
@@ -149,7 +149,7 @@ export default function Login() {
   const handleOnChangePassword = (val) => {
     setPassword(val);
 
-    if (secondaryErrorObj.password && (val || !val)) {
+    if (secondaryErrorObj.password) {
       setSecondaryErrorObj((oldObjVal) => ({
         ...oldObjVal,
         password: "",

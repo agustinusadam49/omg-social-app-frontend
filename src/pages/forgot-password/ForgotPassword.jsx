@@ -23,7 +23,6 @@ import {
   changeForgotPassword,
 } from "../../apiCalls/forgotPassword";
 import { useNavigate } from "react-router-dom";
-// import { useRedirectToHome } from "../../custom-hooks/useRedirectToHome";
 import { useFormValidation } from "../../custom-hooks/useFormValidation";
 import { useDispatch } from "react-redux";
 import { setIsClicked } from "../../redux/slices/buttonsSlice";
@@ -223,10 +222,6 @@ export default function ForgotPassword() {
     };
   }, []);
 
-  // useRedirectToHome({
-  //   isFromNonAuthPage: false,
-  // });
-
   const handleInputErrorMessage = (type) => {
     return getFirstError(errorMessage[type]);
   };
@@ -238,7 +233,7 @@ export default function ForgotPassword() {
   const handleOnChangeEmail = (val) => {
     setEmail(val);
 
-    if (secondaryErrorObj.email && (val || !val)) {
+    if (secondaryErrorObj.email) {
       setSecondaryErrorObj((oldObjVal) => ({
         ...oldObjVal,
         email: "",
