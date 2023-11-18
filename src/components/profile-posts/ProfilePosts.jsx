@@ -18,24 +18,15 @@ import "./ProfilePosts.scss";
 export default function ProfilePosts({ paramUserId, userNameFromParam }) {
   const dispatch = useDispatch();
 
-  const paramsEmptyState = {
-    username: userNameFromParam,
-  };
+  const paramsEmptyState = { username: userNameFromParam };
 
+  const searchTermsFromSlice = useSelector((state) => state.posts.searchPostsTerms);
   const currentUserIdFromSlice = useSelector((state) => state.user.userId);
-  const isPostsloadingByUserId = useSelector(
-    (state) => state.posts.loadingGetPostsByUserId
-  );
-  const postsFromSliceByUserId = useSelector(
-    (state) => state.posts.postsByUserId
-  );
-  const postAddNewPostingStatus = useSelector(
-    (state) => state.posts.isAddPosting
-  );
+  const isPostsloadingByUserId = useSelector((state) => state.posts.loadingGetPostsByUserId);
+  const postsFromSliceByUserId = useSelector((state) => state.posts.postsByUserId);
+  const postAddNewPostingStatus = useSelector((state) => state.posts.isAddPosting);
 
-  const [postsByUserIdMapped, setPostsByUserIdMapped] = useState(
-    postsFromSliceByUserId
-  );
+  const [postsByUserIdMapped, setPostsByUserIdMapped] = useState(postsFromSliceByUserId);
 
   const isLoading = useMemo(
     () => isPostsloadingByUserId === true,
@@ -69,13 +60,23 @@ export default function ProfilePosts({ paramUserId, userNameFromParam }) {
   useEffect(() => {
     if (postsFromSliceByUserId.length) {
       const mappedPostData = postsFromSliceByUserId.map((item) => item);
-      setPostsByUserIdMapped(mappedPostData);
+      const newFilteredPostByUserId = mappedPostData.filter((post) => {
+        return (
+          post?.postCaption.toLowerCase().includes(searchTermsFromSlice.toLowerCase()) ||
+          post?.User?.userName.toLowerCase().includes(searchTermsFromSlice.toLowerCase()) ||
+          post?.User?.userFullname.toLowerCase().includes(searchTermsFromSlice.toLowerCase()) ||
+          post?.User?.userEmail.toLowerCase().includes(searchTermsFromSlice.toLowerCase()) ||
+          post?.User?.userEmail.toLowerCase().includes(searchTermsFromSlice.toLowerCase()) ||
+          post?.status.toLowerCase().includes(searchTermsFromSlice.toLowerCase())
+        );
+      });
+      setPostsByUserIdMapped(newFilteredPostByUserId);
     }
 
     return () => {
       setPostsByUserIdMapped([]);
     };
-  }, [postsFromSliceByUserId]);
+  }, [postsFromSliceByUserId, searchTermsFromSlice]);
 
   useEffect(() => {
     getPostsAvailableByUserId(paramUserId, dispatch);
