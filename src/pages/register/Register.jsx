@@ -227,7 +227,11 @@ export default function Register() {
               }}
             />
 
-            <Link className="register-login-button" to="/login">
+            <Link
+              className="register-login-button"
+              to="/login"
+              onClick={() => dispatch(setIsClicked({ payload: false }))}
+            >
               Log In
             </Link>
           </div>

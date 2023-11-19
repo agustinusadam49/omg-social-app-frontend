@@ -196,11 +196,19 @@ export default function Login() {
               }
             />
 
-            <Link className="login-forgot-wrapper" to="/forgot-password">
+            <Link
+              className="login-forgot-wrapper"
+              to="/forgot-password"
+              onClick={() => dispatch(setIsClicked({ payload: false }))}
+            >
               <span className="login-forgot">Forgot Password?</span>
             </Link>
 
-            <Link className="login-register-button" to="/register">
+            <Link
+              className="login-register-button"
+              to="/register"
+              onClick={() => dispatch(setIsClicked({ payload: false }))}
+            >
               Create a New Account
             </Link>
           </div>

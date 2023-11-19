@@ -73,6 +73,10 @@
           justify-content: center;
           align-items: center;
 
+          &:hover {
+            background-color: #3f3bc0;
+          }
+
           &.loading {
             background-color: rgb(191, 190, 190);
             color: #2c2891;
@@ -137,6 +141,10 @@
           text-decoration: none;
           cursor: pointer;
           margin-top: 14px;
+
+          &:hover {
+            background-color: #30a119;
+          }
 
           @media only screen and (min-width: 1024px) {
             font-size: 20px;

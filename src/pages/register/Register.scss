@@ -73,6 +73,10 @@
           justify-content: center;
           align-items: center;
 
+          &:hover {
+            background-color: #3f3bc0;
+          }
+
           @media only screen and (min-width: 1024px) {
             height: 50px;
             padding: 10px 0;
@@ -116,6 +120,10 @@
           text-decoration: none;
           cursor: pointer;
           margin-top: 14px;
+
+          &:hover {
+            background-color: #30a119;
+          }
 
           @media only screen and (min-width: 1024px) {
             font-size: 20px;
