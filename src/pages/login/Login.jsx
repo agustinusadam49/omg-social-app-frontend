@@ -16,6 +16,9 @@ import RoundedLoader from "../../components/rounded-loader/RoundedLoader";
 import { useFormValidation } from "../../custom-hooks/useFormValidation";
 import { getFirstError } from "../../utils/formValidationFunction";
 import { setIsClicked } from "../../redux/slices/buttonsSlice";
+import LoginWrapper from "../../components/login-wrapper/LoginWrapper";
+import LoginRightSection from "../../components/login-right-section/LoginRightSection";
+import LoginBox from "../../components/login-box/LoginBox";
 
 import "./Login.scss";
 
@@ -159,11 +162,11 @@ export default function Login() {
 
   return (
     <div className="login">
-      <div className="login-wrapper">
+      <LoginWrapper>
         <LeftSideWording />
 
-        <div className="login-right">
-          <div className="login-box" onKeyPress={doLoginEnter}>
+        <LoginRightSection>
+          <LoginBox onKeyDown={doLoginEnter}>
             <InputTextGlobal
               value={email}
               onChange={(e) => handleOnChangeEmail(e.target.value)}
@@ -211,9 +214,9 @@ export default function Login() {
             >
               Create a New Account
             </Link>
-          </div>
-        </div>
-      </div>
+          </LoginBox>
+        </LoginRightSection>
+      </LoginWrapper>
     </div>
   );
 }

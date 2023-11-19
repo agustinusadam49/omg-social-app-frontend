@@ -19,6 +19,9 @@ import {
 import RoundedLoader from "../../components/rounded-loader/RoundedLoader";
 import { useFormValidation } from "../../custom-hooks/useFormValidation";
 import { setIsClicked } from "../../redux/slices/buttonsSlice";
+import RegisterWrapper from "../../components/register-wrapper/RegisterWrapper";
+import RegisterRightSection from "../../components/register-right-section/RegisterRightSection";
+import RegisterBox from "../../components/register-box/RegisterBox";
 
 import "./Register.scss";
 
@@ -169,11 +172,11 @@ export default function Register() {
 
   return (
     <div className="register">
-      <div className="register-wrapper">
+      <RegisterWrapper>
         <LeftSideWording />
 
-        <div className="register-right">
-          <div className="register-box" onKeyPress={doRegisterEnter}>
+        <RegisterRightSection>
+          <RegisterBox onKeyDown={doRegisterEnter}>
             <InputTextGlobal
               value={fullname}
               onChange={(e) => setFullname(e.target.value)}
@@ -234,9 +237,9 @@ export default function Register() {
             >
               Log In
             </Link>
-          </div>
-        </div>
-      </div>
+          </RegisterBox>
+        </RegisterRightSection>
+      </RegisterWrapper>
     </div>
   );
 }

@@ -1,6 +1,9 @@
 import React, { useEffect, useState, useMemo } from "react";
 import Leftbar from "../../components/leftbar/Leftbar";
 import Feed from "../../components/feed/Feed";
+import ProfileRightTop from "../../components/profile-right-top/ProfileRightTop";
+import ProfileRightBottom from "../../components/profile-right-bottom/ProfileRightBottom";
+import ProfileRightSection from "../../components/profile-right-section/ProfileRightSection";
 import RightbarProfile from "../../components/rightbar-profile/RightbarProfile";
 import { useSelector, useDispatch } from "react-redux";
 import { userInfoLogin } from "../../redux/apiCalls";
@@ -18,9 +21,15 @@ export default function Profile() {
   const userIdFromParamUrl = parseInt(userId);
 
   const currentUserIdFromSlice = useSelector((state) => state.user.userId);
-  const currentUserProfilePicFromSlice = useSelector((state) => state.user.userProfilePicture);
-  const currentUserAvatarFromSlice = useSelector((state) => state.user.userAvatarPicture);
-  const currentUserShortBioFromSlice = useSelector((state) => state.user.userBiodata);
+  const currentUserProfilePicFromSlice = useSelector(
+    (state) => state.user.userProfilePicture
+  );
+  const currentUserAvatarFromSlice = useSelector(
+    (state) => state.user.userAvatarPicture
+  );
+  const currentUserShortBioFromSlice = useSelector(
+    (state) => state.user.userBiodata
+  );
 
   const [userProfilePictureById, setUserProfilePictureById] = useState(null);
   const [userAvatarById, setUserAvatarById] = useState(null);
@@ -92,35 +101,20 @@ export default function Profile() {
   return (
     <div className="profile">
       {isDesktop && <Leftbar />}
-      <div className="profile-right">
-        <div className="profile-right-top">
-          <div className="profile-cover">
-            <img
-              className="profile-cover-img"
-              src={displayUserImageProfile}
-              alt="profile-cover"
-            />
-            <img
-              className="profile-user-avatar"
-              src={diplayUserImageAvatar}
-              alt="profile-avatar"
-            />
-          </div>
+      <ProfileRightSection>
+        <ProfileRightTop
+          displayUserImageProfile={displayUserImageProfile}
+          diplayUserImageAvatar={diplayUserImageAvatar}
+          username={username}
+          displayUserShortBio={displayUserShortBio}
+        />
 
-          <div className="profile-info">
-            <h4 className="profile-info-name">{username}</h4>
-            <div className="profile-info-desc">
-              {displayUserShortBio || "Hey there netizen of Omongin App!!"}
-            </div>
-          </div>
-        </div>
-
-        <div className="profile-right-bottom">
+        <ProfileRightBottom>
           {!isDesktop && <RightbarProfile userId={userId} />}
           <Feed profile userId={userId} username={username} />
           {isDesktop && <RightbarProfile userId={userId} />}
-        </div>
-      </div>
+        </ProfileRightBottom>
+      </ProfileRightSection>
     </div>
   );
 }

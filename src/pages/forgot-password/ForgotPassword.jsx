@@ -26,6 +26,9 @@ import { useNavigate } from "react-router-dom";
 import { useFormValidation } from "../../custom-hooks/useFormValidation";
 import { useDispatch } from "react-redux";
 import { setIsClicked } from "../../redux/slices/buttonsSlice";
+import ForgotPasswordWrapper from "../../components/forgot-password-wrapper/ForgotPasswordWrapper";
+import ForgotPasswordRightSection from "../../components/forgot-password-right-section/ForgotPasswordRightSection";
+import ForgotPasswordBox from "../../components/forgot-password-box/ForgotPasswordBox";
 
 import "./ForgotPassword.scss";
 
@@ -243,14 +246,11 @@ export default function ForgotPassword() {
 
   return (
     <div className="forgot-password">
-      <div className="forgot-password-wrapper">
+      <ForgotPasswordWrapper>
         <LeftSideWording />
 
-        <div className="forgot-password-right">
-          <div
-            className="forgot-password-box"
-            onKeyPress={handleChangePasswordWithEnter}
-          >
+        <ForgotPasswordRightSection>
+          <ForgotPasswordBox onKeyDown={handleChangePasswordWithEnter}>
             <InputTextGlobal
               value={email}
               onChange={(e) => handleOnChangeEmail(e.target.value)}
@@ -297,9 +297,9 @@ export default function ForgotPassword() {
                 <RoundedLoader baseColor="gray" secondaryColor="white" />
               </div>
             )}
-          </div>
-        </div>
-      </div>
+          </ForgotPasswordBox>
+        </ForgotPasswordRightSection>
+      </ForgotPasswordWrapper>
     </div>
   );
 }
