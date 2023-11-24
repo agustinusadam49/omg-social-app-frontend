@@ -20,7 +20,7 @@ export default function RightbarProfile({ userId }) {
   const currentUserFollowing = currentUserData.following;
 
   const [userProfile, setUserProfile] = useState(null);
-  const [userFolowingStatus, setUserFolowingStatus] = useState([])
+  const [userFolowingStatus, setUserFolowingStatus] = useState([]);
   const [userFollower, setUserFollower] = useState([]);
   const [userFollowing, setUserFollowing] = useState([]);
   const [mainUserData, setMainUserData] = useState(null);
@@ -96,7 +96,7 @@ export default function RightbarProfile({ userId }) {
       getUserById(idOfUserInParamUrl)
         .then((userById) => {
           const user = userById.data.userByIdData;
-          const followingWithProfileData = user.Follows
+          const followingWithProfileData = user.Follows;
           const follower = userById.data.userByIdFollower;
           const following = userById.data.userByIdFollowing;
           setUserProfile(user.Profile);
@@ -112,7 +112,7 @@ export default function RightbarProfile({ userId }) {
             }))
           );
           setUserFollowing(following);
-          setUserFolowingStatus(followingWithProfileData)
+          setUserFolowingStatus(followingWithProfileData);
           setEditSnap(false);
         })
         .catch((error) => {
@@ -130,6 +130,14 @@ export default function RightbarProfile({ userId }) {
       hitApiUserById(user_id);
     }
   }, [user_id, currentUserIdFromSlice, editSnap, dispatch]);
+
+  useEffect(() => {
+    if (isModalAvatarOpen || isModalProfileOpen) {
+      document.body.style.overflowY = "hidden";
+    } else {
+      document.body.style.overflowY = "scroll";
+    }
+  }, [isModalAvatarOpen, isModalProfileOpen]);
 
   return (
     <div className="rightbar-profile">

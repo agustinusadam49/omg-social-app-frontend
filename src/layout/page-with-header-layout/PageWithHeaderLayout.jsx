@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Outlet, Navigate, useLocation } from "react-router-dom";
 import Topbar from "../../components/navbar-header/Topbar";
 import MobileBottomNavigation from "../../components/mobile-bottom-navigation/MobileBottomNavigation";
@@ -22,6 +22,24 @@ export default function PageWithHeaderLayout() {
   const isUserOnlineModalOpen = useSelector((state) => state.user.isUserOnlineModalOpen);
   const isProfileMobileModalOpen = useSelector((state) => state.user.isUserProfileMobileOpen);
   const isModalPostEdit = useSelector((state) => state.posts.isPostModalEditOpen);
+
+  useEffect(() => {
+    if (
+      isModalPostEdit ||
+      isUserOnlineModalOpen ||
+      isUserSuggestionModalOpen ||
+      isProfileMobileModalOpen
+    ) {
+      document.body.style.overflowY = "hidden";
+    } else {
+      document.body.style.overflowY = "scroll";
+    }
+  }, [
+    isModalPostEdit,
+    isUserOnlineModalOpen,
+    isUserSuggestionModalOpen,
+    isProfileMobileModalOpen,
+  ]);
 
   if (isLoggedIn) {
     return (

@@ -15,3 +15,18 @@
     }
   }
 }
+
+.status-upload-and-post {
+  border: dashed 1px grey;
+  margin-top: 10px;
+  border-radius: 10px;
+  padding: 10px;
+
+  .wording-status-wrapper {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 4px;
+    margin-bottom: 10px;
+  }
+}
