@@ -5,13 +5,18 @@ import React, {
   useRef,
   useCallback,
   useMemo,
+  useReducer,
 } from "react";
+import { useSelector, useDispatch } from "react-redux";
 import {
   createNewPosting,
   uploadImagePosting,
 } from "../../apiCalls/postsApiFetch";
-import { useSelector, useDispatch } from "react-redux";
-import { setIsAddPosting } from "../../redux/slices/postsSlice";
+import {
+  setIsAddPosting,
+  setPostLoadItems,
+  setOpenLoadDataModal,
+} from "../../redux/slices/postsSlice";
 import ShareTopSection from "./share-top-section/ShareTopSection";
 import UploadProgessSection from "./upload-progress-section/UploadProgessSection";
 import FinishPostingStatus from "./finish-posting-status/FinishPostingStatus";
@@ -20,14 +25,19 @@ import SharePreviewImageSection from "./share-preview-image-section/SharePreview
 import ShareBottomSection from "./share-bottom-section/ShareBottomSection";
 import OptionStatus from "../option-status/OptionStatus";
 import { useAutomaticCloseMessageToast } from "../../utils/automaticCloseMessageToast";
-import RoundedLoader from "../rounded-loader/RoundedLoader";
 import { useToast } from "../../utils/useToast";
+import {
+  INITIAL_SHARE_STATE,
+  shareActionType,
+  shareReducer,
+} from "./share-reducer";
 
 import "./Share.scss";
 
 const Share = ({ userNameFromParam }) => {
   const dispatch = useDispatch();
   const toast = useToast();
+  const intervalToClosePostLoadModal = 4000;
 
   const currentUserNameFromSlice = useSelector((state) => state.user.userName);
 
@@ -37,52 +47,46 @@ const Share = ({ userNameFromParam }) => {
   const [fileImagePosting, setFileImagePosting] = useState(null);
   const [activeStatus, setActiveStatus] = useState("PUBLIC");
 
-  const [uploadPostPending, setUploadPostPending] = useState(false);
-  const [uploadPostLoading, setUploadPostLoading] = useState(false);
-  const [isUploadPostSuccess, setIsUploadPostSuccess] = useState(false);
+  const [shareState, mutate] = useReducer(shareReducer, INITIAL_SHARE_STATE);
 
-  const [uploadImagePending, setUploadImagePending] = useState(false);
-  const [uploadImageLoading, setUploadImageLoading] = useState(false);
-  const [isUploadImageSuccess, setIsUploadImageSuccess] = useState(false);
-
-  const [openLoadDataItems, setOpenLoadDataItems] = useState(false);
+  const openLoadDataModalSlice = useSelector(
+    ({ posts }) => posts.openLoadDataModal
+  );
 
   const loadItems = useMemo(() => {
     return [
       {
-        name: "Upload Posting",
-        pendingStatus: uploadPostPending,
-        loadingStatus: uploadPostLoading,
-        successStatus: isUploadPostSuccess,
-        isSkip: !!caption,
+        title: "Upload Caption",
+        pendingStatus: shareState.uploadPostPending,
+        loadingStatus: shareState.uploadPostLoading,
+        successStatus: shareState.isUploadPostSuccess,
+        isNotSkip: !!caption,
       },
       {
-        name: "Upload Image",
-        pendingStatus: uploadImagePending,
-        loadingStatus: uploadImageLoading,
-        successStatus: isUploadImageSuccess,
-        isSkip: !!fileImagePosting,
+        title: "Upload Image",
+        pendingStatus: shareState.uploadImagePending,
+        loadingStatus: shareState.uploadImageLoading,
+        successStatus: shareState.isUploadImageSuccess,
+        isNotSkip: !!fileImagePosting,
       },
     ];
   }, [
-    uploadPostPending,
-    uploadPostLoading,
-    isUploadPostSuccess,
     caption,
-    uploadImagePending,
-    uploadImageLoading,
-    isUploadImageSuccess,
     fileImagePosting,
+    shareState.uploadPostPending,
+    shareState.uploadPostLoading,
+    shareState.isUploadPostSuccess,
+    shareState.uploadImagePending,
+    shareState.uploadImageLoading,
+    shareState.isUploadImageSuccess,
   ]);
-
-  const [loadItemsState, setLoadItemsState] = useState(loadItems);
 
   useEffect(() => {
     const filteredLoadItems = loadItems
-      .filter((item) => item.isSkip)
+      .filter((item) => item.isNotSkip)
       .sort((a, b) => b.loadingStatus - a.loadingStatus);
-    setLoadItemsState(filteredLoadItems);
-  }, [loadItems]);
+    dispatch(setPostLoadItems({ payload: filteredLoadItems }));
+  }, [loadItems, dispatch]);
 
   const previewImagePostingRef = useRef(null);
 
@@ -104,35 +108,57 @@ const Share = ({ userNameFromParam }) => {
     setFileImagePosting(null);
   }, []);
 
+  const runPostPendingThenStopIt = async () => {
+    mutate({ type: shareActionType.RUN_POST_PENDING });
+
+    setTimeout(() => {
+      mutate({ type: shareActionType.STOP_POST_PENDING });
+    }, 2000);
+  };
+
+  const runImagePendingThenLoading = async () => {
+    mutate({ type: shareActionType.RUN_IMAGE_PENDING });
+    setTimeout(() => {
+      mutate({ type: shareActionType.RUN_IMAGE_LOADING });
+    }, 1500);
+  };
+
   const hitCreateNewPostApi = useCallback(
-    (payloadBodyObj) => {
-      setUploadPostLoading(true);
-      setUploadPostPending(false);
+    async (payloadBodyObj) => {
+      await runPostPendingThenStopIt();
+      mutate({ type: shareActionType.RUN_POST_LOADING });
       createNewPosting(payloadBodyObj)
         .then((postingResult) => {
           if (postingResult.data.success) {
-            setUploadPostLoading(false);
-            setIsUploadPostSuccess(true);
-            setCaption("");
-            setFileImagePosting(null);
+            mutate({ type: shareActionType.STOP_POST_LOADING_WHEN_SUCCESS });
+            previewImagePostingRef.current.value = null;
             dispatch(setIsAddPosting({ isSuccessPosting: true }));
             setFinishPostingStatus(true);
             setActiveStatus("PUBLIC");
-            setOpenLoadDataItems(false);
+
+            setTimeout(() => {
+              dispatch(setOpenLoadDataModal({ payload: false }));
+            }, intervalToClosePostLoadModal);
           }
         })
         .catch((error) => {
-          setUploadPostLoading(false);
+          previewImagePostingRef.current.value = null;
+          setFileImagePosting(null);
+          setCaption("");
+          mutate({ type: shareActionType.STOP_POST_LOADING });
           const errorMessageFromServer = error.response.data.errorMessage;
           console.error("errorMessageFromServer", errorMessageFromServer);
-          setOpenLoadDataItems(false);
+
+          setTimeout(() => {
+            dispatch(setOpenLoadDataModal({ payload: false }));
+          }, intervalToClosePostLoadModal);
         });
     },
     [dispatch]
   );
 
-  const doPosting = useCallback(() => {
-    setOpenLoadDataItems(true);
+  const doPosting = useCallback(async () => {
+    dispatch(setOpenLoadDataModal({ payload: true }));
     const CLOUDINARY_KEY = process.env.REACT_APP_CLOUDINARY_FORM_DATA_KEY;
 
     setFinishPostingStatus(false);
@@ -150,9 +176,8 @@ const Share = ({ userNameFromParam }) => {
     };
 
     if (fileImagePosting) {
-      setUploadImageLoading(true);
-      setUploadPostPending(true);
-      setUploadImagePending(false);
+      await runImagePendingThenLoading();
+      mutate({ type: shareActionType.RUN_POST_PENDING });
       const formData = new FormData();
       formData.append("file", fileImagePosting);
       formData.append("upload_preset", CLOUDINARY_KEY);
@@ -167,20 +192,22 @@ const Share = ({ userNameFromParam }) => {
         .then((response) => {
           const isSuccessGetUrl = !!response.data.secure_url;
           if (isSuccessGetUrl) {
+            previewImagePostingRef.current.value = null;
             newPostBody.postImageUrl = response.data.secure_url;
-            setUploadImageLoading(false);
-            setIsUploadImageSuccess(true);
+            mutate({ type: shareActionType.STOP_IMAGE_LOADING_WHEN_SUCCESS });
             hitCreateNewPostApi(newPostBody);
             setUploadProgress(0);
           }
         })
         .catch((error) => {
-          setUploadImageLoading(false);
-          console.error("upload image failed", error);
+          previewImagePostingRef.current.value = null;
+          setFileImagePosting(null);
+          mutate({ type: shareActionType.STOP_IMAGE_LOADING });
           setUploadProgress(0);
+          console.error("upload image failed", error);
         });
     } else {
-      setUploadImagePending(false);
+      mutate({ type: shareActionType.STOP_IMAGE_PENDING });
       hitCreateNewPostApi(newPostBody);
     }
   }, [
@@ -190,6 +217,7 @@ const Share = ({ userNameFromParam }) => {
     activeStatus,
     toast,
     hitCreateNewPostApi,
+    dispatch,
   ]);
 
   const doAddNewPostWithEnter = useCallback(
@@ -212,11 +240,13 @@ const Share = ({ userNameFromParam }) => {
   });
 
   useEffect(() => {
-    if (!openLoadDataItems) {
-      setIsUploadPostSuccess(false);
-      setIsUploadImageSuccess(false);
+    if (!openLoadDataModalSlice) {
+      previewImagePostingRef.current.value = null;
+      mutate({ type: shareActionType.STOP_POST_AND_IMAGE_SUCCESS });
+      setFileImagePosting(null);
+      setCaption("");
     }
-  }, [openLoadDataItems]);
+  }, [openLoadDataModalSlice]);
 
   return (
     <div className="share">
@@ -265,25 +295,6 @@ const Share = ({ userNameFromParam }) => {
           inputRef={previewImagePostingRef}
           uploadProgress={uploadProgress}
         />
-
-        {openLoadDataItems && (
-          <div className="status-upload-and-post">
-            {loadItemsState.map((item, idx) => (
-              <div className="wording-status-wrapper" key={idx}>
-                {item.pendingStatus && <div>Waiting</div>}
-                {item.loadingStatus && (
-                  <RoundedLoader
-                    baseColor="gray"
-                    secondaryColor="white"
-                    size={15}
-                  />
-                )}
-                {item.successStatus && <div>Success</div>}
-                <div>{item.name}</div>
-              </div>
-            ))}
-          </div>
-        )}
       </div>
     </div>
   );
