@@ -49,7 +49,6 @@ export default function Register() {
     setEmail("");
     setPassword("");
     setConfirmPassword("");
-    dispatch(setIsClicked({ payload: false }));
     mutate({ type: actionType.STOP_LOADING_STATUS });
   };
 
@@ -233,7 +232,6 @@ export default function Register() {
             <Link
               className="register-login-button"
               to="/login"
-              onClick={() => dispatch(setIsClicked({ payload: false }))}
             >
               Log In
             </Link>

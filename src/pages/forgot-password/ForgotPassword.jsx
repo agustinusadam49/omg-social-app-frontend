@@ -121,7 +121,6 @@ export default function ForgotPassword() {
       password: "",
       confirmPassword: "",
     });
-    dispatch(setIsClicked({ payload: false }));
   };
 
   const doChangePassword = () => {
@@ -169,7 +168,6 @@ export default function ForgotPassword() {
         .then((response) => {
           const success = response.data.success;
           if (success) {
-            dispatch(setIsClicked({ payload: false }));
             const userData = response.data.data;
             const userEmailFromResponse = userData.userEmail;
             localStorage.setItem(

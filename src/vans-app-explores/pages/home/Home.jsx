@@ -2,6 +2,8 @@ import React, { useState, useMemo } from "react";
 import { useFormValidation } from "../../../custom-hooks/useFormValidation";
 import InputTextGlobal from "../../../components/input-text-global/InputTextGlobal";
 import GlobalButton from "../../../components/button/GlobalButton";
+import { useDispatch } from "react-redux";
+import { setIsClicked } from "../../../redux/slices/buttonsSlice";
 
 import "./Home.scss";
 
@@ -12,15 +14,11 @@ const INITIAL_WHAT_YOU_GET = [
 ];
 
 export default function Home() {
+  const dispatch = useDispatch();
+
   const [whatYouGet, setWhatYouGet] = useState(INITIAL_WHAT_YOU_GET);
 
-  const [currentOption, setCurrentOption] = useState("otherOption")
-
-  const [benefitsOnBlur, setBenefitsOnBlur] = useState([
-    {
-      benefit: false,
-    },
-  ]);
+  const [currentOption, setCurrentOption] = useState("otherOption");
 
   const benefitFieldRules = useMemo(
     () => ({
@@ -36,34 +34,13 @@ export default function Home() {
     rulesSchema: benefitFieldRules,
   });
 
-  const handleSetBenefitValuesOnBlur = (value, index) => {
-    if (value) {
-      const newArr = benefitsOnBlur.map((item, benefitIdx) => {
-        if (benefitIdx === index) {
-          return {
-            ...item,
-            benefit: true,
-          };
-        } else {
-          return item;
-        }
-      });
-
-      setBenefitsOnBlur(newArr);
-    }
-  };
-
   const handleInputErrorMessageBenefit = (index) => {
-    return benefitsOnBlur[index].benefit
-      ? [errorMessage.benefit[index]].filter((item) => !!item)
-      : [];
+    return [errorMessage.benefit[index]].filter((item) => !!item);
   };
 
   const addWhatYouGet = () => {
     const newBenefitObj = { benefit: "" };
-    const newBenefitOnBlur = { benefit: false };
     setWhatYouGet((oldArray) => [...oldArray, newBenefitObj]);
-    setBenefitsOnBlur((oldArray) => [...oldArray, newBenefitOnBlur]);
   };
 
   const handleChange = (target) => {
@@ -83,19 +60,8 @@ export default function Home() {
     setWhatYouGet(newArr);
   };
 
-  const handleAllOnBlurToTrue = (boolVal) => {
-    const newArr = whatYouGet.map((item) => {
-      return {
-        ...item,
-        benefit: boolVal,
-      };
-    });
-
-    setBenefitsOnBlur(newArr);
-  };
-
   const submitBenefit = () => {
-    handleAllOnBlurToTrue(true);
+    dispatch(setIsClicked({ payload: true }));
     if (isValid) {
       const newArr = whatYouGet.map((item) => item.benefit);
       console.log("whatYouGet", newArr);
@@ -130,7 +96,6 @@ export default function Home() {
                   key={index}
                   value={item.benefit}
                   onChange={(e) => handleChange(e.target)}
-                  onBlur={(e) => handleSetBenefitValuesOnBlur(e.target.value, index)}
                   inputErrorMessage={handleInputErrorMessageBenefit(index)}
                   inputPlaceholder={"Masukkan Benefit"}
                   name={index}
@@ -161,7 +126,10 @@ export default function Home() {
         />
       </div>
 
-      <select value={currentOption} onChange={(e) => setCurrentOption(e.target.value)}>
+      <select
+        value={currentOption}
+        onChange={(e) => setCurrentOption(e.target.value)}
+      >
         <option value="someOption">Some option</option>
         <option value="otherOption">Other option</option>
       </select>

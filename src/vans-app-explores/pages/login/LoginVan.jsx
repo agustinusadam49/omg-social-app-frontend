@@ -11,10 +11,13 @@ import GlobalButton from "../../../components/button/GlobalButton";
 import RequiredLoginMessage from "../../components/required-login-message/RequiredLoginMessage";
 import { getFirstError } from "../../../utils/formValidationFunction";
 import { isAuth } from "../../van-utils/isAuth";
+import { useDispatch } from "react-redux";
+import { setIsClicked } from "../../../redux/slices/buttonsSlice";
 
 import "./LoginVan.scss";
 
 export default function LoginVan() {
+  const dispatch = useDispatch();
   const isUserAuth = isAuth();
   const navigate = useNavigate();
   const location = useLocation();
@@ -31,21 +34,12 @@ export default function LoginVan() {
     password: "",
   });
 
-  const [valuesOnBlur, setValuesOnBlur] = useState({
-    email: false,
-    password: false,
-  });
-
   const clearLoginField = () => {
     setEmail("");
     setPassword("");
     setSecondaryErrorObj({
       email: "",
       password: "",
-    });
-    setValuesOnBlur({
-      email: false,
-      password: false,
     });
   };
 
@@ -75,7 +69,7 @@ export default function LoginVan() {
   };
 
   const doLogin = () => {
-    handleAllOnBlurToTrue(true);
+    dispatch(setIsClicked({ payload: true }));
     setSecondaryErrorObj({
       email: "",
       password: "",
@@ -93,34 +87,14 @@ export default function LoginVan() {
     }
   };
 
-  const handleSetValuesOnBlur = (value, type) => {
-    if (value) {
-      setValuesOnBlur((oldObjVal) => ({
-        ...oldObjVal,
-        [type]: true,
-      }));
-    }
-  };
-
-  const handleAllOnBlurToTrue = (boolVal) => {
-    const onBlurObjKeys = Object.keys(valuesOnBlur);
-
-    for (let i = 0; i < onBlurObjKeys.length; i++) {
-      setValuesOnBlur((oldValObj) => ({
-        ...oldValObj,
-        [onBlurObjKeys[i]]: boolVal,
-      }));
-    }
-  };
-
   const handleInputErrorMessage = (type) => {
-    return valuesOnBlur[type] ? getFirstError(errorMessage[type]) : [];
+    return getFirstError(errorMessage[type]);
   };
 
   const handleOnChangeEmail = (val) => {
     setEmail(val);
 
-    if (secondaryErrorObj.email && (val || !val)) {
+    if (secondaryErrorObj.email) {
       setSecondaryErrorObj((oldObjVal) => ({
         ...oldObjVal,
         email: "",
@@ -131,7 +105,7 @@ export default function LoginVan() {
   const handleOnChangePassword = (val) => {
     setPassword(val);
 
-    if (secondaryErrorObj.password && (val || !val)) {
+    if (secondaryErrorObj.password) {
       setSecondaryErrorObj((oldObjVal) => ({
         ...oldObjVal,
         password: "",
@@ -155,7 +129,6 @@ export default function LoginVan() {
         <InputTextGlobal
           value={email}
           onChange={(e) => handleOnChangeEmail(e.target.value)}
-          onBlur={(e) => handleSetValuesOnBlur(e.target.value, "email")}
           inputPlaceholder={"Email"}
           inputErrorMessage={handleInputErrorMessage("email")}
           inputSecondErrorMessage={secondaryErrorObj.email}
@@ -164,7 +137,6 @@ export default function LoginVan() {
         <InputTextGlobal
           value={password}
           onChange={(e) => handleOnChangePassword(e.target.value)}
-          onBlur={(e) => handleSetValuesOnBlur(e.target.value, "password")}
           inputPlaceholder={"password"}
           inputType={"password"}
           inputErrorMessage={handleInputErrorMessage("password")}

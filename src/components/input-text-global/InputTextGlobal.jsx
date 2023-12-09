@@ -1,7 +1,9 @@
 import React, { Fragment, useState, useEffect } from "react";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
+import { setIsClicked } from "../../redux/slices/buttonsSlice";
+
 import "./InputTextGlobal.scss";
 
 const InputTextGlobal = ({
@@ -13,6 +15,7 @@ const InputTextGlobal = ({
   inputSecondErrorMessage = null,
   ...props
 }) => {
+  const dispatch = useDispatch();
   const currentIsClicked = useSelector(({ button }) => button.isClicked);
   const isDisabled = props?.disabled || false;
   const [seePassword, setSeePassword] = useState(false);
@@ -31,7 +34,11 @@ const InputTextGlobal = ({
     if (currentIsClicked) {
       setOnBlur(true);
     }
-  }, [currentIsClicked]);
+
+    return () => {
+      dispatch(setIsClicked({ payload: false }));
+    };
+  }, [currentIsClicked, dispatch]);
 
   const displayErrorMessages = () => {
     if (errorMessageState && errorMessageState.length) {

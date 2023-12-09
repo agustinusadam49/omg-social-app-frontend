@@ -44,7 +44,6 @@ const EditProfileModal = ({
 
   const closeModalEdit = (statusValue) => {
     closeModalEditProfile(statusValue);
-    dispatch(setIsClicked({ payload: false }));
   };
 
   const hitApiEditProfile = (idOfProfile, payloadData) => {

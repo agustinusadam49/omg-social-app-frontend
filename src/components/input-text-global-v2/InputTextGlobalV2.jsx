@@ -2,7 +2,8 @@ import React, { Fragment, useEffect, useState } from "react";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
 import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
+import { setIsClicked } from "../../redux/slices/buttonsSlice";
 
 import "./InputTextGlobalV2.scss";
 
@@ -20,24 +21,29 @@ const InputTextGlobal = ({
   inputSecondErrorMessage = null,
   ...props
 }) => {
-  const currentIsClicked = useSelector(({button}) => button.isClicked )
+  const dispatch = useDispatch();
+  const currentIsClicked = useSelector(({ button }) => button.isClicked);
   const [seePassword, setSeePassword] = useState(false);
   const [onBlur, setOnBlur] = useState(false);
-  const [errorMessageState, setErrorMessageState] = useState(null)
+  const [errorMessageState, setErrorMessageState] = useState(null);
 
   useEffect(() => {
     if (onBlur) {
-      setErrorMessageState(inputErrorMessage)
+      setErrorMessageState(inputErrorMessage);
     } else {
-      setErrorMessageState([])
+      setErrorMessageState([]);
     }
-  }, [onBlur, inputErrorMessage])
+  }, [onBlur, inputErrorMessage]);
 
   useEffect(() => {
     if (currentIsClicked) {
-      setOnBlur(true)
+      setOnBlur(true);
     }
-  }, [currentIsClicked])
+
+    return () => {
+      dispatch(setIsClicked({ payload: false }));
+    };
+  }, [currentIsClicked, dispatch]);
 
   const displayErrorMessages = () => {
     if (errorMessageState && errorMessageState.length) {
@@ -83,7 +89,9 @@ const InputTextGlobal = ({
   };
 
   const isErrorMessage = () => {
-    return errorMessageState && errorMessageState.length ? "if-error-message" : "";
+    return errorMessageState && errorMessageState.length
+      ? "if-error-message"
+      : "";
   };
 
   const additionalStyling = () => {
@@ -112,7 +120,7 @@ const InputTextGlobal = ({
     if (value) {
       setOnBlur(true);
     }
-  }
+  };
 
   const displayInputField = () => {
     if (inputType === "date") {

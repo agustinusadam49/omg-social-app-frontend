@@ -48,7 +48,6 @@ export default function Login() {
       email: "",
       password: "",
     });
-    dispatch(setIsClicked({ payload: false }));
     mutate({ type: actionType.STOP_LOADING_STATUS });
   };
 
@@ -202,7 +201,6 @@ export default function Login() {
             <Link
               className="login-forgot-wrapper"
               to="/forgot-password"
-              onClick={() => dispatch(setIsClicked({ payload: false }))}
             >
               <span className="login-forgot">Forgot Password?</span>
             </Link>
@@ -210,7 +208,6 @@ export default function Login() {
             <Link
               className="login-register-button"
               to="/register"
-              onClick={() => dispatch(setIsClicked({ payload: false }))}
             >
               Create a New Account
             </Link>
