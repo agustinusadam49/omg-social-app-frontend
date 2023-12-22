@@ -1,0 +1,49 @@
+.get-mentioned-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+  padding: 10px;
+  margin: 10px 0px 0px 0px;
+  background-color: wheat;
+  border-radius: 10px;
+
+  @media only screen and (min-width: 1024px) {
+    width: 500px;
+    margin: 10px auto 0px auto;
+    padding: 20px;
+  }
+
+  .get-mentioned-title {
+    font-size: 14px;
+    line-height: 20px;
+    font-weight: 500;
+    color: #2c2891;
+  }
+
+  .get-mentioned-box {
+    border-radius: 10px;
+    padding: 10px;
+    background-color: white;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    font-size: 12px;
+
+    .user-mentioned-item {
+      border: solid 1px rgb(215, 212, 212);
+      padding: 4px;
+      border-radius: 4px;
+      cursor: pointer;
+
+      &:hover {
+        background-color: rgb(143, 60, 143);
+        color: white;
+      }
+
+      &:active {
+        background-color: rgb(191, 109, 191);
+      }
+    }
+  }
+}

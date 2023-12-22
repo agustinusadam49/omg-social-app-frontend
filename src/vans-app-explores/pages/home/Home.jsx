@@ -1,79 +1,11 @@
-import React, { useState, useMemo } from "react";
-import { useFormValidation } from "../../../custom-hooks/useFormValidation";
-import InputTextGlobal from "../../../components/input-text-global/InputTextGlobal";
-import GlobalButton from "../../../components/button/GlobalButton";
-import { useDispatch } from "react-redux";
-import { setIsClicked } from "../../../redux/slices/buttonsSlice";
+import React from "react";
+import CommentSimulation from "./show-case/comment-simulation/CommentSimulation";
+import DynamicFieldsSimulation from "./show-case/dynamic-fields-simulation/DynamicFieldsSimulation";
+import UserMentionedSimulation from "./show-case/user-mentioned-simulation/UserMentionedSimulation";
 
 import "./Home.scss";
 
-const INITIAL_WHAT_YOU_GET = [
-  {
-    benefit: "",
-  },
-];
-
 export default function Home() {
-  const dispatch = useDispatch();
-
-  const [whatYouGet, setWhatYouGet] = useState(INITIAL_WHAT_YOU_GET);
-
-  const [currentOption, setCurrentOption] = useState("otherOption");
-
-  const benefitFieldRules = useMemo(
-    () => ({
-      benefit: whatYouGet.map((item) => ({
-        currentValue: item.benefit,
-        isRequired: true,
-      })),
-    }),
-    [whatYouGet]
-  );
-
-  const { isValid, errorMessage } = useFormValidation({
-    rulesSchema: benefitFieldRules,
-  });
-
-  const handleInputErrorMessageBenefit = (index) => {
-    return [errorMessage.benefit[index]].filter((item) => !!item);
-  };
-
-  const addWhatYouGet = () => {
-    const newBenefitObj = { benefit: "" };
-    setWhatYouGet((oldArray) => [...oldArray, newBenefitObj]);
-  };
-
-  const handleChange = (target) => {
-    const index = parseInt(target.name);
-
-    const newArr = whatYouGet.map((item, benefitIdx) => {
-      if (benefitIdx === index) {
-        return {
-          ...item,
-          benefit: target.value,
-        };
-      } else {
-        return item;
-      }
-    });
-
-    setWhatYouGet(newArr);
-  };
-
-  const submitBenefit = () => {
-    dispatch(setIsClicked({ payload: true }));
-    if (isValid) {
-      const newArr = whatYouGet.map((item) => item.benefit);
-      console.log("whatYouGet", newArr);
-    }
-  };
-
-  const deleteThisBenefit = (idxBenefit) => {
-    if (idxBenefit === 0 && whatYouGet.length < 2) return;
-    const newArr = whatYouGet.filter((_, idx) => idx !== idxBenefit);
-    setWhatYouGet(newArr);
-  };
-
   return (
     <div className="main-vans-home">
       <div className="main-vans-home-title">
@@ -87,54 +19,11 @@ export default function Home() {
         unde. Corporis in ullam quo quas.
       </p>
 
-      <div className="what-you-get-wrapper">
-        {whatYouGet.length &&
-          whatYouGet.map((item, index) => (
-            <div key={index} className="what-you-get-input-and-delete-wrapper">
-              <div className="input-benefit-wrapper">
-                <InputTextGlobal
-                  key={index}
-                  value={item.benefit}
-                  onChange={(e) => handleChange(e.target)}
-                  inputErrorMessage={handleInputErrorMessageBenefit(index)}
-                  inputPlaceholder={"Masukkan Benefit"}
-                  name={index}
-                />
-              </div>
+      <CommentSimulation />
 
-              <div
-                className={`delete-button ${
-                  whatYouGet.length < 2 ? "disabled" : ""
-                }`}
-                onClick={() => deleteThisBenefit(index)}
-              >
-                Hapus
-              </div>
-            </div>
-          ))}
+      <DynamicFieldsSimulation />
 
-        <GlobalButton
-          buttonLabel="Add What You Get"
-          classStyleName="login-button"
-          onClick={addWhatYouGet}
-        />
-
-        <GlobalButton
-          buttonLabel="Submit Benefit"
-          classStyleName="login-button"
-          onClick={submitBenefit}
-        />
-      </div>
-
-      <select
-        value={currentOption}
-        onChange={(e) => setCurrentOption(e.target.value)}
-      >
-        <option value="someOption">Some option</option>
-        <option value="otherOption">Other option</option>
-      </select>
-
-      <div>Current Option: {currentOption || "belum pilih"}</div>
+      <UserMentionedSimulation />
     </div>
   );
 }
