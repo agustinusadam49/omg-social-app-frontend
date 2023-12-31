@@ -37,6 +37,7 @@ export default function CommentSimulation() {
     if (isCommentValid) {
       const payload = {
         commentText: comment,
+        isDeleted: false,
         children: [],
       };
 
@@ -58,14 +59,16 @@ export default function CommentSimulation() {
       <div className="comment-title">Comment Feature Simulation</div>
       {!!commentList.length && (
         <>
-          {commentList.map((comment, commentIdx) => (
-            <CommentCard
-              key={`comment-item-key-${commentIdx}`}
-              className="comment-card"
-              commentItem={comment}
-              setCommentList={setCommentList}
-            />
-          ))}
+          {commentList
+            .filter((item) => !item.isDeleted)
+            .map((comment, commentIdx) => (
+              <CommentCard
+                key={`comment-item-key-${commentIdx}`}
+                className="comment-card"
+                commentItem={comment}
+                setCommentList={setCommentList}
+              />
+            ))}
         </>
       )}
 
