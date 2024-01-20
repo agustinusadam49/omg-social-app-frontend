@@ -34,6 +34,8 @@ import {
 
 import "./Share.scss";
 
+const CAPTION_REQUIRED_MESSAGE = "Minimal Caption harus terisi!";
+
 const Share = ({ userNameFromParam }) => {
   const dispatch = useDispatch();
   const toast = useToast();
@@ -158,14 +160,13 @@ const Share = ({ userNameFromParam }) => {
   );
 
   const doPosting = useCallback(async () => {
-    dispatch(setOpenLoadDataModal({ payload: true }));
-    const CLOUDINARY_KEY = process.env.REACT_APP_CLOUDINARY_FORM_DATA_KEY;
+    if (!caption) return toast.error(CAPTION_REQUIRED_MESSAGE);
 
     setFinishPostingStatus(false);
-    if (!caption) {
-      toast.error("Minimal Caption harus terisi!");
-      return;
-    }
+
+    dispatch(setOpenLoadDataModal({ payload: true }));
+
+    const CLOUDINARY_KEY = process.env.REACT_APP_CLOUDINARY_FORM_DATA_KEY;
 
     toast.closeError();
 
