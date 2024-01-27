@@ -23,12 +23,17 @@ import {
   changeForgotPassword,
 } from "../../apiCalls/forgotPassword";
 import { useNavigate } from "react-router-dom";
-// import { useRedirectToHome } from "../../custom-hooks/useRedirectToHome";
 import { useFormValidation } from "../../custom-hooks/useFormValidation";
+import { useDispatch } from "react-redux";
+import { setIsClicked } from "../../redux/slices/buttonsSlice";
+import ForgotPasswordWrapper from "../../components/forgot-password-wrapper/ForgotPasswordWrapper";
+import ForgotPasswordRightSection from "../../components/forgot-password-right-section/ForgotPasswordRightSection";
+import ForgotPasswordBox from "../../components/forgot-password-box/ForgotPasswordBox";
 
 import "./ForgotPassword.scss";
 
 export default function ForgotPassword() {
+  const dispatch = useDispatch();
   const [loadingState, mutate] = useReducer(
     loadingReducer,
     INITIAL_LOADING_STATE
@@ -46,12 +51,6 @@ export default function ForgotPassword() {
     email: "",
     password: "",
     confirmPassword: "",
-  });
-
-  const [valuesOnBlur, setValuesOnBlur] = useState({
-    email: false,
-    password: false,
-    confirmPassword: false,
   });
 
   const checkEmailRules = useMemo(
@@ -122,15 +121,10 @@ export default function ForgotPassword() {
       password: "",
       confirmPassword: "",
     });
-    setValuesOnBlur({
-      email: false,
-      password: false,
-      confirmPassword: false,
-    });
   };
 
   const doChangePassword = () => {
-    handleAllOnBlurToTrue(true);
+    dispatch(setIsClicked({ payload: true }));
 
     if (loadingState.status) return;
 
@@ -159,7 +153,7 @@ export default function ForgotPassword() {
   };
 
   const doEmailCheck = () => {
-    handleAllOnBlurToTrue(true);
+    dispatch(setIsClicked({ payload: true }));
 
     if (loadingState.status) return;
 
@@ -229,42 +223,18 @@ export default function ForgotPassword() {
     };
   }, []);
 
-  // useRedirectToHome({
-  //   isFromNonAuthPage: false,
-  // });
-
-  const handleSetValuesOnBlur = (value, type) => {
-    if (value) {
-      setValuesOnBlur((oldObjVal) => ({
-        ...oldObjVal,
-        [type]: true,
-      }));
-    }
-  };
-
   const handleInputErrorMessage = (type) => {
-    return valuesOnBlur[type] ? getFirstError(errorMessage[type]) : [];
+    return getFirstError(errorMessage[type]);
   };
 
   const handleInputErrorMessagePassword = (type) => {
-    return valuesOnBlur[type] ? getFirstError(errorMessagePassword[type]) : [];
-  };
-
-  const handleAllOnBlurToTrue = (boolVal) => {
-    const onBlurObjKeys = Object.keys(valuesOnBlur);
-
-    for (let i = 0; i < onBlurObjKeys.length; i++) {
-      setValuesOnBlur((oldValObj) => ({
-        ...oldValObj,
-        [onBlurObjKeys[i]]: boolVal,
-      }));
-    }
+    return getFirstError(errorMessagePassword[type]);
   };
 
   const handleOnChangeEmail = (val) => {
     setEmail(val);
 
-    if (secondaryErrorObj.email && (val || !val)) {
+    if (secondaryErrorObj.email) {
       setSecondaryErrorObj((oldObjVal) => ({
         ...oldObjVal,
         email: "",
@@ -274,18 +244,14 @@ export default function ForgotPassword() {
 
   return (
     <div className="forgot-password">
-      <div className="forgot-password-wrapper">
+      <ForgotPasswordWrapper>
         <LeftSideWording />
 
-        <div className="forgot-password-right">
-          <div
-            className="forgot-password-box"
-            onKeyPress={handleChangePasswordWithEnter}
-          >
+        <ForgotPasswordRightSection>
+          <ForgotPasswordBox onKeyDown={handleChangePasswordWithEnter}>
             <InputTextGlobal
               value={email}
               onChange={(e) => handleOnChangeEmail(e.target.value)}
-              onBlur={(e) => handleSetValuesOnBlur(e.target.value, "email")}
               inputPlaceholder={"Masukan Email"}
               inputErrorMessage={handleInputErrorMessage("email")}
               inputSecondErrorMessage={secondaryErrorObj.email}
@@ -297,9 +263,6 @@ export default function ForgotPassword() {
                 <InputTextGlobal
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  onBlur={(e) =>
-                    handleSetValuesOnBlur(e.target.value, "password")
-                  }
                   inputPlaceholder={"New Password"}
                   inputType={"password"}
                   inputErrorMessage={handleInputErrorMessagePassword(
@@ -310,9 +273,6 @@ export default function ForgotPassword() {
                 <InputTextGlobal
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
-                  onBlur={(e) =>
-                    handleSetValuesOnBlur(e.target.value, "confirmPassword")
-                  }
                   inputPlaceholder={"New Password Confirmation"}
                   inputType={"password"}
                   inputErrorMessage={handleInputErrorMessagePassword(
@@ -335,9 +295,9 @@ export default function ForgotPassword() {
                 <RoundedLoader baseColor="gray" secondaryColor="white" />
               </div>
             )}
-          </div>
-        </div>
-      </div>
+          </ForgotPasswordBox>
+        </ForgotPasswordRightSection>
+      </ForgotPasswordWrapper>
     </div>
   );
 }

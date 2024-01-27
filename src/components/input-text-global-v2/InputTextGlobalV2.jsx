@@ -1,7 +1,10 @@
-import React, { Fragment, useState } from "react";
+import React, { Fragment, useEffect, useState } from "react";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
 import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
+import { useSelector, useDispatch } from "react-redux";
+import { setIsClicked } from "../../redux/slices/buttonsSlice";
+
 import "./InputTextGlobalV2.scss";
 
 // This input text global v2 component using value and onchange,
@@ -18,11 +21,33 @@ const InputTextGlobal = ({
   inputSecondErrorMessage = null,
   ...props
 }) => {
+  const dispatch = useDispatch();
+  const currentIsClicked = useSelector(({ button }) => button.isClicked);
   const [seePassword, setSeePassword] = useState(false);
+  const [onBlur, setOnBlur] = useState(false);
+  const [errorMessageState, setErrorMessageState] = useState(null);
+
+  useEffect(() => {
+    if (onBlur) {
+      setErrorMessageState(inputErrorMessage);
+    } else {
+      setErrorMessageState([]);
+    }
+  }, [onBlur, inputErrorMessage]);
+
+  useEffect(() => {
+    if (currentIsClicked) {
+      setOnBlur(true);
+    }
+
+    return () => {
+      dispatch(setIsClicked({ payload: false }));
+    };
+  }, [currentIsClicked, dispatch]);
 
   const displayErrorMessages = () => {
-    if (inputErrorMessage.length) {
-      return <div className="inputErrorMessage">{inputErrorMessage}</div>;
+    if (errorMessageState && errorMessageState.length) {
+      return <div className="inputErrorMessage">{errorMessageState}</div>;
     }
   };
 
@@ -55,12 +80,18 @@ const InputTextGlobal = ({
 
   const displayLabel = () => {
     if (inputLabel) {
-      return <label className={`input-label-text-global ${isErrorMessage()}`}>{inputLabel}</label>;
+      return (
+        <label className={`input-label-text-global ${isErrorMessage()}`}>
+          {inputLabel}
+        </label>
+      );
     }
   };
 
   const isErrorMessage = () => {
-    return inputErrorMessage.length ? "if-error-message" : "";
+    return errorMessageState && errorMessageState.length
+      ? "if-error-message"
+      : "";
   };
 
   const additionalStyling = () => {
@@ -85,28 +116,34 @@ const InputTextGlobal = ({
     return `input-date-type-wrapper ${allMergedAdditionalStyling()}`;
   };
 
+  const handleChangeOnBlur = (value) => {
+    if (value) {
+      setOnBlur(true);
+    }
+  };
+
   const displayInputField = () => {
     if (inputType === "date") {
       return (
         <div className={styleForWrapperInputDate()}>
           <label htmlFor="date-icon" className="input-tag-date-icon-wrapper">
-            <CalendarMonthIcon className={`calendar-month-icon ${isErrorMessage()}`} />
+            <CalendarMonthIcon
+              className={`calendar-month-icon ${isErrorMessage()}`}
+            />
             <input
               id="date-icon"
-              value={inputValue}
-              onChange={(e) => setInputValue(e.target.value)}
               className="input-tag-date-icon"
               type={!seePassword ? inputType : "text"}
+              onBlur={(e) => handleChangeOnBlur(e.target.value)}
               {...props}
             />
           </label>
 
           <input
-            value={inputValue}
-            onChange={(e) => setInputValue(e.target.value)}
             placeholder={inputPlaceholder}
             className={styleForInputTag()}
             type={!seePassword ? inputType : "text"}
+            onBlur={(e) => handleChangeOnBlur(e.target.value)}
             {...props}
           />
         </div>
@@ -115,11 +152,10 @@ const InputTextGlobal = ({
 
     return (
       <input
-        value={inputValue}
-        onChange={(e) => setInputValue(e.target.value)}
         placeholder={inputPlaceholder}
         className={styleForInputTag()}
         type={!seePassword ? inputType : "text"}
+        onBlur={(e) => handleChangeOnBlur(e.target.value)}
         {...props}
       />
     );

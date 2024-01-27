@@ -15,6 +15,10 @@ import {
 import RoundedLoader from "../../components/rounded-loader/RoundedLoader";
 import { useFormValidation } from "../../custom-hooks/useFormValidation";
 import { getFirstError } from "../../utils/formValidationFunction";
+import { setIsClicked } from "../../redux/slices/buttonsSlice";
+import LoginWrapper from "../../components/login-wrapper/LoginWrapper";
+import LoginRightSection from "../../components/login-right-section/LoginRightSection";
+import LoginBox from "../../components/login-box/LoginBox";
 
 import "./Login.scss";
 
@@ -37,21 +41,12 @@ export default function Login() {
     password: "",
   });
 
-  const [valuesOnBlur, setValuesOnBlur] = useState({
-    email: false,
-    password: false,
-  });
-
   const clearLoginField = () => {
     setEmail("");
     setPassword("");
     setSecondaryErrorObj({
       email: "",
       password: "",
-    });
-    setValuesOnBlur({
-      email: false,
-      password: false,
     });
     mutate({ type: actionType.STOP_LOADING_STATUS });
   };
@@ -75,7 +70,7 @@ export default function Login() {
   });
 
   const doLogin = () => {
-    handleAllOnBlurToTrue(true);
+    dispatch(setIsClicked({ payload: true }));
     setSecondaryErrorObj({
       email: "",
       password: "",
@@ -138,34 +133,14 @@ export default function Login() {
     }
   };
 
-  const handleSetValuesOnBlur = (value, type) => {
-    if (value) {
-      setValuesOnBlur((oldObjVal) => ({
-        ...oldObjVal,
-        [type]: true,
-      }));
-    }
-  };
-
-  const handleAllOnBlurToTrue = (boolVal) => {
-    const onBlurObjKeys = Object.keys(valuesOnBlur);
-
-    for (let i = 0; i < onBlurObjKeys.length; i++) {
-      setValuesOnBlur((oldValObj) => ({
-        ...oldValObj,
-        [onBlurObjKeys[i]]: boolVal,
-      }));
-    }
-  };
-
   const handleInputErrorMessage = (type) => {
-    return valuesOnBlur[type] ? getFirstError(errorMessage[type]) : [];
+    return getFirstError(errorMessage[type]);
   };
 
   const handleOnChangeEmail = (val) => {
     setEmail(val);
 
-    if (secondaryErrorObj.email && (val || !val)) {
+    if (secondaryErrorObj.email) {
       setSecondaryErrorObj((oldObjVal) => ({
         ...oldObjVal,
         email: "",
@@ -176,7 +151,7 @@ export default function Login() {
   const handleOnChangePassword = (val) => {
     setPassword(val);
 
-    if (secondaryErrorObj.password && (val || !val)) {
+    if (secondaryErrorObj.password) {
       setSecondaryErrorObj((oldObjVal) => ({
         ...oldObjVal,
         password: "",
@@ -186,15 +161,14 @@ export default function Login() {
 
   return (
     <div className="login">
-      <div className="login-wrapper">
+      <LoginWrapper>
         <LeftSideWording />
 
-        <div className="login-right">
-          <div className="login-box" onKeyPress={doLoginEnter}>
+        <LoginRightSection>
+          <LoginBox onKeyDown={doLoginEnter}>
             <InputTextGlobal
               value={email}
               onChange={(e) => handleOnChangeEmail(e.target.value)}
-              onBlur={(e) => handleSetValuesOnBlur(e.target.value, "email")}
               inputPlaceholder={"Email"}
               inputErrorMessage={handleInputErrorMessage("email")}
               inputSecondErrorMessage={secondaryErrorObj.email}
@@ -203,7 +177,6 @@ export default function Login() {
             <InputTextGlobal
               value={password}
               onChange={(e) => handleOnChangePassword(e.target.value)}
-              onBlur={(e) => handleSetValuesOnBlur(e.target.value, "password")}
               inputPlaceholder={"password"}
               inputType={"password"}
               inputErrorMessage={handleInputErrorMessage("password")}
@@ -225,16 +198,22 @@ export default function Login() {
               }
             />
 
-            <Link className="login-forgot-wrapper" to="/forgot-password">
+            <Link
+              className="login-forgot-wrapper"
+              to="/forgot-password"
+            >
               <span className="login-forgot">Forgot Password?</span>
             </Link>
 
-            <Link className="login-register-button" to="/register">
+            <Link
+              className="login-register-button"
+              to="/register"
+            >
               Create a New Account
             </Link>
-          </div>
-        </div>
-      </div>
+          </LoginBox>
+        </LoginRightSection>
+      </LoginWrapper>
     </div>
   );
 }

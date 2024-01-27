@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Outlet, Navigate, useLocation } from "react-router-dom";
 import Topbar from "../../components/navbar-header/Topbar";
 import MobileBottomNavigation from "../../components/mobile-bottom-navigation/MobileBottomNavigation";
@@ -6,6 +6,7 @@ import UserSuggestionModal from "../../components/user-suggestion-modal/UserSugg
 import UserOnlineInfoModal from "../../components/user-online-info-modal/UserOnlineInfoModal";
 import ProfileModalMobile from "../../components/profile-modal-mobile/ProfileModalMobile";
 import PostModalEdit from "../../components/post-modal-edit/PostModalEdit";
+import PostLoadDataModal from "../../components/post-load-data-modal/PostLoadDataModal";
 import { useScreenWidth } from "../../utils/screenWidth";
 import { useSelector } from "react-redux";
 import { accessToken } from "../../utils/getLocalStorage";
@@ -22,6 +23,27 @@ export default function PageWithHeaderLayout() {
   const isUserOnlineModalOpen = useSelector((state) => state.user.isUserOnlineModalOpen);
   const isProfileMobileModalOpen = useSelector((state) => state.user.isUserProfileMobileOpen);
   const isModalPostEdit = useSelector((state) => state.posts.isPostModalEditOpen);
+  const isPostLoadDataModal = useSelector(({ posts }) => posts.openLoadDataModal);
+
+  useEffect(() => {
+    if (
+      isModalPostEdit ||
+      isUserOnlineModalOpen ||
+      isUserSuggestionModalOpen ||
+      isProfileMobileModalOpen ||
+      isPostLoadDataModal
+    ) {
+      document.body.style.overflowY = "hidden";
+    } else {
+      document.body.style.overflowY = "scroll";
+    }
+  }, [
+    isModalPostEdit,
+    isUserOnlineModalOpen,
+    isUserSuggestionModalOpen,
+    isProfileMobileModalOpen,
+    isPostLoadDataModal,
+  ]);
 
   if (isLoggedIn) {
     return (
@@ -29,6 +51,7 @@ export default function PageWithHeaderLayout() {
         <Topbar />
         <Outlet />
         {isModalPostEdit && <PostModalEdit />}
+        {isPostLoadDataModal && <PostLoadDataModal />}
         {isMobile && isUserOnlineModalOpen && <UserOnlineInfoModal />}
         {isMobile && isUserSuggestionModalOpen && <UserSuggestionModal />}
         {isMobile && isProfileMobileModalOpen && <ProfileModalMobile />}

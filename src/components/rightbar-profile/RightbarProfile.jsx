@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import EditProfileModal from "../edit-profile-modal/EditProfileModal";
+import EditAvatarModal from "../edit-avatar-modal/EditAvatarModal";
 import { userInfoLogin, getAllUsersRegistered } from "../../redux/apiCalls";
 import { useSelector, useDispatch } from "react-redux";
 import { getUserById } from "../../apiCalls/registerAndLoginApiFetch";
@@ -16,14 +17,17 @@ export default function RightbarProfile({ userId }) {
   const currentUserIdFromSlice = useSelector((state) => state.user.userId);
   const currentUserData = useSelector((state) => state.user.currentUsers);
   const currentUserFollower = currentUserData.followers;
+  const currentUserFollowing = currentUserData.following;
 
   const [userProfile, setUserProfile] = useState(null);
+  const [userFolowingStatus, setUserFolowingStatus] = useState([]);
   const [userFollower, setUserFollower] = useState([]);
   const [userFollowing, setUserFollowing] = useState([]);
   const [mainUserData, setMainUserData] = useState(null);
   const [editSnap, setEditSnap] = useState(false);
   const [userFollowerTotal, setUserFollowerTotal] = useState([]);
   const [myFollower, setMyFollower] = useState([]);
+  const [myFollowing, setMyFollowing] = useState([]);
   const [isModalProfileOpen, setIsModalProfileOpen] = useState(false);
   const [isModalAvatarOpen, setIsModalAvatarOpen] = useState(false);
 
@@ -71,16 +75,28 @@ export default function RightbarProfile({ userId }) {
       );
     }
 
+    if (currentUserFollowing) {
+      setMyFollowing(
+        currentUserFollowing.map((user) => ({
+          id: user.id,
+          username: user.userName,
+          avatarUrl: user.Profile.avatarUrl,
+        }))
+      );
+    }
+
     return () => {
       setMyFollower([]);
+      setMyFollowing([]);
     };
-  }, [currentUserFollower]);
+  }, [currentUserFollower, currentUserFollowing]);
 
   useEffect(() => {
     const hitApiUserById = (idOfUserInParamUrl) => {
       getUserById(idOfUserInParamUrl)
         .then((userById) => {
           const user = userById.data.userByIdData;
+          const followingWithProfileData = user.Follows;
           const follower = userById.data.userByIdFollower;
           const following = userById.data.userByIdFollowing;
           setUserProfile(user.Profile);
@@ -96,6 +112,7 @@ export default function RightbarProfile({ userId }) {
             }))
           );
           setUserFollowing(following);
+          setUserFolowingStatus(followingWithProfileData);
           setEditSnap(false);
         })
         .catch((error) => {
@@ -114,6 +131,14 @@ export default function RightbarProfile({ userId }) {
     }
   }, [user_id, currentUserIdFromSlice, editSnap, dispatch]);
 
+  useEffect(() => {
+    if (isModalAvatarOpen || isModalProfileOpen) {
+      document.body.style.overflowY = "hidden";
+    } else {
+      document.body.style.overflowY = "scroll";
+    }
+  }, [isModalAvatarOpen, isModalProfileOpen]);
+
   return (
     <div className="rightbar-profile">
       <div className="rightbar-profile-wrapper">
@@ -126,6 +151,7 @@ export default function RightbarProfile({ userId }) {
             userProfile={userProfile}
             userFollowerTotal={userFollowerTotal}
             userFollowing={userFollowing}
+            userFollowingForCheckStatus={userFolowingStatus}
             editSnap={editSnap}
             setEditSnap={setEditSnap}
             openModalEditAvatarAndCoverUrl={openModalEditAvatarAndCoverUrl}
@@ -140,29 +166,45 @@ export default function RightbarProfile({ userId }) {
           />
         )}
 
+        {!!userFollowing.length && currentUserIdFromSlice !== user_id && (
+          <RightbarFollowingSection
+            title={`${mainUserData.userName}'s Followings`}
+            followers={userFollowing.map((user) => ({
+              id: user.id,
+              username: user.userName,
+              avatarUrl: user.Profile.avatarUrl,
+            }))}
+          />
+        )}
+
         {!!myFollower.length && currentUserIdFromSlice === user_id && (
           <RightbarFollowingSection
             title="Your Followers"
             followers={myFollower}
           />
         )}
+
+        {!!myFollowing.length && currentUserIdFromSlice === user_id && (
+          <RightbarFollowingSection
+            title="Your Following"
+            followers={myFollowing}
+          />
+        )}
       </div>
+
+      {isModalAvatarOpen && (
+        <EditAvatarModal
+          userProfileData={userProfile}
+          closeModalEditProfile={closeModalEditAvatarAndCoverUrl}
+          doSnapForEditProfile={doSnapForEditProfile}
+        />
+      )}
 
       {isModalProfileOpen && (
         <EditProfileModal
           userProfileData={userProfile}
           closeModalEditProfile={closeModalEditProfile}
           doSnapForEditProfile={doSnapForEditProfile}
-          modalActive={"edit-profile"}
-        />
-      )}
-
-      {isModalAvatarOpen && (
-        <EditProfileModal
-          userProfileData={userProfile}
-          closeModalEditProfile={closeModalEditAvatarAndCoverUrl}
-          doSnapForEditProfile={doSnapForEditProfile}
-          modalActive={"edit-avatar-and-cover-url"}
         />
       )}
     </div>

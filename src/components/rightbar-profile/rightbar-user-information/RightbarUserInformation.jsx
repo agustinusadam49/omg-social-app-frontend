@@ -54,6 +54,7 @@ export default function RightbarUserInformation({
   userProfile,
   userFollowerTotal,
   userFollowing,
+  userFollowingForCheckStatus,
   editSnap,
   setEditSnap,
   openModalEditAvatarAndCoverUrl,
@@ -169,8 +170,8 @@ export default function RightbarUserInformation({
 
   const getCurrentUserFollowedBy = () => {
     let result = [];
-    if (userFollowing && userFollowing.length) {
-      result = userFollowing.filter(
+    if (userFollowingForCheckStatus && userFollowingForCheckStatus.length) {
+      result = userFollowingForCheckStatus.filter(
         (user) => user.ProfileId === currentUserIdFromSlice
       );
     }

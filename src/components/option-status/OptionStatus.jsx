@@ -7,6 +7,19 @@ import OptionStatusItem from "./option-status-item/OptionStatusItem";
 import OptionStatusName from "./option-status-name/OptionStatusName";
 import OptionStatusDescription from "./option-status-description/OptionStatusDescription";
 
+const STATUS_OPTIONS_ENUM = {
+  PUBLIC: "PUBLIC",
+  PRIVATE: "PRIVATE",
+  FOLLOWERS_ONLY: "FOLLOWERS_ONLY",
+};
+
+const STATUS_OPTIONS_DESCRIPTION_ENUM = {
+  PUBLIC: "Semua orang dapat melihat postingan mu.",
+  PRIVATE: "Hanya kamu yang dapat melihat postingan ini.",
+  FOLLOWERS_ONLY:
+    "Hanya kamu dan followers mu yang dapat melihat postingan ini.",
+};
+
 export default function OptionStatusSection({ setActiveStatus, activeStatus }) {
   const dispatch = useDispatch();
 
@@ -19,19 +32,18 @@ export default function OptionStatusSection({ setActiveStatus, activeStatus }) {
   const shareOptionStatus = useMemo(() => {
     let statusOptions = [
       {
-        name: "PUBLIC",
-        description: "Semua orang dapat melihat postingan mu.",
+        name: STATUS_OPTIONS_ENUM.PUBLIC,
+        description: STATUS_OPTIONS_DESCRIPTION_ENUM.PUBLIC,
       },
       {
-        name: "PRIVATE",
-        description: "Hanya kamu yang dapat melihat postingan ini.",
+        name: STATUS_OPTIONS_ENUM.PRIVATE,
+        description: STATUS_OPTIONS_DESCRIPTION_ENUM.PRIVATE,
       },
     ];
 
     let followersOnlyStatus = {
-      name: "FOLLOWERS_ONLY",
-      description:
-        "Hanya kamu dan followers mu yang dapat melihat postingan ini.",
+      name: STATUS_OPTIONS_ENUM.FOLLOWERS_ONLY,
+      description: STATUS_OPTIONS_DESCRIPTION_ENUM.FOLLOWERS_ONLY,
     };
 
     if (currentUserLoginFollowers.length) {
@@ -42,13 +54,10 @@ export default function OptionStatusSection({ setActiveStatus, activeStatus }) {
   }, [currentUserLoginFollowers]);
 
   const getStatus = (statusFromResponse) => {
-    const POST_STATUS_ENUM = {
-      PUBLIC: "Public",
-      PRIVATE: "Private",
-      FOLLOWERS_ONLY: "Followers Only",
-    };
-
-    return POST_STATUS_ENUM[statusFromResponse];
+    return STATUS_OPTIONS_ENUM[statusFromResponse]
+      .split("_")
+      .map((status) => status[0] + status.substring(1).toLowerCase())
+      .join(" ");
   };
 
   const toggleActiveStatus = (status) => {

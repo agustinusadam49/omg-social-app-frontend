@@ -1,0 +1,23 @@
+.comment-parent-wrapper {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  padding: 10px;
+  margin: 10px 0px 0px 0px;
+  background-color: wheat;
+  border-radius: 10px;
+
+  @media only screen and (min-width: 1024px) {
+    width: 500px;
+    margin: 10px auto 0px auto;
+    padding: 20px;
+  }
+
+  .comment-title {
+    font-size: 14px;
+    line-height: 20px;
+    font-weight: 500;
+    margin-bottom: 10px;
+    color: #2c2891;
+  }
+}

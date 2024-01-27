@@ -1,21 +1,28 @@
-import React, { useState, Fragment } from "react";
-import CancelIcon from "@mui/icons-material/Cancel";
-import { formValidation } from "../../utils/formValidationFunction";
+import React, { useState, Fragment, useMemo } from "react";
 import { updateProfileById } from "../../apiCalls/profileApiFetch";
-import { uploadImagePosting } from "../../apiCalls/postsApiFetch";
 import InputTextGlobalV2 from "../input-text-global-v2/InputTextGlobalV2";
 import GlobalButton from "../button/GlobalButton";
+import EditProfileModalWrapper from "../edit-profile-modal-wrapper/EditProfileModalWrapper";
+import TopContent from "../edit-profile-modal-wrapper/top-content/TopContent";
+import MiddleContent from "../edit-profile-modal-wrapper/middle-content/MiddleContent";
+import BottomContent from "../edit-profile-modal-wrapper/bottom-content/BottomContent";
+import {
+  getFirstError,
+  helpersWithMessage,
+} from "../../utils/formValidationFunction";
+import { useFormValidation } from "../../custom-hooks/useFormValidation";
+import { useDispatch } from "react-redux";
+import { setIsClicked } from "../../redux/slices/buttonsSlice";
+
 import "./EditProfileModal.scss";
 
 const EditProfileModal = ({
   closeModalEditProfile,
   userProfileData,
   doSnapForEditProfile,
-  modalActive,
 }) => {
+  const dispatch = useDispatch();
   const profileId = userProfileData.id;
-  const avatarUrl = userProfileData.avatarUrl;
-  const profileCover = userProfileData.profileCoverUrl;
 
   const [biodata, setBiodata] = useState(userProfileData.biodata || "");
   const [addressData, setAddressData] = useState(userProfileData.address || "");
@@ -34,35 +41,6 @@ const EditProfileModal = ({
   const [userRelationship, setUserRelationship] = useState(
     userProfileData.relationship || ""
   );
-  const [avatarUrlFile, setAvatarUrlFile] = useState(null);
-  const [profileCoverFile, setProfileCoverFile] = useState(null);
-  const [uploadProgress, setUploadProgress] = useState(0);
-  const [uploadProgressProfile, setUploadProgressProfile] = useState(0);
-  const [errorMessage, setErrorMessage] = useState({
-    avatarUrlFile: [],
-    biodata: [],
-    address: [],
-    birthDate: [],
-    status: [],
-    quotes: [],
-    phoneNumber: [],
-    profileCoverFile: [],
-    currentCity: [],
-    nationality: [],
-    relationship: [],
-  });
-
-  const cancelAvatarPreviewHandler = () => {
-    let avatar = document.getElementById("file-avatar");
-    avatar.value = "";
-    setAvatarUrlFile(null);
-  };
-
-  const cancelProfilePreviewHandler = () => {
-    let profileCover = document.getElementById("file-profile-cover");
-    profileCover.value = "";
-    setProfileCoverFile(null);
-  };
 
   const closeModalEdit = (statusValue) => {
     closeModalEditProfile(statusValue);
@@ -74,18 +52,7 @@ const EditProfileModal = ({
         const successEditProfile = editProfileByIdResponse.data.success;
         if (successEditProfile) {
           doSnapForEditProfile(true);
-          if (modalActive === "edit-profile") {
-            closeModalEditProfile(false);
-          }
-
-          if (modalActive === "edit-avatar-and-cover-url") {
-            let avatar = document.getElementById("file-avatar");
-            let profileCover = document.getElementById("file-profile-cover");
-            avatar.value = "";
-            profileCover.value = "";
-            setAvatarUrlFile(null);
-            setProfileCoverFile(null);
-          }
+          closeModalEditProfile(false);
         }
       })
       .catch((error) => {
@@ -96,7 +63,7 @@ const EditProfileModal = ({
   const processingEditProfile = () => {
     let profilePayloadObj = {};
 
-    const profileDataToValidateCheck = {
+    profilePayloadObj = {
       biodata: biodata,
       address: addressData,
       birthDate: birthdate,
@@ -108,346 +75,182 @@ const EditProfileModal = ({
       relationship: userRelationship,
     };
 
-    const isValid = formValidation(profileDataToValidateCheck, setErrorMessage);
-
-    if (isValid) {
-      profilePayloadObj = {
-        biodata: profileDataToValidateCheck.biodata,
-        address: profileDataToValidateCheck.address,
-        birthDate: profileDataToValidateCheck.birthDate,
-        status: profileDataToValidateCheck.status,
-        quotes: profileDataToValidateCheck.quotes,
-        phoneNumber: profileDataToValidateCheck.phoneNumber,
-        currentCity: profileDataToValidateCheck.currentCity,
-        nationality: profileDataToValidateCheck.nationality,
-        relationship: profileDataToValidateCheck.relationship,
-      };
-
-      hitApiEditProfile(profileId, profilePayloadObj);
-    }
+    hitApiEditProfile(profileId, profilePayloadObj);
   };
 
-  const processingEditProfilePicture = () => {
-    let profilePayloadObj = {};
+  const editProfileRulesSchema = useMemo(
+    () => ({
+      biodata: { currentValue: biodata, isRequired: true },
+      addressData: { currentValue: addressData, isRequired: true },
+      birthdate: { currentValue: birthdate, isRequired: true },
+      statusUser: { currentValue: statusUser, isRequired: true },
+      quotes: { currentValue: quotes, isRequired: true },
+      userPhoneNumber: {
+        currentValue: userPhoneNumber,
+        isRequired: true,
+        validationCollections: [
+          helpersWithMessage(
+            "Nomor HP harus memiliki minimal 10 dan maximal 13 digit",
+            userPhoneNumber,
+            (val) => {
+              const minCharacterLength = 10;
+              const maxCharacterLength = 13;
 
-    if (avatarUrlFile) {
-      const formData1 = new FormData();
-      formData1.append("file", avatarUrlFile);
-      formData1.append("upload_preset", "g7pxfer7");
-      uploadImagePosting(formData1, {
-        onUploadProgress: (progressEvent) => {
-          setUploadProgress(
-            Math.round((progressEvent.loaded / progressEvent.total) * 100)
-          );
-        },
-      })
-        .then((response) => {
-          profilePayloadObj.avatarUrl = response.data.secure_url;
-          hitApiEditProfile(profileId, profilePayloadObj);
-          setUploadProgress(0);
-        })
-        .catch((error) => {
-          console.error("upload image failed avatar", error);
-        });
-    }
+              return (
+                val.length >= minCharacterLength &&
+                val.length <= maxCharacterLength
+              );
+            }
+          ),
+          helpersWithMessage(
+            "Nomor HP harus berupa angka digit",
+            userPhoneNumber,
+            (val) => {
+              const isOnlyNumberTest = /^\d+$/.test(val);
+              return isOnlyNumberTest;
+            }
+          ),
+        ],
+      },
+      userCurrentCity: { currentValue: userCurrentCity, isRequired: true },
+      userNationality: { currentValue: userNationality, isRequired: true },
+      userRelationship: { currentValue: userRelationship, isRequired: true },
+    }),
+    [
+      biodata,
+      addressData,
+      birthdate,
+      statusUser,
+      quotes,
+      userPhoneNumber,
+      userCurrentCity,
+      userNationality,
+      userRelationship,
+    ]
+  );
 
-    if (profileCoverFile) {
-      const formData2 = new FormData();
-      formData2.append("file", profileCoverFile);
-      formData2.append("upload_preset", "g7pxfer7");
-      uploadImagePosting(formData2, {
-        onUploadProgress: (progressEvent) => {
-          setUploadProgressProfile(
-            Math.round((progressEvent.loaded / progressEvent.total) * 100)
-          );
-        },
-      })
-        .then((response) => {
-          profilePayloadObj.profileCoverUrl = response.data.secure_url;
-          hitApiEditProfile(profileId, profilePayloadObj);
-          setUploadProgressProfile(0);
-        })
-        .catch((error) => {
-          console.error("upload image failed profile cover", error);
-        });
-    }
-  };
+  const { isValid, errorMessage } = useFormValidation({
+    rulesSchema: editProfileRulesSchema,
+  });
 
   const doSaveEditProfile = () => {
-    if (modalActive === "edit-profile") {
-      processingEditProfile();
-    }
+    dispatch(setIsClicked({ payload: true }));
 
-    if (modalActive === "edit-avatar-and-cover-url") {
-      processingEditProfilePicture();
+    if (isValid) {
+      processingEditProfile();
     }
   };
 
-  const visibilityStylingCondition = () => {
-    return {
-      visibility:
-        uploadProgress > 0 || uploadProgressProfile > 0 ? "hidden" : "visible",
-    };
+  const handleInputErrorMessage = (type) => {
+    return getFirstError(errorMessage[type]);
   };
 
   return (
-    <div className="content-container edit-profile-modal">
-      <div className="modal-content-wrapper">
-        {/* Top Content of Modal */}
-        <div className="top-content">
-          {modalActive === "edit-profile" && (
-            <div className="edit-profile-modal-content">Edit Your Profile</div>
-          )}
-          {modalActive === "edit-avatar-and-cover-url" && (
-            <div className="edit-profile-modal-content">
-              Edit Your Avatar and Cover Url
-            </div>
-          )}
-          <CancelIcon
-            className="modal-close-button"
-            onClick={() => closeModalEdit(false)}
+    <EditProfileModalWrapper>
+      <TopContent
+        title="Edit Your Profile"
+        closeModalEdit={() => closeModalEdit(false)}
+      />
+
+      <MiddleContent>
+        <Fragment>
+          <InputTextGlobalV2
+            inputLabel={"Biodata"}
+            value={biodata}
+            onChange={(e) => setBiodata(e.target.value)}
+            inputPlaceholder={"Masukkan biodata-mu"}
+            inputErrorMessage={handleInputErrorMessage("biodata")}
+            additionalStylingClass={"if-edit-profile-style"}
           />
-        </div>
 
-        {/* Middle Content of Modal */}
-        <div className="middle-content">
-          <div className="input-profile-box">
-            {modalActive === "edit-avatar-and-cover-url" && (
-              <Fragment>
-                {/* AVATAR URL ======================================================== */}
-                {uploadProgress > 0 && (
-                  <div className="progress-upload-wrapper">
-                    <span className="upload-progress-persen">
-                      {`Uploading new avatar: ${uploadProgress}%`}
-                    </span>
-                    <span
-                      className="progress-bar"
-                      style={{ width: `${uploadProgress}%` }}
-                    />
-                  </div>
-                )}
+          <InputTextGlobalV2
+            inputLabel={"Alamat"}
+            value={addressData}
+            onChange={(e) => setAddressData(e.target.value)}
+            inputPlaceholder={"Masukkan alamat-mu"}
+            inputErrorMessage={handleInputErrorMessage("addressData")}
+            additionalStylingClass={"if-edit-profile-style"}
+          />
 
-                <label>Avatar Url</label>
-                <input
-                  id="file-avatar"
-                  type="file"
-                  className="edit-profile-url"
-                  accept=".png,.jpeg,.jpg"
-                  onChange={(e) => setAvatarUrlFile(e.target.files[0])}
-                />
-                <div className="inputErrorMessage">
-                  {errorMessage.avatarUrlFile}
-                </div>
+          <InputTextGlobalV2
+            inputLabel={"Tanggal Lahir"}
+            value={birthdate}
+            onChange={(e) => setBirthdate(e.target.value)}
+            inputErrorMessage={handleInputErrorMessage("birthdate")}
+            inputType={"date"}
+            additionalStylingClass={"if-edit-profile-style-date"}
+          />
 
-                {/* Preview Avatar Image before uploading */}
-                {avatarUrlFile && (
-                  <div className="preview-img-container">
-                    <img
-                      src={URL.createObjectURL(avatarUrlFile)}
-                      alt="preview-img"
-                      className="preview-img"
-                    />
+          <InputTextGlobalV2
+            inputLabel={"Status"}
+            value={statusUser}
+            onChange={(e) => setStatusUser(e.target.value)}
+            inputPlaceholder={"Masukan status-mu"}
+            inputErrorMessage={handleInputErrorMessage("statusUser")}
+            additionalStylingClass={"if-edit-profile-style"}
+          />
 
-                    <CancelIcon
-                      className="cancel-preview-img"
-                      onClick={cancelAvatarPreviewHandler}
-                    />
-                  </div>
-                )}
+          <InputTextGlobalV2
+            inputLabel={"Quotes"}
+            value={quotes}
+            onChange={(e) => setQuotes(e.target.value)}
+            inputPlaceholder={"Masukan quotes favorit-mu"}
+            inputErrorMessage={handleInputErrorMessage("quotes")}
+            additionalStylingClass={"if-edit-profile-style"}
+          />
 
-                {/* Preview Avatar Image from DB */}
-                {avatarUrl && !avatarUrlFile && (
-                  <div className="preview-img-container">
-                    <img
-                      src={avatarUrl}
-                      alt="preview-img"
-                      className="preview-img"
-                    />
-                  </div>
-                )}
+          <InputTextGlobalV2
+            inputLabel={"Nomor Telephone"}
+            value={userPhoneNumber}
+            onChange={(e) => setUserPhoneNumber(e.target.value)}
+            inputPlaceholder={"Masukkan nomor telepon-mu"}
+            inputErrorMessage={handleInputErrorMessage("userPhoneNumber")}
+            additionalStylingClass={"if-edit-profile-style"}
+          />
 
-                {/* PROFILE COVER URL =========================================================== */}
-                {uploadProgressProfile > 0 && (
-                  <div className="progress-upload-wrapper">
-                    <span className="upload-progress-persen">
-                      {`Uploading new profile cover: ${uploadProgressProfile}%`}
-                    </span>
-                    <span
-                      className="progress-bar"
-                      style={{ width: `${uploadProgressProfile}%` }}
-                    />
-                  </div>
-                )}
+          <InputTextGlobalV2
+            inputLabel={"Kota Domisili"}
+            value={userCurrentCity}
+            onChange={(e) => setUserCurrentCity(e.target.value)}
+            inputPlaceholder={"Masukkan nama kota kamu tinggal sekarang"}
+            inputErrorMessage={handleInputErrorMessage("userCurrentCity")}
+            additionalStylingClass={"if-edit-profile-style"}
+          />
 
-                <label>Profile Cover Url</label>
-                <input
-                  id="file-profile-cover"
-                  type="file"
-                  className="edit-profile-url"
-                  accept=".png,.jpeg,.jpg"
-                  onChange={(e) => setProfileCoverFile(e.target.files[0])}
-                />
-                <div className="inputErrorMessage">
-                  {errorMessage.profileCoverFile}
-                </div>
+          <InputTextGlobalV2
+            inputLabel={"Kebangsaan"}
+            value={userNationality}
+            onChange={(e) => setUserNationality(e.target.value)}
+            inputPlaceholder={"Masukkan kebangsaan-mu"}
+            inputErrorMessage={handleInputErrorMessage("userNationality")}
+            additionalStylingClass={"if-edit-profile-style"}
+          />
 
-                {/* Preview Profile Cover Image before uploading */}
-                {profileCoverFile && (
-                  <div className="preview-img-container">
-                    <img
-                      src={URL.createObjectURL(profileCoverFile)}
-                      alt="preview-img"
-                      className="preview-img"
-                    />
+          <InputTextGlobalV2
+            inputLabel={"Relationship"}
+            value={userRelationship}
+            onChange={(e) => setUserRelationship(e.target.value)}
+            inputPlaceholder={"Masukkan hubungan-mu dengan siapa"}
+            inputErrorMessage={handleInputErrorMessage("userRelationship")}
+            additionalStylingClass={"if-edit-profile-style"}
+          />
+        </Fragment>
+      </MiddleContent>
 
-                    <CancelIcon
-                      className="cancel-preview-img"
-                      onClick={cancelProfilePreviewHandler}
-                    />
-                  </div>
-                )}
+      <BottomContent>
+        <GlobalButton
+          buttonLabel={"Batal"}
+          classStyleName={"bottom-edit-button cancel"}
+          onClick={() => closeModalEdit(false)}
+        />
 
-                {/* Preview Profile Cover Image from DB */}
-                {profileCover && !profileCoverFile && (
-                  <div className="preview-img-container">
-                    <img
-                      src={profileCover}
-                      alt="preview-img"
-                      className="preview-img"
-                    />
-                  </div>
-                )}
-              </Fragment>
-            )}
-
-            {modalActive === "edit-profile" && (
-              <Fragment>
-                <InputTextGlobalV2
-                  inputLabel={"Biodata"}
-                  inputValue={biodata}
-                  inputPlaceholder={"Masukkan biodata-mu"}
-                  setInputValue={setBiodata}
-                  inputErrorMessage={errorMessage.biodata}
-                  additionalStylingClass={"if-edit-profile-style"}
-                />
-
-                <InputTextGlobalV2
-                  inputLabel={"Alamat"}
-                  inputPlaceholder={"Masukkan alamat-mu"}
-                  inputValue={addressData}
-                  setInputValue={setAddressData}
-                  inputErrorMessage={errorMessage.address}
-                  additionalStylingClass={"if-edit-profile-style"}
-                />
-
-                {/* <label>Birth Date:</label> */}
-                <InputTextGlobalV2
-                  inputLabel={"Tanggal Lahir"}
-                  inputValue={birthdate}
-                  setInputValue={setBirthdate}
-                  inputErrorMessage={errorMessage.birthDate}
-                  inputType={"date"}
-                  additionalStylingClass={"if-edit-profile-style-date"}
-                />
-
-                <InputTextGlobalV2
-                  inputLabel={"Status"}
-                  inputPlaceholder={"Masukan status-mu"}
-                  inputValue={statusUser}
-                  setInputValue={setStatusUser}
-                  inputErrorMessage={errorMessage.status}
-                  additionalStylingClass={"if-edit-profile-style"}
-                />
-
-                <InputTextGlobalV2
-                  inputLabel={"Quotes"}
-                  inputPlaceholder={"Masukan quotes favorit-mu"}
-                  inputValue={quotes}
-                  setInputValue={setQuotes}
-                  inputErrorMessage={errorMessage.quotes}
-                  additionalStylingClass={"if-edit-profile-style"}
-                />
-
-                <InputTextGlobalV2
-                  inputLabel={"Nomor Telephone"}
-                  inputPlaceholder={"Masukkan nomor telepon-mu"}
-                  inputValue={userPhoneNumber}
-                  setInputValue={setUserPhoneNumber}
-                  inputErrorMessage={errorMessage.phoneNumber}
-                  additionalStylingClass={"if-edit-profile-style"}
-                />
-
-                <InputTextGlobalV2
-                  inputLabel={"Kota Domisili"}
-                  inputPlaceholder={"Masukkan nama kota kamu tinggal sekarang"}
-                  inputValue={userCurrentCity}
-                  setInputValue={setUserCurrentCity}
-                  inputErrorMessage={errorMessage.currentCity}
-                  additionalStylingClass={"if-edit-profile-style"}
-                />
-
-                <InputTextGlobalV2
-                  inputLabel={"Kebangsaan"}
-                  inputPlaceholder={"Masukkan kebangsaan-mu"}
-                  inputValue={userNationality}
-                  setInputValue={setUserNationality}
-                  inputErrorMessage={errorMessage.nationality}
-                  additionalStylingClass={"if-edit-profile-style"}
-                />
-
-                <InputTextGlobalV2
-                  inputLabel={"Relationship"}
-                  inputPlaceholder={"Masukkan hubungan-mu dengan siapa"}
-                  inputValue={userRelationship}
-                  setInputValue={setUserRelationship}
-                  inputErrorMessage={errorMessage.relationship}
-                  additionalStylingClass={"if-edit-profile-style"}
-                />
-              </Fragment>
-            )}
-          </div>
-        </div>
-
-        {/* Bottom Content of Modal */}
-        <div className="bottom-content">
-          {modalActive === "edit-profile" && (
-            <GlobalButton
-              buttonLabel={"Batal"}
-              classStyleName={"bottom-edit-button cancel"}
-              onClick={() => closeModalEdit(false)}
-            />
-          )}
-
-          {modalActive === "edit-profile" && (
-            <GlobalButton
-              buttonLabel={"Simpan"}
-              classStyleName={"bottom-edit-button save"}
-              onClick={doSaveEditProfile}
-            />
-          )}
-
-          {modalActive === "edit-avatar-and-cover-url" &&
-            (avatarUrlFile || profileCoverFile) && (
-              <GlobalButton
-                buttonLabel={"Batal Edit Image"}
-                classStyleName={"bottom-edit-button cancel"}
-                additionalStyleOveride={visibilityStylingCondition()}
-                onClick={() => closeModalEdit(false)}
-              />
-            )}
-
-          {modalActive === "edit-avatar-and-cover-url" &&
-            (avatarUrlFile || profileCoverFile) && (
-              <GlobalButton
-                buttonLabel={"Simpan Avatar or Cover"}
-                classStyleName={"bottom-edit-button save"}
-                additionalStyleOveride={visibilityStylingCondition()}
-                onClick={doSaveEditProfile}
-              />
-            )}
-        </div>
-      </div>
-    </div>
+        <GlobalButton
+          buttonLabel={"Simpan"}
+          classStyleName={"bottom-edit-button save"}
+          onClick={doSaveEditProfile}
+        />
+      </BottomContent>
+    </EditProfileModalWrapper>
   );
 };
 

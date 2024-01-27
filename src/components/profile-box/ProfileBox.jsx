@@ -8,7 +8,10 @@ import {
   actionType,
 } from "../../utils/reducers/globalLoadingReducer";
 import RoundedLoader from "../rounded-loader/RoundedLoader";
-import { setIsAuthUser } from "../../redux/slices/userSlice";
+import {
+  setIsAuthUser,
+  setIsUserProfileMobileOpen,
+} from "../../redux/slices/userSlice";
 
 import "./ProfileBox.scss";
 
@@ -22,8 +25,12 @@ export default function ProfileBox({ classStyleAddOn }) {
 
   const currentUserNameFromSlice = useSelector((state) => state.user.userName);
   const currentUserIdFromSlice = useSelector((state) => state.user.userId);
-  const currentUserAvatarFromSlice = useSelector((state) => state.user.userAvatarPicture);
-  const currentUserEmail = useSelector((state) => state.user.currentUsers.userEmail);
+  const currentUserAvatarFromSlice = useSelector(
+    (state) => state.user.userAvatarPicture
+  );
+  const currentUserEmail = useSelector(
+    (state) => state.user.currentUsers.userEmail
+  );
 
   const addClassStyleAddOn = () => {
     return !!classStyleAddOn.length ? classStyleAddOn.join(" ") : "";
@@ -36,6 +43,9 @@ export default function ProfileBox({ classStyleAddOn }) {
       .then((userLoginStatusResult) => {
         if (userLoginStatusResult.data.success) {
           mutate({ type: actionType.STOP_LOADING_STATUS });
+          dispatch(
+            setIsUserProfileMobileOpen({ isUserProfileMobileOpen: false })
+          );
           dispatch(setIsAuthUser({ isAuth: false }));
           localStorage.clear();
           navigate("/login");

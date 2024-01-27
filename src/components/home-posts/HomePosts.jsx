@@ -17,9 +17,7 @@ import "./HomePosts.scss";
 export default function HomePosts() {
   const dispatch = useDispatch();
 
-  const paramsEmptyState = {
-    username: "",
-  };
+  const paramsEmptyState = { username: "" };
 
   const isPostsloading = useSelector((state) => state.posts.loadingGetPosts);
   const postsFromSlice = useSelector((state) => state.posts.posts);
@@ -57,7 +55,8 @@ export default function HomePosts() {
         item?.User?.userName.toLowerCase().includes(searchTermsFromSlice.toLowerCase()) ||
         item?.User?.userFullname.toLowerCase().includes(searchTermsFromSlice.toLowerCase()) ||
         item?.User?.userEmail.toLowerCase().includes(searchTermsFromSlice.toLowerCase()) ||
-        item?.User?.userEmail.toLowerCase().includes(searchTermsFromSlice.toLowerCase())
+        item?.User?.userEmail.toLowerCase().includes(searchTermsFromSlice.toLowerCase()) ||
+        item?.status.toLowerCase().includes(searchTermsFromSlice.toLowerCase())
       );
     });
     setFilteredPosts(newFilteredUserPosts);
