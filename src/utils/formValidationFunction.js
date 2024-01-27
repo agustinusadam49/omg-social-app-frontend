@@ -12,66 +12,69 @@ const getFirstError = (arrError) => {
   return arrError;
 };
 
-const formValidationV2 = (rulesSchemaObj) => {
-  const arrayKeys = Object.keys(rulesSchemaObj);
+const formValidationV2 = (schema) => {
+  const keys = Object.keys(schema);
   const error = {};
   let isValid = false;
 
-  for (let keyIndex = 0; keyIndex < arrayKeys.length; keyIndex++) {
-    error[arrayKeys[keyIndex]] = [];
+  for (let keyIndex = 0; keyIndex < keys.length; keyIndex++) {
+    error[keys[keyIndex]] = [];
   }
 
   let validationCount = 0;
 
-  for (let i = 0; i < arrayKeys.length; i++) {
+  for (let i = 0; i < keys.length; i++) {
+    const fieldItemIsRequired = schema[keys[i]].isRequired;
+    const fieldItemCurrentValue = schema[keys[i]].currentValue;
+    const fieldItemFunction = schema[keys[i]]?.function;
+    const fiedlItemOther = schema[keys[i]]?.other;
+    const fieldItemValidCollections = schema[keys[i]]?.validationCollections;
+
     // Check if a field is required
-    if (rulesSchemaObj[arrayKeys[i]].isRequired === true) {
-      if (!rulesSchemaObj[arrayKeys[i]].currentValue) {
-        error[arrayKeys[i]].push(`This field cannot be empty.`);
-        validationCount++;
-      }
+    if (fieldItemIsRequired && !fieldItemCurrentValue) {
+      error[keys[i]].push(`This field cannot be empty.`);
+      validationCount++;
     }
 
     // Check if a field has a function check to validate
-    if (rulesSchemaObj[arrayKeys[i]]?.function) {
-      const { message, isValid } = rulesSchemaObj[arrayKeys[i]]?.function;
+    if (fieldItemFunction) {
+      const { message, isValid } = fieldItemFunction;
       if (!isValid) {
-        error[arrayKeys[i]].push(message);
+        error[keys[i]].push(message);
         validationCount++;
       }
     }
 
     // Check if a field has an other function check to validate
-    if (rulesSchemaObj[arrayKeys[i]]?.other) {
-      const { message, isValid } = rulesSchemaObj[arrayKeys[i]]?.other;
+    if (fiedlItemOther) {
+      const { message, isValid } = fiedlItemOther;
       if (!isValid) {
-        error[arrayKeys[i]].push(message);
+        error[keys[i]].push(message);
         validationCount++;
       }
     }
 
-    const isThereAnyValidationCollections = rulesSchemaObj[arrayKeys[i]]?.validationCollections;
-    if (isThereAnyValidationCollections) {
-      const validationCollections = rulesSchemaObj[arrayKeys[i]]?.validationCollections;
-      for (let idx = 0; idx < validationCollections.length; idx++) {
-        const { message, isValid } = validationCollections[idx];
+    // Check if one of props ruleSchema have some validationCollections
+    if (fieldItemValidCollections) {
+      for (let idx = 0; idx < fieldItemValidCollections.length; idx++) {
+        const { message, isValid } = fieldItemValidCollections[idx];
         if (!isValid) {
-          error[arrayKeys[i]].push(message);
+          error[keys[i]].push(message);
           validationCount++;
         }
       }
     }
 
     // Check if a field is an array
-    if (Array.isArray(rulesSchemaObj[arrayKeys[i]])) {
-      const arrTemps = rulesSchemaObj[arrayKeys[i]];
+    if (Array.isArray(schema[keys[i]])) {
+      const arrTemps = schema[keys[i]];
       for (let idx = 0; idx < arrTemps.length; idx++) {
         if (arrTemps[idx].isRequired) {
           if (!arrTemps[idx].currentValue) {
-            error[arrayKeys[i]].push(`This field cannot be empty.`);
+            error[keys[i]].push(`This field cannot be empty.`);
             validationCount++;
           } else {
-            error[arrayKeys[i]].push("");
+            error[keys[i]].push("");
           }
         }
       }
