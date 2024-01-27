@@ -1,0 +1,9 @@
+.profile-right-bottom {
+  display: flex;
+  flex-direction: column;
+
+  @media only screen and (min-width: 1024px) {
+    display: flex;
+    flex-direction: row;
+  }
+}

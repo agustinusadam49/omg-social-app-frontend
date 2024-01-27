@@ -1,0 +1,74 @@
+.progress-upload-wrapper {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 20px;
+
+  .upload-progress-persen {
+    font-weight: 10px;
+    margin-bottom: 6px;
+  }
+
+  .progress-bar {
+    background-color: #42b72a;
+    border-radius: 5px;
+    height: 8px;
+  }
+}
+
+.edit-profile-url {
+  background-color: aqua;
+  padding: 10px 0px 10px 10px;
+  border-radius: 10px;
+  cursor: pointer;
+  margin-bottom: 20px;
+
+  &::file-selector-button {
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+  }
+}
+
+.preview-img-container {
+  position: relative;
+
+  .preview-img {
+    width: 100%;
+    height: 180px;
+    object-fit: contain;
+  }
+
+  .cancel-preview-img {
+    position: absolute;
+    top: -10px;
+    right: 4px;
+    cursor: pointer;
+  }
+}
+
+.bottom-edit-button {
+  font-size: 10px;
+  font-weight: 500;
+  border-radius: 8px;
+  color: white;
+  cursor: pointer;
+  text-align: center;
+  padding: 10px 0px;
+  width: 200px;
+  border: none;
+
+  @media only screen and (min-width: 1024px) {
+    font-size: 12px;
+  }
+
+  &.cancel {
+    background-color: white;
+    color: rgb(231, 101, 101);
+    border: solid 1px rgb(231, 101, 101);
+  }
+
+  &.save {
+    background-color: #605beb;
+    border: solid 1px #605beb;
+  }
+}

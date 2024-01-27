@@ -1,0 +1,13 @@
+.about-van-main-page {
+  padding: 20px;
+  min-height: 100vh;
+
+  .about-title {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    font-size: larger;
+    font-weight: bolder;
+    margin-bottom: 20px;
+  }
+}

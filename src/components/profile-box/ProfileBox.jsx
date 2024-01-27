@@ -1,12 +1,18 @@
 import React, { useReducer } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
-import { doUserLogout } from "../../redux/apiCalls";
+import { userLogout } from "../../apiCalls/registerAndLoginApiFetch";
 import {
   INITIAL_LOADING_STATE,
   loadingReducer,
+  actionType,
 } from "../../utils/reducers/globalLoadingReducer";
 import RoundedLoader from "../rounded-loader/RoundedLoader";
+import {
+  setIsAuthUser,
+  setIsUserProfileMobileOpen,
+} from "../../redux/slices/userSlice";
+
 import "./ProfileBox.scss";
 
 export default function ProfileBox({ classStyleAddOn }) {
@@ -15,6 +21,8 @@ export default function ProfileBox({ classStyleAddOn }) {
     INITIAL_LOADING_STATE
   );
   const dispatch = useDispatch();
+  const navigate = useNavigate();
+
   const currentUserNameFromSlice = useSelector((state) => state.user.userName);
   const currentUserIdFromSlice = useSelector((state) => state.user.userId);
   const currentUserAvatarFromSlice = useSelector(
@@ -29,7 +37,24 @@ export default function ProfileBox({ classStyleAddOn }) {
   };
 
   const doLogout = () => {
-    doUserLogout(currentUserIdFromSlice, mutate, dispatch);
+    mutate({ type: actionType.RUN_LOADING_STATUS });
+    const requestBodyForUpdateOnlineStatus = { userOnlineStatus: false };
+    userLogout(currentUserIdFromSlice, requestBodyForUpdateOnlineStatus)
+      .then((userLoginStatusResult) => {
+        if (userLoginStatusResult.data.success) {
+          mutate({ type: actionType.STOP_LOADING_STATUS });
+          dispatch(
+            setIsUserProfileMobileOpen({ isUserProfileMobileOpen: false })
+          );
+          dispatch(setIsAuthUser({ isAuth: false }));
+          localStorage.clear();
+          navigate("/login");
+        }
+      })
+      .catch((error) => {
+        console.log(error?.response?.data?.err?.errorMessage);
+        mutate({ type: actionType.STOP_LOADING_STATUS });
+      });
   };
 
   return (

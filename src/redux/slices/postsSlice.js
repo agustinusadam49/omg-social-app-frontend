@@ -14,6 +14,8 @@ export const postsSlice = createSlice({
     isPostModalEditOpen: false,
     statusPost: "",
     postItem: null,
+    postLoadItems: [],
+    openLoadDataModal: false,
   },
   reducers: {
     setPosts: (state, action) => {
@@ -49,6 +51,12 @@ export const postsSlice = createSlice({
     setPostItem: (state, action) => {
       state.postItem = action.payload.postItem;
     },
+    setPostLoadItems: (state, { payload }) => {
+      state.postLoadItems = payload.payload;
+    },
+    setOpenLoadDataModal: (state, { payload: { payload } }) => {
+      state.openLoadDataModal = payload;
+    },
   },
 });
 
@@ -64,6 +72,8 @@ export const {
   setIsPostModalEditOpen,
   setStatusPost,
   setPostItem,
+  setPostLoadItems,
+  setOpenLoadDataModal,
 } = postsSlice.actions;
 
 export default postsSlice.reducer;

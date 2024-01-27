@@ -1,0 +1,37 @@
+.rightbar-profile {
+  width: 100%;
+
+  @media only screen and (min-width: 1024px) {
+    flex: 3;
+    height: calc(100vh - 50px);
+    overflow-y: scroll;
+    position: sticky;
+    top: 50px;
+    direction: rtl;
+
+    &::-webkit-scrollbar {
+      width: 3px;
+      display: none;
+    }
+
+    &::-webkit-scrollbar-track {
+      background-color: #f1f1f1;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background-color: rgb(209, 209, 209);
+      border-radius: 5px;
+    }
+  }
+
+  .rightbar-profile-wrapper {
+    display: flex;
+    flex-direction: column;
+    direction: ltr;
+    padding: 10px 10px 0px 10px;
+
+    @media only screen and (min-width: 1024px) {
+      padding: 10px 10px 0px 10px;
+    }
+  }
+}

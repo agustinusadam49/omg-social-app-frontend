@@ -6,7 +6,7 @@ import {
   setPostItem,
   setIsAddPosting,
 } from "../../redux/slices/postsSlice";
-import OptionStatusSection from "../share/option-status-section/OptionStatusSection";
+import OptionStatus from "../option-status/OptionStatus";
 import CancelIcon from "@mui/icons-material/Cancel";
 import GlobalButton from "../button/GlobalButton";
 import { updatePostById } from "../../apiCalls/postsApiFetch";
@@ -81,7 +81,7 @@ export default function PostModalEdit() {
 
         {/* Bottom Content of Modal */}
         <div className="post-modal-bottom-content">
-          <OptionStatusSection
+          <OptionStatus
             setActiveStatus={setActiveStatus}
             activeStatus={activeStatus}
           />

@@ -1,11 +1,9 @@
 import { setToLocalStorageWhenSuccess } from "../utils/setLocalStorage";
-import { actionType } from "../utils/reducers/globalLoadingReducer";
 
 // IMPORT API METHOD FOR USER
 import {
   getCurrentUserLogin,
   getAllUsersOmonginApp,
-  userLogout,
 } from "../apiCalls/registerAndLoginApiFetch";
 
 // IMPORT API METHOD FOR POSTS
@@ -24,8 +22,8 @@ import {
   setUserProfilePicture,
   setUserAvatarPicture,
   setAllUsers,
-  setSnapUserLogout,
   setUserBiodata,
+  setIsGetMessageNotif,
 } from "./slices/userSlice";
 
 // IMPORT POSTS SLICE SETTER
@@ -88,7 +86,7 @@ export const getAllUsersRegistered = (dispatch) => {
     .then((allUsersRegistered) => {
       const dataUser = allUsersRegistered.data.userData;
       dispatch(setAllUsers({ registeredUsers: dataUser }));
-      dispatch(setSnapUserLogout({ isUserLogout: false }));
+      dispatch(setIsGetMessageNotif({ isMessageNotif: false }));
     })
     .catch((error) => {
       const errorCommonMessage = error?.response?.data?.err?.errorMessage;
@@ -97,24 +95,6 @@ export const getAllUsersRegistered = (dispatch) => {
       } else {
         console.log(error.response?.data.errorMessage);
       }
-    });
-};
-
-export const doUserLogout = (userId, mutate, dispatch) => {
-  mutate({ type: actionType.RUN_LOADING_STATUS });
-  const requestBodyForUpdateOnlineStatus = { userOnlineStatus: false };
-  userLogout(userId, requestBodyForUpdateOnlineStatus)
-    .then((userLoginStatusResult) => {
-      if (userLoginStatusResult.data.success) {
-        mutate({ type: actionType.STOP_LOADING_STATUS });
-        localStorage.clear();
-        dispatch(setIsAuthUser({ isAuth: false }));
-        dispatch(setSnapUserLogout({ isUserLogout: true }));
-      }
-    })
-    .catch((error) => {
-      console.log(error?.response?.data?.err?.errorMessage);
-      mutate({ type: actionType.STOP_LOADING_STATUS });
     });
 };
 
@@ -201,6 +181,8 @@ export const getNotificationsBelongsToLoggedUser = (dispatch) => {
         dispatch(setMessageNotif({ messageNotifData: [] }));
         dispatch(setPostNotif({ postNotifData: [] }));
       }
+
+      dispatch(setIsGetMessageNotif({ isMessageNotif: false }));
     })
     .catch((error) => {
       const notifErrorMessages = error?.response?.data?.err?.errorMessage;

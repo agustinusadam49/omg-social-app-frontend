@@ -16,6 +16,7 @@ export const userSlice = createSlice({
     isUserSuggestionModalOpen: false,
     isUserOnlineModalOpen: false,
     isUserProfileMobileOpen: false,
+    isGetMessageNotif: false,
   },
   reducers: {
     setCurrentUsers: (state, action) => {
@@ -63,6 +64,9 @@ export const userSlice = createSlice({
       state.isUserSuggestionModalOpen = false;
       state.isUserOnlineModalOpen = false;
     },
+    setIsGetMessageNotif: (state, action) => {
+      state.isGetMessageNotif = action.payload.isMessageNotif
+    }
   },
 });
 
@@ -80,6 +84,7 @@ export const {
   setIsUserSuggestionModalOpen,
   setIsUserOnlineModalOpen,
   setIsUserProfileMobileOpen,
+  setIsGetMessageNotif,
 } = userSlice.actions;
 
 export default userSlice.reducer;

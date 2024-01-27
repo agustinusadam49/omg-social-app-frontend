@@ -36,79 +36,43 @@ export default function MobileBottomNavigation() {
 
   const { pathname } = useLocation();
 
-  const followerNotifFromSlice = useSelector((state) =>
-    state.notifications.followerNotif.filter((item) => !item.isRead)
-  );
-  const postNotifFromSlice = useSelector((state) =>
-    state.notifications.postNotif.filter((item) => !item.isRead)
-  );
-  const messageNotifFromSlice = useSelector((state) =>
-    state.notifications.messageNotif.filter((item) => !item.isRead)
-  );
-  const userSnapRegisteredStatus = useSelector(
-    (state) => state.user.snapUserLogout
-  );
+  const followerNotifFromSlice = useSelector((state) =>state.notifications.followerNotif.filter((item) => !item.isRead));
+  const postNotifFromSlice = useSelector((state) =>state.notifications.postNotif.filter((item) => !item.isRead));
+  const messageNotifFromSlice = useSelector((state) =>state.notifications.messageNotif.filter((item) => !item.isRead));
   const currentUserIdFromSlice = useSelector((state) => state.user.userId);
   const allUsersRegisterd = useSelector((state) => state.user.allUsers);
+  const isThereMessageNotif = useSelector((state) => state.user.isGetMessageNotif);
 
-  const [usersOnlineWithoutCurrentUser, setUsersOnlineWithoutCurrentUser] =
-    useState([]);
+  const [usersOnlineWithoutCurrentUser, setUsersOnlineWithoutCurrentUser] = useState([]);
 
   const currentPathName = useMemo(() => {
     const path = pathname;
     return path;
   }, [pathname]);
 
-  const totalFollowerNotif = useMemo(
-    () => followerNotifFromSlice.length,
-    [followerNotifFromSlice]
-  );
-  const totalMessageNotif = useMemo(
-    () => messageNotifFromSlice.length,
-    [messageNotifFromSlice]
-  );
-  const totalPostNotif = useMemo(
-    () => postNotifFromSlice.length,
-    [postNotifFromSlice]
-  );
-  const totalUserOnline = useMemo(
-    () => usersOnlineWithoutCurrentUser.length,
-    [usersOnlineWithoutCurrentUser]
-  );
+  const totalFollowerNotif = useMemo(() => followerNotifFromSlice.length, [followerNotifFromSlice]);
+  const totalMessageNotif = useMemo(() => messageNotifFromSlice.length, [messageNotifFromSlice]);
+  const totalPostNotif = useMemo(() => postNotifFromSlice.length, [postNotifFromSlice]);
+  const totalUserOnline = useMemo(() => usersOnlineWithoutCurrentUser.length, [usersOnlineWithoutCurrentUser]);
 
   const getActiveColor = (inputPathName) => {
     return inputPathName === currentPathName ? "#2c2891" : "#3571d9";
   };
 
-  const checkActiveBadgeFollowerNotif = () => {
-    if (totalFollowerNotif) {
-      return (
-        <span className="mobile-bottom-icon-badge">{totalFollowerNotif}</span>
-      );
+  const checkActiveBadgeNotif = (notifType) => {
+    const notifications = {
+      follower: totalFollowerNotif,
+      message: totalMessageNotif,
+      post: totalPostNotif,
+      onlineUser: totalUserOnline,
     }
-  };
 
-  const checkActiveBadgeMessageNotif = () => {
-    if (totalMessageNotif) {
-      return (
-        <span className="mobile-bottom-icon-badge">{totalMessageNotif}</span>
-      );
-    }
-  };
+    const notifDataAvailable = notifications[notifType]
 
-  const checkActiveBadgeNotifications = () => {
-    if (totalPostNotif) {
-      return <span className="mobile-bottom-icon-badge">{totalPostNotif}</span>;
+    if (notifDataAvailable) {
+      return <span className="mobile-bottom-icon-badge">{notifDataAvailable}</span>;
     }
-  };
-
-  const checkUserOnlineBadge = () => {
-    if (totalUserOnline) {
-      return (
-        <span className="mobile-bottom-icon-badge">{totalUserOnline}</span>
-      );
-    }
-  };
+  }
 
   const toggleActiveSuggestionModal = (value) => {
     dispatch(setIsUserSuggestionModalOpen({ isSuggestionModalOpen: value }));
@@ -142,7 +106,7 @@ export default function MobileBottomNavigation() {
       dispatch(setMessageNotif({ messageNotifData: [] }));
       dispatch(setPostNotif({ postNotifData: [] }));
     };
-  }, [userSnapRegisteredStatus, dispatch]);
+  }, [isThereMessageNotif, dispatch]);
 
   useEffect(() => {
     getAllUsersRegistered(dispatch);
@@ -161,7 +125,7 @@ export default function MobileBottomNavigation() {
             className="mobile-bottom-icon-item"
           >
             <PersonIcon className="mobile-bottom-notif-icon" />
-            {checkActiveBadgeFollowerNotif()}
+            {checkActiveBadgeNotif("follower")}
           </Link>
 
           <Link
@@ -173,7 +137,7 @@ export default function MobileBottomNavigation() {
             className="mobile-bottom-icon-item"
           >
             <ChatIcon className="mobile-bottom-notif-icon" />
-            {checkActiveBadgeMessageNotif()}
+            {checkActiveBadgeNotif("message")}
           </Link>
 
           <Link
@@ -185,7 +149,7 @@ export default function MobileBottomNavigation() {
             className="mobile-bottom-icon-item"
           >
             <NotificationsIcon className="mobile-bottom-notif-icon" />
-            {checkActiveBadgeNotifications()}
+            {checkActiveBadgeNotif("post")}
           </Link>
 
           <Link
@@ -230,7 +194,7 @@ export default function MobileBottomNavigation() {
             onClick={() => toggleUserOnlineModal(true)}
           >
             <PersonPinIcon className="mobile-bottom-home-icon-item" />
-            {checkUserOnlineBadge()}
+            {checkActiveBadgeNotif("onlineUser")}
           </div>
         </div>
       </div>

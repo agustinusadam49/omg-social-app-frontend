@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useMemo } from "react";
+import React, { useCallback, useMemo } from "react";
 import { Link, useLocation } from "react-router-dom";
 import SearchIcon from "@mui/icons-material/Search";
 import PersonIcon from "@mui/icons-material/Person";
@@ -11,6 +11,7 @@ import { setSearchPostsTerms } from "../../redux/slices/postsSlice";
 import ProfileBox from "../profile-box/ProfileBox";
 import { useScreenWidth } from "../../utils/screenWidth";
 import withNotifData from "../../hoc/withNotifData";
+import useQueryParams from "../../custom-hooks/useQueryParams";
 import "./Topbar.scss";
 
 function Topbar({
@@ -20,6 +21,15 @@ function Topbar({
 }) {
   const isDesktop = useScreenWidth("lg");
   const isMobile = useScreenWidth("mb");
+  const queryParams = useQueryParams();
+
+  const searchInput = useMemo(() => {
+    const key = "query";
+    return {
+      get: () => queryParams.get(key) || "",
+      set: (newVal) => queryParams.set({ key: key, value: newVal }),
+    };
+  }, [queryParams]);
 
   const notificationsPath = {
     follower: "/follower-notifications",
@@ -57,21 +67,19 @@ function Topbar({
     [postNotifFromSlice]
   );
 
-  const [searchTerms, setSearchTerms] = useState("");
-
   const handleSearchOnChange = (value) => {
     const targetValue = value;
-    setSearchTerms(targetValue);
+    searchInput.set(targetValue);
     dispatch(setSearchPostsTerms({ getSearchTermsForPosts: targetValue }));
   };
 
   const goToSearchPage = useCallback(() => {
-    if (!searchTerms) return;
+    if (!searchInput.get()) return;
     navigate({
       pathname: "/search",
-      search: `?query=${searchTerms}`,
+      search: `?query=${searchInput.get()}`,
     });
-  }, [searchTerms, navigate]);
+  }, [searchInput, navigate]);
 
   const goToSearchPageByEnter = (event) => {
     if (event.key === "Enter") {
@@ -83,21 +91,17 @@ function Topbar({
     return inputPathName === currentPathName ? "#2c2891" : "#3571d9";
   };
 
-  const checkActiveBadgeFollowerNotif = () => {
-    if (totalFollowerNotif) {
-      return <span className="topbar-icon-badge">{totalFollowerNotif}</span>;
-    }
-  };
+  const checkActiveBadgeNotif = (notifType) => {
+    const notifications = {
+      follower: totalFollowerNotif,
+      message: totalMessageNotif,
+      post: totalPostNotif,
+    };
 
-  const checkActiveBadgeMessageNotif = () => {
-    if (totalMessageNotif) {
-      return <span className="topbar-icon-badge">{totalMessageNotif}</span>;
-    }
-  };
+    const isNotifData = notifications[notifType];
 
-  const checkActiveBadgeNotifications = () => {
-    if (totalPostNotif) {
-      return <span className="topbar-icon-badge">{totalPostNotif}</span>;
+    if (isNotifData) {
+      return <span className="topbar-icon-badge">{isNotifData}</span>;
     }
   };
 
@@ -127,7 +131,7 @@ function Topbar({
             id="search-input-terms"
             placeholder="Cari teman, postingan atau video"
             type="text"
-            value={searchTerms}
+            value={searchInput.get()}
             onChange={(e) => handleSearchOnChange(e.target.value)}
           ></input>
         </div>
@@ -147,7 +151,7 @@ function Topbar({
                 className="topbar-icon-item"
               >
                 <PersonIcon className="topbar-notif-icon" />
-                {checkActiveBadgeFollowerNotif()}
+                {checkActiveBadgeNotif("follower")}
               </Link>
 
               <Link
@@ -159,7 +163,7 @@ function Topbar({
                 className="topbar-icon-item"
               >
                 <ChatIcon className="topbar-notif-icon" />
-                {checkActiveBadgeMessageNotif()}
+                {checkActiveBadgeNotif("message")}
               </Link>
 
               <Link
@@ -171,7 +175,7 @@ function Topbar({
                 className="topbar-icon-item"
               >
                 <NotificationsIcon className="topbar-notif-icon" />
-                {checkActiveBadgeNotifications()}
+                {checkActiveBadgeNotif("post")}
               </Link>
             </div>
           )}

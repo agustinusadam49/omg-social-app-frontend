@@ -5,13 +5,15 @@
   padding: 6px 10px 6px 10px;
 
   .search-items-post-card-wrapper {
-    background-color: rgb(238, 228, 228);
+    background-color: white;
     cursor: pointer;
     display: flex;
     flex-direction: row;
     flex-grow: 1;
-    border-radius: 5px;
+    border-radius: 8px;
     padding: 6px;
+    -webkit-box-shadow: 0px 0px 16px -8px rgba(0, 0, 0, 0.68);
+    box-shadow: 0px 0px 16px -8px rgba(0, 0, 0, 0.68);
 
     .search-items-posts-user-image {
       width: 32px;

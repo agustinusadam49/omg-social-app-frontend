@@ -48,12 +48,12 @@ const ReplyCommentInput = ({
       .then((newCommentData) => {
         if (newCommentData.data.success) {
           setReplyCommentMessage("");
+          mutate({ type: actionType.STOP_LOADING_STATUS });
           dispatch(
             setIsAddNewReplyComment({ successAddNewReplyComment: true })
           );
           setIsViewReply(true);
           setIsOpenReplyBox(false);
-          mutate({ type: actionType.STOP_LOADING_STATUS });
         }
       })
       .catch((error) => {

@@ -1,76 +1,78 @@
-// No Need Auth Pages Import
+import { createBrowserRouter } from "react-router-dom";
+
+import PageWithHeaderLayout from "../layout/page-with-header-layout/PageWithHeaderLayout";
+import PageWithoutHeaderLayout from "../layout/page-without-header-layout/PageWithoutHeaderLayout";
+import NonProfilePages from "../layout/page-with-header-layout/non-profile-pages/NonProfilePages";
+
 import LoginPage from "../pages/login/Login";
 import RegisterPage from "../pages/register/Register";
+import ForgotPassword from "../pages/forgot-password/ForgotPassword";
+import Profile from "../pages/profile/Profile";
+import ErrorPage from "../pages/error-page/ErrorPage";
 
-// Need Auth Pages Import
-
-// Non profile pages
-import Feed from "../components/feed/Feed"
+import Feed from "../components/feed/Feed";
 import EventContents from "../components/event-contents/EventContents";
 import PostNotifContents from "../components/post-notif-contents/PostNotifContents";
 import FollowerNotifContents from "../components/follower-notif-contents/FollowerNotifContents";
 import MessageNotifContents from "../components/message-notif-contents/MessageNotifContents";
 import SearchPageContents from "../components/search-page-contents/SearchPageContents";
 
-// profile pages
-import Profile from "../pages/profile/Profile";
-
-export const needAuthpages = {
-  home: {
-    path: "/",
-    pageComponent: () => {
-      return <Feed />;
-    },
+export const router = createBrowserRouter([
+  {
+    element: <PageWithHeaderLayout />,
+    errorElement: <ErrorPage />,
+    children: [
+      {
+        path: "/",
+        element: <NonProfilePages />,
+        children: [
+          {
+            index: true,
+            element: <Feed />,
+          },
+          {
+            path: "events",
+            element: <EventContents />,
+          },
+          {
+            path: "search",
+            element: <SearchPageContents />,
+          },
+          {
+            path: "post-notifications",
+            element: <PostNotifContents />,
+          },
+          {
+            path: "follower-notifications",
+            element: <FollowerNotifContents />,
+          },
+          {
+            path: "message-notifications",
+            element: <MessageNotifContents />,
+          },
+        ],
+      },
+      {
+        path: "profile/:username/user-id/:userId",
+        element: <Profile />,
+      },
+    ],
   },
-  events: {
-    path: "events",
-    pageComponent: () => {
-      return <EventContents />;
-    },
+  {
+    element: <PageWithoutHeaderLayout />,
+    children: [
+      {
+        path: "/login",
+        element: <LoginPage />,
+      },
+      {
+        path: "/register",
+        element: <RegisterPage />,
+      },
+      {
+        path: "/forgot-password",
+        element: <ForgotPassword />,
+      },
+    ],
   },
-  postnotif: {
-    path: "post-notifications",
-    pageComponent: () => {
-      return <PostNotifContents />;
-    },
-  },
-  followernotif: {
-    path: "follower-notifications",
-    pageComponent: () => {
-      return <FollowerNotifContents />;
-    },
-  },
-  messagenotif: {
-    path: "message-notifications",
-    pageComponent: () => {
-      return <MessageNotifContents />;
-    },
-  },
-  search: {
-    path: "search",
-    pageComponent: () => {
-      return <SearchPageContents />;
-    },
-  },
-  profile: {
-    path: "profile/:username/user-id/:userId",
-    pageComponent: () => {
-      return <Profile />;
-    },
-  },
-};
-
-export const notNeedAuthpages = {
-  login: {
-    path: "/login",
-    pageComponent: () => {
-      return <LoginPage />;
-    },
-  },
-  register: {
-    path: "/register",
-    pageComponent: () => {
-      return <RegisterPage />;
-    },
-  },
-};
+]);

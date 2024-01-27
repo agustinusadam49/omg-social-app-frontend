@@ -6,29 +6,33 @@ import {
   setMessageNotif,
   setPostNotif,
 } from "../redux/slices/notificationSlice";
+import {useScreenWidth} from "../utils/screenWidth"
 
 export default function withNotifData(OriginalComponent) {
   return () => {
     const dispatch = useDispatch();
+    const isDesktop = useScreenWidth("lg");
 
     const followerNotifFromSlice = useSelector((state) => state.notifications.followerNotif);
     const postNotifFromSlice = useSelector((state) => state.notifications.postNotif);
     const messageNotifFromSlice = useSelector((state) => state.notifications.messageNotif);
-    const userSnapRegisteredStatus = useSelector((state) => state.user.snapUserLogout);
+    const isThereMessageNotif = useSelector((state) => state.user.isGetMessageNotif)
 
     const followerNotifFiltered = useMemo(() => followerNotifFromSlice.filter((item) => !item.isRead), [followerNotifFromSlice]);
     const postNotifFiltered = useMemo(() => postNotifFromSlice.filter((item) => !item.isRead), [postNotifFromSlice]);
     const messageNotifFiltered = useMemo(() => messageNotifFromSlice.filter((item) => !item.isRead), [messageNotifFromSlice]);
 
     useEffect(() => {
-      getNotificationsBelongsToLoggedUser(dispatch);
+      if (isDesktop) {
+        getNotificationsBelongsToLoggedUser(dispatch);
+      }
 
       return () => {
         dispatch(setFollowerNotif({ followerNotifData: [] }));
         dispatch(setMessageNotif({ messageNotifData: [] }));
         dispatch(setPostNotif({ postNotifData: [] }));
       };
-    }, [userSnapRegisteredStatus, dispatch]);
+    }, [isThereMessageNotif, isDesktop, dispatch]);
 
     return (
       <OriginalComponent

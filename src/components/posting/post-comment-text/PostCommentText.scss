@@ -1,0 +1,14 @@
+.post-comment-text {
+  font-size: 10px;
+  cursor: pointer;
+  border-bottom: 1px dashed gray;
+  color: black;
+
+  &:hover {
+    color: rgb(202, 9, 202);
+  }
+
+  @media only screen and (min-width: 1024px) {
+    font-size: 12px;
+  }
+}

@@ -30,6 +30,12 @@
       outline: none;
     }
 
+    &.disabled {
+      background-color: rgb(191, 188, 188);
+      color: grey;
+      border: solid 1px gray
+    }
+
     @media only screen and (min-width: 1024px) {
       height: 50px;
       border-radius: 10px;

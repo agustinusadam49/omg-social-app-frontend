@@ -1,0 +1,54 @@
+.follow-button {
+  width: 100%;
+  text-align: center;
+  border-radius: 5px;
+  cursor: pointer;
+  padding: 6px 0;
+  margin-bottom: 10px;
+  font-size: 18px;
+  font-weight: 600;
+  border-color: blue;
+  border-width: 2px;
+  border-style: solid;
+
+  &.active {
+    background-color: blue;
+    color: white;
+  }
+
+  &.not-active {
+    color: blue;
+  }
+
+  &.loading {
+    color: #2c2891;
+    cursor: not-allowed;
+  }
+}
+
+.edit-profile-button {
+  border: none;
+  border-radius: 8px;
+  width: 100%;
+  background-color: #605beb;
+  color: white;
+  cursor: pointer;
+  text-align: center;
+  padding: 12px 0px;
+  margin-top: 10px;
+  box-sizing: border-box;
+  font-size: 11px;
+
+  @media only screen and (min-width: 1024px) {
+    padding: 8px 0px;
+    font-size: 12px;
+  }
+}
+
+.edit-profile-button:last-child {
+  margin-top: 14px;
+
+  @media only screen and (min-width: 1024px) {
+    margin-top: 12px;
+  }
+}

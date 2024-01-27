@@ -1,31 +1,56 @@
-import React, { Fragment, useState } from "react";
+import React, { Fragment, useState, useEffect } from "react";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
+import { useSelector, useDispatch } from "react-redux";
+import { setIsClicked } from "../../redux/slices/buttonsSlice";
+
 import "./InputTextGlobal.scss";
 
-// This input text global component does not need use value and onchange,
-// instead of using inputRef, for now it used in login and register page
-
 const InputTextGlobal = ({
-  inputRef,
   inputErrorMessage,
   inputPlaceholder = "",
   inputType = "text",
   additionalStylingClass = "",
   inputLabel = null,
   inputSecondErrorMessage = null,
+  ...props
 }) => {
+  const dispatch = useDispatch();
+  const currentIsClicked = useSelector(({ button }) => button.isClicked);
+  const isDisabled = props?.disabled || false;
   const [seePassword, setSeePassword] = useState(false);
+  const [onBlur, setOnBlur] = useState(false);
+  const [errorMessageState, setErrorMessageState] = useState(null);
+
+  useEffect(() => {
+    if (onBlur) {
+      setErrorMessageState(inputErrorMessage);
+    } else {
+      setErrorMessageState([]);
+    }
+  }, [onBlur, inputErrorMessage]);
+
+  useEffect(() => {
+    if (currentIsClicked) {
+      setOnBlur(true);
+    }
+
+    return () => {
+      dispatch(setIsClicked({ payload: false }));
+    };
+  }, [currentIsClicked, dispatch]);
 
   const displayErrorMessages = () => {
-    if (inputErrorMessage.length) {
-      return <div className="inputErrorMessageV1">{inputErrorMessage}</div>;
+    if (errorMessageState && errorMessageState.length) {
+      return <div className="inputErrorMessageV1">{errorMessageState}</div>;
     }
   };
 
   const displaySecondaryErrorMessages = () => {
     if (inputSecondErrorMessage) {
-      return <div className="inputErrorMessageV1">{inputSecondErrorMessage}</div>;
+      return (
+        <div className="inputErrorMessageV1">{inputSecondErrorMessage}</div>
+      );
     }
   };
 
@@ -57,7 +82,10 @@ const InputTextGlobal = ({
   };
 
   const isErrorMessage = () => {
-    return inputErrorMessage.length ? "if-error-message" : "";
+    return (errorMessageState && errorMessageState.length) ||
+      inputSecondErrorMessage
+      ? "if-error-message"
+      : "";
   };
 
   const additionalStyling = () => {
@@ -68,17 +96,26 @@ const InputTextGlobal = ({
     return inputType === "date" ? "if-type-date" : "";
   };
 
+  const checkDisabled = () => {
+    return isDisabled ? "disabled" : "";
+  };
+
   const styleForInputTag = () => {
     const cssStyleArr = [
       "input-tag",
       isErrorMessage(),
       additionalStyling(),
       styleForTypeDate(),
+      checkDisabled(),
     ];
     const cssStyleStr = cssStyleArr.join(" ");
-    // console.log("cssStyleStr:", cssStyleStr)
     return cssStyleStr;
-    // return `input-tag ${isErrorMessage()} ${additionalStyling()} ${styleForTypeDate()}`;
+  };
+
+  const handleChangeOnBlur = (value) => {
+    if (value) {
+      setOnBlur(true);
+    }
   };
 
   return (
@@ -86,10 +123,11 @@ const InputTextGlobal = ({
       <div className="input-text-wrapper-v1">
         {displayLabel()}
         <input
-          ref={inputRef}
           placeholder={inputPlaceholder}
           className={styleForInputTag()}
           type={!seePassword ? inputType : "text"}
+          onBlur={(e) => handleChangeOnBlur(e.target.value)}
+          {...props}
         />
         {displayEyeIcon()}
       </div>

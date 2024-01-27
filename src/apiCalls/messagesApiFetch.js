@@ -14,15 +14,18 @@ export const createNewMessageData = (payloadData) => {
   });
 };
 
-export const getAllMessagesData = (userIdFromUrlParam) => {
+export const getAllMessagesData = async (userIdFromUrlParam) => {
   const user_access_token = accessToken();
-  return axios.get(`${MESSAGES_URL}/`, {
+
+  const messages = await axios.get(`${MESSAGES_URL}/`, {
     params: { userReceiverId: parseInt(userIdFromUrlParam) },
     headers: {
       "Content-Type": "application/json",
       Authorization: `${user_access_token}`,
     },
   });
+
+  return messages;
 };
 
 export const updateTheMessageById = (idOfMessage, payloadData) => {
