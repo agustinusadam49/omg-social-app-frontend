@@ -34,13 +34,17 @@ export default function MessageNotifContents() {
   );
   const currentUserIdFromSlice = useSelector((state) => state.user.userId);
 
-  const [staticFilteredData, setStaticFilteredData] = useState(messageNotifFromSlice);
+  const [staticFilteredData, setStaticFilteredData] = useState(
+    messageNotifFromSlice
+  );
   const [notifMessageDataObj, setNotifMessageDataObj] = useState({});
   const [activePageIndex, setActivePageIndex] = useState("page1");
   const [notifArrByActivePage, setNotifArrByActivePage] = useState([]);
 
   const notReadYetMessageNotifications = useMemo(() => {
-    const result = messageNotifFromSlice.filter((notif) => notif.isRead === false);
+    const result = messageNotifFromSlice.filter(
+      (notif) => notif.isRead === false
+    );
     return result;
   }, [messageNotifFromSlice]);
 
@@ -63,7 +67,9 @@ export default function MessageNotifContents() {
               isRead: true,
             }));
 
-          dispatch(setMessageNotif({ messageNotifData: changeAllIsReadStatus }));
+          dispatch(
+            setMessageNotif({ messageNotifData: changeAllIsReadStatus })
+          );
           mutate({ type: actionType.STOP_LOADING_STATUS });
         }
       })
@@ -74,64 +80,6 @@ export default function MessageNotifContents() {
         console.log(errorMessageFromApi);
         mutate({ type: actionType.STOP_LOADING_STATUS });
       });
-  };
-
-  const displayMessageNotifData = () => {
-    if (staticFilteredData.length) {
-      return (
-        <Fragment>
-          {notifArrByActivePage?.map((notifMessageItem) => (
-            <NotificationCard
-              key={notifMessageItem.id}
-              notifications={notifMessageItem}
-            />
-          ))}
-        </Fragment>
-      );
-    }
-
-    return <EmptyStateNotification type={"messages"} />;
-  };
-
-  const displayButtonMarkAllNotif = () => {
-    if (!loadingState.status) {
-      if (messageNotifFromSlice.length) {
-        return (
-          <GlobalButton
-            classStyleName={`message-notif-mark-all-button ${
-              totalAllIsRead ? "active" : "not-active"
-            }`}
-            buttonLabel={
-              totalAllIsRead
-                ? "Tandai semua sebagai dibaca"
-                : "Semua notif telah dibaca"
-            }
-            onClick={() => changeButton()}
-          />
-        );
-      }
-    } else {
-      return (
-        <div className="message-notif-mark-all-button active">
-          <RoundedLoader baseColor="gray" secondaryColor="white" />
-        </div>
-      );
-    }
-  };
-
-  const displayPagination = () => {
-    if (messageNotifFromSlice.length) {
-      return (
-        <PaginationNotif
-          pagePathName={"/message-notifications"}
-          notifDataSlices={messageNotifFromSlice}
-          notifDataObj={notifMessageDataObj}
-          activePageIndex={activePageIndex}
-          setActivePageIndex={setActivePageIndex}
-          setNotifDataObj={setNotifMessageDataObj}
-        />
-      );
-    }
   };
 
   const totalAllIsRead = useMemo(() => {
@@ -164,11 +112,49 @@ export default function MessageNotifContents() {
       <div className="message-notif-title">Message Notifications</div>
       <div className="message-notif-card-wrapper">
         <div className="message-notif-card-inner-wrapper">
-          {displayMessageNotifData()}
+          {!!staticFilteredData.length ? (
+            <Fragment>
+              {notifArrByActivePage?.map((notifMessageItem) => (
+                <NotificationCard
+                  key={notifMessageItem.id}
+                  notifications={notifMessageItem}
+                />
+              ))}
+            </Fragment>
+          ) : (
+            <EmptyStateNotification type={"messages"} />
+          )}
         </div>
-        {displayButtonMarkAllNotif()}
+
+        {!loadingState.status && !!messageNotifFromSlice.length ? (
+          <GlobalButton
+            classStyleName={`message-notif-mark-all-button ${
+              totalAllIsRead ? "active" : "not-active"
+            }`}
+            buttonLabel={
+              totalAllIsRead
+                ? "Tandai semua sebagai dibaca"
+                : "Semua notif telah dibaca"
+            }
+            onClick={() => changeButton()}
+          />
+        ) : (
+          <div className="message-notif-mark-all-button active">
+            <RoundedLoader baseColor="gray" secondaryColor="white" />
+          </div>
+        )}
       </div>
-      {displayPagination()}
+
+      {!!messageNotifFromSlice.length && (
+        <PaginationNotif
+          pagePathName={"/message-notifications"}
+          notifDataSlices={messageNotifFromSlice}
+          notifDataObj={notifMessageDataObj}
+          activePageIndex={activePageIndex}
+          setActivePageIndex={setActivePageIndex}
+          setNotifDataObj={setNotifMessageDataObj}
+        />
+      )}
     </div>
   );
 }
