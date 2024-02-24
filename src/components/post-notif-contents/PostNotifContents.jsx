@@ -34,7 +34,8 @@ export default function PostNotifContents() {
   );
   const currentUserIdFromSlice = useSelector((state) => state.user.userId);
 
-  const [staticFilteredData, setStaticFilteredData] = useState(postNotifFromSlice);
+  const [staticFilteredData, setStaticFilteredData] =
+    useState(postNotifFromSlice);
   const [notifPostsDataObj, setNotifPostsDataObj] = useState({});
   const [activePageIndex, setActivePageIndex] = useState("page1");
   const [notifArrByActivePage, setNotifArrByActivePage] = useState([]);
@@ -76,64 +77,6 @@ export default function PostNotifContents() {
       });
   };
 
-  const displayPostNotifData = () => {
-    if (staticFilteredData.length) {
-      return (
-        <Fragment>
-          {notifArrByActivePage?.map((notifPostItem) => (
-            <NotificationCard
-              key={notifPostItem.id}
-              notifications={notifPostItem}
-            />
-          ))}
-        </Fragment>
-      );
-    }
-
-    return <EmptyStateNotification type={"posts"} />;
-  };
-
-  const displayButtonMarkAllNotif = () => {
-    if (!loadingState.status) {
-      if (postNotifFromSlice.length) {
-        return (
-          <GlobalButton
-            classStyleName={`post-notif-mark-all-button ${
-              totalAllIsRead ? "active" : "not-active"
-            }`}
-            buttonLabel={
-              totalAllIsRead
-                ? "Tandai semua sebagai dibaca"
-                : "Semua notif telah dibaca"
-            }
-            onClick={() => changeButton()}
-          />
-        );
-      }
-    } else {
-      return (
-        <div className="post-notif-mark-all-button active">
-          <RoundedLoader baseColor="gray" secondaryColor="white" />
-        </div>
-      );
-    }
-  };
-
-  const displayPagination = () => {
-    if (postNotifFromSlice.length) {
-      return (
-        <PaginationNotif
-          pagePathName={"/post-notifications"}
-          notifDataSlices={postNotifFromSlice}
-          notifDataObj={notifPostsDataObj}
-          activePageIndex={activePageIndex}
-          setActivePageIndex={setActivePageIndex}
-          setNotifDataObj={setNotifPostsDataObj}
-        />
-      );
-    }
-  };
-
   const totalAllIsRead = useMemo(() => {
     const newDataReadStatusIsRead = postNotifFromSlice
       .filter((item) => !item.isRead)
@@ -164,11 +107,49 @@ export default function PostNotifContents() {
       <div className="post-notif-title">Post Notifications</div>
       <div className="post-notif-card-wrapper">
         <div className="post-notif-card-inner-wrapper">
-          {displayPostNotifData()}
+          {!!staticFilteredData.length ? (
+            <Fragment>
+              {notifArrByActivePage?.map((notifPostItem) => (
+                <NotificationCard
+                  key={notifPostItem.id}
+                  notifications={notifPostItem}
+                />
+              ))}
+            </Fragment>
+          ) : (
+            <EmptyStateNotification type={"posts"} />
+          )}
         </div>
-        {displayButtonMarkAllNotif()}
+
+        {!loadingState.status && !!postNotifFromSlice.length ? (
+          <GlobalButton
+            classStyleName={`post-notif-mark-all-button ${
+              totalAllIsRead ? "active" : "not-active"
+            }`}
+            buttonLabel={
+              totalAllIsRead
+                ? "Tandai semua sebagai dibaca"
+                : "Semua notif telah dibaca"
+            }
+            onClick={() => changeButton()}
+          />
+        ) : (
+          <div className="post-notif-mark-all-button active">
+            <RoundedLoader baseColor="gray" secondaryColor="white" />
+          </div>
+        )}
       </div>
-      {displayPagination()}
+
+      {!!postNotifFromSlice.length && (
+        <PaginationNotif
+          pagePathName={"/post-notifications"}
+          notifDataSlices={postNotifFromSlice}
+          notifDataObj={notifPostsDataObj}
+          activePageIndex={activePageIndex}
+          setActivePageIndex={setActivePageIndex}
+          setNotifDataObj={setNotifPostsDataObj}
+        />
+      )}
     </div>
   );
 }
