@@ -12,7 +12,7 @@ import {
   updateNotificationStatusRead,
   deleteNotificationAndNotifContentById,
 } from "../../apiCalls/notificationsApiFetch";
-import { useScreenWidth } from "../../utils/screenWidth";
+import { useScreenWidth } from "../../custom-hooks/screenWidth";
 import {
   INITIAL_LOADING_STATE,
   actionType,

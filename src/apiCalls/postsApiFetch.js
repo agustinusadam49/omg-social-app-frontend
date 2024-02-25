@@ -5,9 +5,9 @@ const BASE_URL = process.env.REACT_APP_API_BASE_URL;
 const CLOUDINARY_API_URL = process.env.REACT_APP_CLOUDINARY_API_URL;
 const POSTS_URL = `${BASE_URL}posts/`;
 
-export const getAllPosts = () => {
+export const getAllPosts = (size) => {
   const user_access_token = accessToken();
-  return axios.get(`${POSTS_URL}`, {
+  return axios.get(`${POSTS_URL}?size=${size}`, {
     headers: {
       "Content-Type": "application/json",
       Authorization: `${user_access_token}`,

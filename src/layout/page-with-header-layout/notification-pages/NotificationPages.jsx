@@ -4,7 +4,7 @@ import { useDispatch } from "react-redux";
 import Leftbar from "../../../components/leftbar/Leftbar";
 import Rightbar from "../../../components/rightbar/Rightbar";
 import { userInfoLogin } from "../../../redux/apiCalls";
-import { useScreenWidth } from "../../../utils/screenWidth";
+import { useScreenWidth } from "../../../custom-hooks/screenWidth";
 
 import "./NotificationPages.scss";
 
