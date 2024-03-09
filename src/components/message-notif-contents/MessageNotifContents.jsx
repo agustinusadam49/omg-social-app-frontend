@@ -29,22 +29,16 @@ export default function MessageNotifContents() {
   );
   const dispatch = useDispatch();
 
-  const messageNotifFromSlice = useSelector(
-    (state) => state.notifications.messageNotif
-  );
+  const messageNotifFromSlice = useSelector((state) => state.notifications.messageNotif);
   const currentUserIdFromSlice = useSelector((state) => state.user.userId);
 
-  const [staticFilteredData, setStaticFilteredData] = useState(
-    messageNotifFromSlice
-  );
+  const [staticFilteredData, setStaticFilteredData] = useState(messageNotifFromSlice);
   const [notifMessageDataObj, setNotifMessageDataObj] = useState({});
   const [activePageIndex, setActivePageIndex] = useState("page1");
   const [notifArrByActivePage, setNotifArrByActivePage] = useState([]);
 
   const notReadYetMessageNotifications = useMemo(() => {
-    const result = messageNotifFromSlice.filter(
-      (notif) => notif.isRead === false
-    );
+    const result = messageNotifFromSlice.filter((notif) => notif.isRead === false);
     return result;
   }, [messageNotifFromSlice]);
 

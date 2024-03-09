@@ -34,8 +34,7 @@ export default function PostNotifContents() {
   );
   const currentUserIdFromSlice = useSelector((state) => state.user.userId);
 
-  const [staticFilteredData, setStaticFilteredData] =
-    useState(postNotifFromSlice);
+  const [staticFilteredData, setStaticFilteredData] = useState(postNotifFromSlice);
   const [notifPostsDataObj, setNotifPostsDataObj] = useState({});
   const [activePageIndex, setActivePageIndex] = useState("page1");
   const [notifArrByActivePage, setNotifArrByActivePage] = useState([]);

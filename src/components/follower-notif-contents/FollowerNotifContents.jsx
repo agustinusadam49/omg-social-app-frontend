@@ -34,17 +34,13 @@ export default function FollowerNotifContents() {
   );
   const currentUserIdFromSlice = useSelector((state) => state.user.userId);
 
-  const [staticFilteredData, setStaticFilteredData] = useState(
-    followerNotifFromSlice
-  );
+  const [staticFilteredData, setStaticFilteredData] = useState(followerNotifFromSlice);
   const [notifFollowerDataObj, setNotifFollowerDataObj] = useState({});
   const [activePageIndex, setActivePageIndex] = useState("page1");
   const [notifArrByActivePage, setNotifArrByActivePage] = useState([]);
 
   const notReadYetFollowerNotifications = useMemo(() => {
-    const result = followerNotifFromSlice.filter(
-      (notif) => notif.isRead === false
-    );
+    const result = followerNotifFromSlice.filter((notif) => notif.isRead === false);
     return result;
   }, [followerNotifFromSlice]);
 
@@ -67,9 +63,7 @@ export default function FollowerNotifContents() {
               isRead: true,
             }));
 
-          dispatch(
-            setFollowerNotif({ followerNotifData: changeAllIsReadStatus })
-          );
+          dispatch(setFollowerNotif({ followerNotifData: changeAllIsReadStatus }));
           mutate({ type: actionType.STOP_LOADING_STATUS });
         }
       })
