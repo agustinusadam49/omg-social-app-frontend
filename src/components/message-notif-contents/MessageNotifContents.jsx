@@ -61,9 +61,7 @@ export default function MessageNotifContents() {
               isRead: true,
             }));
 
-          dispatch(
-            setMessageNotif({ messageNotifData: changeAllIsReadStatus })
-          );
+          dispatch(setMessageNotif({ messageNotifData: changeAllIsReadStatus }));
           mutate({ type: actionType.STOP_LOADING_STATUS });
         }
       })

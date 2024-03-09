@@ -29,9 +29,7 @@ export default function PostNotifContents() {
   );
   const dispatch = useDispatch();
 
-  const postNotifFromSlice = useSelector(
-    (state) => state.notifications.postNotif
-  );
+  const postNotifFromSlice = useSelector((state) => state.notifications.postNotif);
   const currentUserIdFromSlice = useSelector((state) => state.user.userId);
 
   const [staticFilteredData, setStaticFilteredData] = useState(postNotifFromSlice);

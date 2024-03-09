@@ -29,9 +29,7 @@ export default function FollowerNotifContents() {
   );
   const dispatch = useDispatch();
 
-  const followerNotifFromSlice = useSelector(
-    (state) => state.notifications.followerNotif
-  );
+  const followerNotifFromSlice = useSelector((state) => state.notifications.followerNotif);
   const currentUserIdFromSlice = useSelector((state) => state.user.userId);
 
   const [staticFilteredData, setStaticFilteredData] = useState(followerNotifFromSlice);
