@@ -3,7 +3,6 @@ import React, {
   useEffect,
   memo,
   useRef,
-  useMemo,
   useReducer,
   useCallback,
 } from "react";
@@ -26,10 +25,7 @@ import RoundedLoader from "../rounded-loader/RoundedLoader";
 import "./MessageBox.scss";
 
 const MessageBox = ({ paramUserId }) => {
-  const [loadingState, mutate] = useReducer(
-    loadingReducer,
-    INITIAL_LOADING_STATE
-  );
+  const [loadingState, mutate] = useReducer(loadingReducer, INITIAL_LOADING_STATE);
   const dispatch = useDispatch();
 
   const socket = useRef(null);
@@ -37,29 +33,17 @@ const MessageBox = ({ paramUserId }) => {
 
   const currentUserIdFromSlice = useSelector((state) => state.user.userId);
   const currentUserNameFromSlice = useSelector((state) => state.user.userName);
-  const currentUserAvatarFromSlice = useSelector(
-    (state) => state.user.userAvatarPicture
-  );
+  const currentUserAvatarFromSlice = useSelector((state) => state.user.userAvatarPicture);
 
   const [usersOnline, setUsersOnline] = useState([]);
   const [messageText, setMessageText] = useState("");
-  const [allMessages, setAllMessages] = useState([]);
-  const [mappedMessages, setMappedMessages] = useState(allMessages || []);
+  const [mappedMessages, setMappedMessages] = useState([]);
   const [whoIsWriting, setWhoIsWriting] = useState("");
-  const [isThisUserVisitedMyProfile, setIsThisUserVisitedMyProfile] =
-    useState(false);
+  const [isThisUserVisitedMyProfile, setIsThisUserVisitedMyProfile] = useState(false);
   const [isTyping, setIsTyping] = useState(false);
 
   const emitSocket = (emitName, payload) => {
     socket.current.emit(emitName, payload);
-  };
-
-  const displayWhoIsWritting = () => {
-    if (isThisUserVisitedMyProfile === true) {
-      return <div className="who-is-writting">{whoIsWriting}</div>;
-    } else {
-      return <div className="who-is-writting" />;
-    }
   };
 
   const handleTypingMessage = (value) => {
@@ -153,9 +137,21 @@ const MessageBox = ({ paramUserId }) => {
 
       if (totalMessages) {
         const { messagesData } = chatData.data;
-        setAllMessages(messagesData);
+
+        const newMappedMessages = messagesData.map((message) => {
+          return {
+            id: message.id,
+            receiverId: message.receiver_id,
+            senderId: message.UserId,
+            username: message.User.userName,
+            textMessage: message.message_text,
+            messageCreateDate: message.createdAt,
+          };
+        });
+
+        setMappedMessages(newMappedMessages);
       } else {
-        setAllMessages([]);
+        setMappedMessages([]);
       }
     } catch (error) {
       if (error.response) {
@@ -181,7 +177,6 @@ const MessageBox = ({ paramUserId }) => {
     return () => {
       setMappedMessages([]);
       setWhoIsWriting("");
-      setAllMessages([]);
       setIsThisUserVisitedMyProfile(false);
       socket.current.disconnect();
     };
@@ -248,12 +243,9 @@ const MessageBox = ({ paramUserId }) => {
 
   useEffect(() => {
     if (usersOnline.length && paramUserId) {
-      const findThisUserWhenOnline = usersOnline.find(
-        (user) => user.userId === paramUserId
-      );
+      const findThisUserWhenOnline = usersOnline.find((user) => user.userId === paramUserId);
       const userProfileIdVisited = findThisUserWhenOnline?.userProfileIdVisited;
-      const isThisUserAlsoVisitedMe =
-        userProfileIdVisited === currentUserIdFromSlice;
+      const isThisUserAlsoVisitedMe = userProfileIdVisited === currentUserIdFromSlice;
       // console.log("Dimanakah user ini sedang berada:", userProfileIdVisited);
       // console.log(
       //   isThisUserAlsoVisitedMe
@@ -269,41 +261,21 @@ const MessageBox = ({ paramUserId }) => {
   }, [usersOnline, currentUserIdFromSlice, paramUserId]);
 
   useEffect(() => {
-    const newMappedMessages = allMessages.map((message) => {
-      return {
-        id: message.id,
-        receiverId: message.receiver_id,
-        senderId: message.UserId,
-        username: message.User.userName,
-        textMessage: message.message_text,
-        messageCreateDate: message.createdAt,
-      };
-    });
-
-    setMappedMessages(newMappedMessages);
-  }, [allMessages]);
-
-  useEffect(() => {
     if (currentUserIdFromSlice) {
       hitApiGetMessagesData(paramUserId);
     }
 
     return () => {
-      setAllMessages([]);
+      setMappedMessages([]);
     };
   }, [paramUserId, currentUserIdFromSlice, hitApiGetMessagesData]);
-
-  const mappedMessageForRendering = useMemo(() => {
-    const messages = mappedMessages;
-    return messages;
-  }, [mappedMessages]);
 
   return (
     <div className="message-box">
       {/* message data section */}
       <div className="message-data-container" ref={scrollRef}>
-        {mappedMessageForRendering &&
-          mappedMessageForRendering.map((messageItem, index) => (
+        {mappedMessages &&
+          mappedMessages.map((messageItem, index) => (
             <TextItems
               key={index}
               messageItem={messageItem}
@@ -314,7 +286,11 @@ const MessageBox = ({ paramUserId }) => {
 
       {/* Send message container */}
       <div className="send-message-container">
-        {displayWhoIsWritting()}
+        {isThisUserVisitedMyProfile === true ? (
+          <div className="who-is-writting">{whoIsWriting}</div>
+        ) : (
+          <div className="who-is-writting" />
+        )}
         <div
           className="send-message-wrapper"
           onKeyPress={doCreateNewMessageWithEnter}

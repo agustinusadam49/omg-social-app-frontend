@@ -34,15 +34,15 @@ export default function HomePosts() {
   const apiTotalPost = totalPostFromApi;
 
   const [filteredPosts, setFilteredPosts] = useState(postsFromSlice);
-  const [size, setSize] = useState(10);
+  const [size, setSize] = useState(5);
   const [loadingSeeMore, setLoadingSeeMore] = useState(false);
 
-  const displayLoading = () => {
-    return <LoadingPosts />;
-  };
-
   const handleSeeMore = () => {
-    const currentSize = size + 5;
+    let currentSize = size + 5;
+
+    if (currentSize > apiTotalPost) {
+      currentSize = apiTotalPost;
+    }
 
     setLoadingSeeMore(true);
 
@@ -50,40 +50,6 @@ export default function HomePosts() {
       setLoadingSeeMore(false);
       setSize(currentSize);
     }, 1000);
-  };
-
-  const displayHomePosts = () => {
-    if (filteredPosts.length) {
-      return (
-        <Fragment>
-          {filteredPosts.map((post) => (
-            <Post key={post.id} postedData={post} />
-          ))}
-
-          {size < apiTotalPost && (
-            <GlobalButton
-              buttonLabel="See More"
-              classStyleName="see-more-button"
-              onClick={handleSeeMore}
-              loading={loadingSeeMore}
-              renderLabel={({ label, isLoading }) =>
-                !isLoading ? (
-                  <div>{label}</div>
-                ) : (
-                  <RoundedLoader baseColor="gray" secondaryColor="white" />
-                )
-              }
-            />
-          )}
-        </Fragment>
-      );
-    }
-
-    return (
-      <EmptyStatePosts
-        params={{ ...paramsEmptyState, location: "home-page" }}
-      />
-    );
   };
 
   useEffect(() => {
@@ -128,7 +94,39 @@ export default function HomePosts() {
   return (
     <Fragment>
       <ShareBox />
-      {isPostsloading ? displayLoading() : displayHomePosts()}
+      {isPostsloading ? (
+        <LoadingPosts />
+      ) : (
+        <Fragment>
+          {filteredPosts.length ? (
+            <Fragment>
+              {filteredPosts.map((post) => (
+                <Post key={post.id} postedData={post} />
+              ))}
+
+              {size < apiTotalPost && (
+                <GlobalButton
+                  buttonLabel="See More"
+                  classStyleName="see-more-button"
+                  onClick={handleSeeMore}
+                  loading={loadingSeeMore}
+                  renderLabel={({ label, isLoading }) =>
+                    !isLoading ? (
+                      <div>{label}</div>
+                    ) : (
+                      <RoundedLoader baseColor="gray" secondaryColor="white" />
+                    )
+                  }
+                />
+              )}
+            </Fragment>
+          ) : (
+            <EmptyStatePosts
+              params={{ ...paramsEmptyState, location: "home-page" }}
+            />
+          )}
+        </Fragment>
+      )}
     </Fragment>
   );
 }
