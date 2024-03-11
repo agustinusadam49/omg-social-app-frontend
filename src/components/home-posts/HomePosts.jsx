@@ -23,15 +23,9 @@ export default function HomePosts() {
 
   const isPostsloading = useSelector((state) => state.posts.loadingGetPosts);
   const postsFromSlice = useSelector((state) => state.posts.posts);
-  const postAddNewPostingStatus = useSelector(
-    (state) => state.posts.isAddPosting
-  );
-  const searchTermsFromSlice = useSelector(
-    (state) => state.posts.searchPostsTerms
-  );
+  const postAddNewPostingStatus = useSelector((state) => state.posts.isAddPosting);
+  const searchTermsFromSlice = useSelector((state) => state.posts.searchPostsTerms);
   const totalPostFromApi = useSelector((state) => state.posts.postsTotal);
-
-  const apiTotalPost = totalPostFromApi;
 
   const [filteredPosts, setFilteredPosts] = useState(postsFromSlice);
   const [size, setSize] = useState(5);
@@ -40,8 +34,8 @@ export default function HomePosts() {
   const handleSeeMore = () => {
     let currentSize = size + 5;
 
-    if (currentSize > apiTotalPost) {
-      currentSize = apiTotalPost;
+    if (currentSize > totalPostFromApi) {
+      currentSize = totalPostFromApi;
     }
 
     setLoadingSeeMore(true);
@@ -104,7 +98,7 @@ export default function HomePosts() {
                 <Post key={post.id} postedData={post} />
               ))}
 
-              {size < apiTotalPost && (
+              {size < totalPostFromApi && (
                 <GlobalButton
                   buttonLabel="See More"
                   classStyleName="see-more-button"
