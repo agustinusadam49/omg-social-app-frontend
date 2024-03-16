@@ -40,7 +40,7 @@
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    height: 60px;
+    height: fit-content;
     padding-top: 4px;
 
     .who-is-writting {
@@ -49,6 +49,53 @@
       box-sizing: border-box;
       width: fit-content;
       color: rgb(40, 67, 175);
+    }
+
+    .message-ready-to-reply {
+      border-radius: 8px;
+      margin-bottom: 10px;
+      display: flex;
+      flex-direction: row;
+      justify-content: space-between;
+      font-size: 11px;
+      font-weight: 300;
+      line-height: 16px;
+      padding: 6px;
+      background-color: rgb(7, 121, 7);
+
+      .user-name-and-text-wrapper {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+
+        .user-message-name {
+          font-size: 12px;
+          font-weight: 600;
+          color: white;
+        }
+
+        .message-content {
+          color: white;
+        }
+      }
+
+      .close-message-ready-to-reply {
+        padding: 0px 2px 0px 2px;
+
+        .close-button-ready-to-reply {
+          color: white;
+          border: solid 1px white;
+          width: 16px;
+          height: 16px;
+          display: flex;
+          flex-direction: row;
+          align-items: center;
+          justify-content: center;
+          border-radius: 50%;
+          // font-weight: 600;
+          cursor: pointer;
+        }
+      }
     }
 
     .send-message-wrapper {

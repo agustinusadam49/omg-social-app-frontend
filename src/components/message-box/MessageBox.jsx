@@ -25,7 +25,10 @@ import RoundedLoader from "../rounded-loader/RoundedLoader";
 import "./MessageBox.scss";
 
 const MessageBox = ({ paramUserId }) => {
-  const [loadingState, mutate] = useReducer(loadingReducer, INITIAL_LOADING_STATE);
+  const [loadingState, mutate] = useReducer(
+    loadingReducer,
+    INITIAL_LOADING_STATE
+  );
   const dispatch = useDispatch();
 
   const socket = useRef(null);
@@ -41,6 +44,7 @@ const MessageBox = ({ paramUserId }) => {
   const [whoIsWriting, setWhoIsWriting] = useState("");
   const [isThisUserVisitedMyProfile, setIsThisUserVisitedMyProfile] = useState(false);
   const [isTyping, setIsTyping] = useState(false);
+  const [messageReadyToReply, setMessageReadyToReply] = useState(null);
 
   const emitSocket = (emitName, payload) => {
     socket.current.emit(emitName, payload);
@@ -75,16 +79,29 @@ const MessageBox = ({ paramUserId }) => {
 
   const hitApiCreateNewMessage = () => {
     mutate({ type: actionType.RUN_LOADING_STATUS });
+
+    const messageAndReplyDataObj = {
+      messageSourceId: messageReadyToReply ? messageReadyToReply.id : null,
+      senderSourceId: messageReadyToReply ? messageReadyToReply.senderId : null,
+      textSourceMessage: messageReadyToReply
+        ? messageReadyToReply.textMessage
+        : null,
+      usernameSource: messageReadyToReply ? messageReadyToReply.username : null,
+      realTextMessage: messageText,
+    };
+
     const payloadToCreateMessage = {
       receiver_id: paramUserId,
-      message_text: messageText,
+      message_text: JSON.stringify(messageAndReplyDataObj),
       senderName: currentUserNameFromSlice,
     };
+
     createNewMessageData(payloadToCreateMessage)
       .then((newMessageResult) => {
         const successCreateNewMessage = newMessageResult.data.success;
         if (successCreateNewMessage === true) {
           setMessageText("");
+          setMessageReadyToReply(null);
           const newMessageDataDB = newMessageResult.data.newMessage;
           const createDate = newMessageResult.data.newMessage.createdAt;
           const createObjNewMessages = {
@@ -244,9 +261,12 @@ const MessageBox = ({ paramUserId }) => {
 
   useEffect(() => {
     if (usersOnline.length && paramUserId) {
-      const findThisUserWhenOnline = usersOnline.find((user) => user.userId === paramUserId);
+      const findThisUserWhenOnline = usersOnline.find(
+        (user) => user.userId === paramUserId
+      );
       const userProfileIdVisited = findThisUserWhenOnline?.userProfileIdVisited;
-      const isThisUserAlsoVisitedMe = userProfileIdVisited === currentUserIdFromSlice;
+      const isThisUserAlsoVisitedMe =
+        userProfileIdVisited === currentUserIdFromSlice;
       // Don't delete these commented code bellow
       // console.log("Dimanakah user ini sedang berada:", userProfileIdVisited);
       // console.log(
@@ -269,6 +289,7 @@ const MessageBox = ({ paramUserId }) => {
 
     return () => {
       setMappedMessages([]);
+      setMessageReadyToReply(null);
     };
   }, [paramUserId, currentUserIdFromSlice, hitApiGetMessagesData]);
 
@@ -282,6 +303,7 @@ const MessageBox = ({ paramUserId }) => {
               key={index}
               messageItem={messageItem}
               paramUserId={paramUserId}
+              setMessageReadyToReply={setMessageReadyToReply}
             />
           ))}
       </div>
@@ -293,6 +315,32 @@ const MessageBox = ({ paramUserId }) => {
         ) : (
           <div className="who-is-writting" />
         )}
+
+        {messageReadyToReply && (
+          <div className="message-ready-to-reply">
+            <div className="user-name-and-text-wrapper">
+              <div className="user-message-name">
+                {messageReadyToReply.senderId === currentUserIdFromSlice
+                  ? "Anda"
+                  : messageReadyToReply.username}
+              </div>
+
+              <div className="message-content">
+                {messageReadyToReply.textMessage}
+              </div>
+            </div>
+
+            <div className="close-message-ready-to-reply">
+              <div
+                className="close-button-ready-to-reply"
+                onClick={() => setMessageReadyToReply(null)}
+              >
+                X
+              </div>
+            </div>
+          </div>
+        )}
+
         <div
           className="send-message-wrapper"
           onKeyPress={doCreateNewMessageWithEnter}
