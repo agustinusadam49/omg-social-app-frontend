@@ -22,8 +22,22 @@ export const shareActionType = {
 };
 
 export const shareReducer = (state, action) => {
+  const {
+    RUN_POST_PENDING,
+    STOP_POST_PENDING,
+    RUN_POST_LOADING,
+    STOP_POST_LOADING,
+    STOP_POST_LOADING_WHEN_SUCCESS,
+    RUN_IMAGE_PENDING,
+    RUN_IMAGE_LOADING,
+    STOP_IMAGE_PENDING,
+    STOP_IMAGE_LOADING_WHEN_SUCCESS,
+    STOP_IMAGE_LOADING,
+    STOP_POST_AND_IMAGE_SUCCESS,
+  } = shareActionType;
+
   switch (action.type) {
-    case shareActionType.RUN_POST_PENDING: {
+    case RUN_POST_PENDING: {
       return {
         ...state,
         uploadPostPending: true,
@@ -31,13 +45,13 @@ export const shareReducer = (state, action) => {
         isUploadPostSuccess: false,
       };
     }
-    case shareActionType.STOP_POST_PENDING: {
+    case STOP_POST_PENDING: {
       return {
         ...state,
         uploadPostPending: false,
       };
     }
-    case shareActionType.RUN_POST_LOADING: {
+    case RUN_POST_LOADING: {
       return {
         ...state,
         uploadPostLoading: true,
@@ -45,20 +59,20 @@ export const shareReducer = (state, action) => {
         isUploadPostSuccess: false,
       };
     }
-    case shareActionType.STOP_POST_LOADING: {
+    case STOP_POST_LOADING: {
       return {
         ...state,
         uploadPostLoading: false,
       };
     }
-    case shareActionType.STOP_POST_LOADING_WHEN_SUCCESS: {
+    case STOP_POST_LOADING_WHEN_SUCCESS: {
       return {
         ...state,
         uploadPostLoading: false,
         isUploadPostSuccess: true,
       };
     }
-    case shareActionType.RUN_IMAGE_PENDING: {
+    case RUN_IMAGE_PENDING: {
       return {
         ...state,
         uploadImagePending: true,
@@ -66,7 +80,7 @@ export const shareReducer = (state, action) => {
         isUploadImageSuccess: false,
       };
     }
-    case shareActionType.RUN_IMAGE_LOADING: {
+    case RUN_IMAGE_LOADING: {
       return {
         ...state,
         uploadImageLoading: true,
@@ -74,26 +88,26 @@ export const shareReducer = (state, action) => {
         isUploadImageSuccess: false,
       };
     }
-    case shareActionType.STOP_IMAGE_PENDING: {
+    case STOP_IMAGE_PENDING: {
       return {
         ...state,
         uploadImagePending: false,
       };
     }
-    case shareActionType.STOP_IMAGE_LOADING_WHEN_SUCCESS: {
+    case STOP_IMAGE_LOADING_WHEN_SUCCESS: {
       return {
         ...state,
         uploadImageLoading: false,
         isUploadImageSuccess: true,
       };
     }
-    case shareActionType.STOP_IMAGE_LOADING: {
+    case STOP_IMAGE_LOADING: {
       return {
         ...state,
         uploadImageLoading: false,
       };
     }
-    case shareActionType.STOP_POST_AND_IMAGE_SUCCESS: {
+    case STOP_POST_AND_IMAGE_SUCCESS: {
       return {
         ...state,
         isUploadPostSuccess: false,

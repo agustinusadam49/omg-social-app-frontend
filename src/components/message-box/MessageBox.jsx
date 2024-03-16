@@ -161,6 +161,7 @@ const MessageBox = ({ paramUserId }) => {
   }, []);
 
   useEffect(() => {
+    // Don't delete these commented code bellow
     // socket.current = io(process.env.REACT_APP_SOCKET_IO_URL, {
     //   withCredentials: true,
     //   extraHeaders: {
@@ -246,6 +247,7 @@ const MessageBox = ({ paramUserId }) => {
       const findThisUserWhenOnline = usersOnline.find((user) => user.userId === paramUserId);
       const userProfileIdVisited = findThisUserWhenOnline?.userProfileIdVisited;
       const isThisUserAlsoVisitedMe = userProfileIdVisited === currentUserIdFromSlice;
+      // Don't delete these commented code bellow
       // console.log("Dimanakah user ini sedang berada:", userProfileIdVisited);
       // console.log(
       //   isThisUserAlsoVisitedMe

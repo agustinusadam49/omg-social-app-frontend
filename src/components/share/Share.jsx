@@ -55,6 +55,8 @@ const Share = ({ userNameFromParam }) => {
     ({ posts }) => posts.openLoadDataModal
   );
 
+  const previewImagePostingRef = useRef(null);
+
   const loadItems = useMemo(() => {
     return [
       {
@@ -89,8 +91,6 @@ const Share = ({ userNameFromParam }) => {
       .sort((a, b) => b.loadingStatus - a.loadingStatus);
     dispatch(setPostLoadItems({ payload: filteredLoadItems }));
   }, [loadItems, dispatch]);
-
-  const previewImagePostingRef = useRef(null);
 
   const userNameFromParamUrl = userNameFromParam;
   const displayPlaceHolderUsername = userNameFromParamUrl
