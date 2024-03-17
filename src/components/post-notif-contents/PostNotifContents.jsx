@@ -29,10 +29,13 @@ export default function PostNotifContents() {
   );
   const dispatch = useDispatch();
 
-  const postNotifFromSlice = useSelector((state) => state.notifications.postNotif);
+  const postNotifFromSlice = useSelector(
+    (state) => state.notifications.postNotif
+  );
   const currentUserIdFromSlice = useSelector((state) => state.user.userId);
 
-  const [staticFilteredData, setStaticFilteredData] = useState(postNotifFromSlice);
+  const [staticFilteredData, setStaticFilteredData] =
+    useState(postNotifFromSlice);
   const [notifPostsDataObj, setNotifPostsDataObj] = useState({});
   const [activePageIndex, setActivePageIndex] = useState("page1");
   const [notifArrByActivePage, setNotifArrByActivePage] = useState([]);
@@ -118,7 +121,7 @@ export default function PostNotifContents() {
           )}
         </div>
 
-        {!loadingState.status && !!postNotifFromSlice.length ? (
+        {!!postNotifFromSlice.length && (
           <GlobalButton
             classStyleName={`post-notif-mark-all-button ${
               totalAllIsRead ? "active" : "not-active"
@@ -129,11 +132,20 @@ export default function PostNotifContents() {
                 : "Semua notif telah dibaca"
             }
             onClick={() => changeButton()}
+            loading={loadingState.status}
+            isDisabled={loadingState.status}
+            renderLabel={({ label, isLoading }) => {
+              return !isLoading ? (
+                <div>{label}</div>
+              ) : (
+                <RoundedLoader
+                  baseColor="gray"
+                  secondaryColor="white"
+                  size={17}
+                />
+              );
+            }}
           />
-        ) : (
-          <div className="post-notif-mark-all-button active">
-            <RoundedLoader baseColor="gray" secondaryColor="white" />
-          </div>
         )}
       </div>
 

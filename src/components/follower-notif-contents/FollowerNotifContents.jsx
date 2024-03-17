@@ -29,16 +29,22 @@ export default function FollowerNotifContents() {
   );
   const dispatch = useDispatch();
 
-  const followerNotifFromSlice = useSelector((state) => state.notifications.followerNotif);
+  const followerNotifFromSlice = useSelector(
+    (state) => state.notifications.followerNotif
+  );
   const currentUserIdFromSlice = useSelector((state) => state.user.userId);
 
-  const [staticFilteredData, setStaticFilteredData] = useState(followerNotifFromSlice);
+  const [staticFilteredData, setStaticFilteredData] = useState(
+    followerNotifFromSlice
+  );
   const [notifFollowerDataObj, setNotifFollowerDataObj] = useState({});
   const [activePageIndex, setActivePageIndex] = useState("page1");
   const [notifArrByActivePage, setNotifArrByActivePage] = useState([]);
 
   const notReadYetFollowerNotifications = useMemo(() => {
-    const result = followerNotifFromSlice.filter((notif) => notif.isRead === false);
+    const result = followerNotifFromSlice.filter(
+      (notif) => notif.isRead === false
+    );
     return result;
   }, [followerNotifFromSlice]);
 
@@ -61,7 +67,9 @@ export default function FollowerNotifContents() {
               isRead: true,
             }));
 
-          dispatch(setFollowerNotif({ followerNotifData: changeAllIsReadStatus }));
+          dispatch(
+            setFollowerNotif({ followerNotifData: changeAllIsReadStatus })
+          );
           mutate({ type: actionType.STOP_LOADING_STATUS });
         }
       })
@@ -118,7 +126,7 @@ export default function FollowerNotifContents() {
           )}
         </div>
 
-        {!loadingState.status && !!followerNotifFromSlice.length ? (
+        {!!followerNotifFromSlice.length && (
           <GlobalButton
             classStyleName={`follower-notif-mark-all-notif-button ${
               totalAllIsRead ? "active" : "not-active"
@@ -129,11 +137,20 @@ export default function FollowerNotifContents() {
                 : "Semua notif telah dibaca"
             }
             onClick={() => changeButton()}
+            loading={loadingState.status}
+            isDisabled={loadingState.status}
+            renderLabel={({ label, isLoading }) => {
+              return !isLoading ? (
+                <div>{label}</div>
+              ) : (
+                <RoundedLoader
+                  baseColor="gray"
+                  secondaryColor="white"
+                  size={17}
+                />
+              );
+            }}
           />
-        ) : (
-          <div className="follower-notif-mark-all-notif-button active">
-            <RoundedLoader baseColor="gray" secondaryColor="white" />
-          </div>
         )}
       </div>
 
