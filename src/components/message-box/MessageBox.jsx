@@ -304,6 +304,12 @@ const MessageBox = ({ paramUserId }) => {
               messageItem={messageItem}
               paramUserId={paramUserId}
               setMessageReadyToReply={setMessageReadyToReply}
+              isShowTriangle={
+                index === 0 ||
+                (messageItem.senderId !== mappedMessages[index - 1].senderId &&
+                  messageItem.receiverId !==
+                    mappedMessages[index - 1].receiverId)
+              }
             />
           ))}
       </div>

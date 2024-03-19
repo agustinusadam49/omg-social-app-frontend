@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import React from "react";
 
 import { useSelector } from "react-redux";
 import { rangeDay } from "../../../utils/rangeDay";
@@ -9,9 +9,13 @@ export default function TextItems({
   messageItem,
   paramUserId,
   setMessageReadyToReply,
+  isShowTriangle,
 }) {
   const userIdParam = paramUserId;
+
   const currentUserIdFromSlice = useSelector((state) => state.user.userId);
+
+  const repliedMessageData = JSON.parse(messageItem.textMessage);
 
   const getRealMessage = (textObjInString) => {
     const messageTextObj = JSON.parse(textObjInString);
@@ -26,11 +30,6 @@ export default function TextItems({
     };
     setMessageReadyToReply(transformedMessageReplyData);
   };
-
-  const repliedMessageData = useMemo(() => {
-    const messageTextObj = JSON.parse(messageItem.textMessage);
-    return messageTextObj;
-  }, [messageItem.textMessage]);
 
   return (
     <div className="message-data-wrapper">
@@ -69,11 +68,14 @@ export default function TextItems({
           )}
 
           {getRealMessage(messageItem.textMessage)}
-          <div
-            className={`triangle ${
-              messageItem.receiverId === userIdParam ? "right" : "left"
-            }`}
-          />
+
+          {isShowTriangle && (
+            <div
+              className={`triangle ${
+                messageItem.receiverId === userIdParam ? "right" : "left"
+              }`}
+            />
+          )}
         </div>
       </div>
     </div>
