@@ -10,7 +10,7 @@ import React, {
 import { useSelector, useDispatch } from "react-redux";
 import {
   createNewPosting,
-  uploadImagePosting,
+  // uploadImagePosting,
 } from "../../apiCalls/postsApiFetch";
 import {
   setIsAddPosting,
@@ -31,29 +31,27 @@ import {
   shareActionType,
   shareReducer,
 } from "./share-reducer";
+import { useUploadImagePostingHooks } from "./useUploadImagePostingHooks";
 
 import "./Share.scss";
 
 const CAPTION_REQUIRED_MESSAGE = "Minimal Caption harus terisi!";
+const CLOUDINARY_KEY = process.env.REACT_APP_CLOUDINARY_FORM_DATA_KEY;
 
 const Share = ({ userNameFromParam }) => {
   const dispatch = useDispatch();
   const toast = useToast();
   const intervalToClosePostLoadModal = 4000;
 
-  const currentUserNameFromSlice = useSelector((state) => state.user.userName);
+  const [shareState, mutate] = useReducer(shareReducer, INITIAL_SHARE_STATE);
 
-  const [uploadProgress, setUploadProgress] = useState(0);
+  const currentUserNameFromSlice = useSelector((state) => state.user.userName);
+  const openLoadDataModalSlice = useSelector(({ posts }) => posts.openLoadDataModal);
+
   const [finishPostingStatus, setFinishPostingStatus] = useState(false);
   const [caption, setCaption] = useState("");
   const [fileImagePosting, setFileImagePosting] = useState(null);
   const [activeStatus, setActiveStatus] = useState("PUBLIC");
-
-  const [shareState, mutate] = useReducer(shareReducer, INITIAL_SHARE_STATE);
-
-  const openLoadDataModalSlice = useSelector(
-    ({ posts }) => posts.openLoadDataModal
-  );
 
   const previewImagePostingRef = useRef(null);
 
@@ -159,14 +157,29 @@ const Share = ({ userNameFromParam }) => {
     [dispatch]
   );
 
+  const { uploadProgress, executeUploadImage, appendKeyValues } =
+    useUploadImagePostingHooks({
+      onSuccess: ({ response, newPostBody }) => {
+        const newPostingPayload = { ...newPostBody };
+        previewImagePostingRef.current.value = null;
+        newPostingPayload.postImageUrl = response.data.secure_url;
+        mutate({ type: shareActionType.STOP_IMAGE_LOADING_WHEN_SUCCESS });
+        hitCreateNewPostApi(newPostingPayload);
+      },
+      onError: ({ error }) => {
+        previewImagePostingRef.current.value = null;
+        setFileImagePosting(null);
+        console.error("upload image failed", error);
+        mutate({ type: shareActionType.STOP_IMAGE_LOADING });
+      },
+    });
+
   const doPosting = useCallback(async () => {
     if (!caption) return toast.error(CAPTION_REQUIRED_MESSAGE);
 
     setFinishPostingStatus(false);
 
     dispatch(setOpenLoadDataModal({ payload: true }));
-
-    const CLOUDINARY_KEY = process.env.REACT_APP_CLOUDINARY_FORM_DATA_KEY;
 
     toast.closeError();
 
@@ -179,46 +192,25 @@ const Share = ({ userNameFromParam }) => {
     if (fileImagePosting) {
       await runImagePendingThenLoading();
       mutate({ type: shareActionType.RUN_POST_PENDING });
-      const formData = new FormData();
-      formData.append("file", fileImagePosting);
-      formData.append("upload_preset", CLOUDINARY_KEY);
-
-      uploadImagePosting(formData, {
-        onUploadProgress: (progressEvent) => {
-          setUploadProgress(
-            Math.round((progressEvent.loaded / progressEvent.total) * 100)
-          );
-        },
-      })
-        .then((response) => {
-          const isSuccessGetUrl = !!response.data.secure_url;
-          if (isSuccessGetUrl) {
-            previewImagePostingRef.current.value = null;
-            newPostBody.postImageUrl = response.data.secure_url;
-            mutate({ type: shareActionType.STOP_IMAGE_LOADING_WHEN_SUCCESS });
-            hitCreateNewPostApi(newPostBody);
-            setUploadProgress(0);
-          }
-        })
-        .catch((error) => {
-          previewImagePostingRef.current.value = null;
-          setFileImagePosting(null);
-          mutate({ type: shareActionType.STOP_IMAGE_LOADING });
-          setUploadProgress(0);
-          console.error("upload image failed", error);
-        });
+      const formData = appendKeyValues({
+        file: fileImagePosting,
+        upload_preset: CLOUDINARY_KEY,
+      });
+      executeUploadImage({ formData, newPostBody });
     } else {
       mutate({ type: shareActionType.STOP_IMAGE_PENDING });
       hitCreateNewPostApi(newPostBody);
     }
   }, [
     caption,
-    currentUserNameFromSlice,
-    fileImagePosting,
-    activeStatus,
     toast,
-    hitCreateNewPostApi,
+    currentUserNameFromSlice,
+    activeStatus,
+    fileImagePosting,
     dispatch,
+    appendKeyValues,
+    executeUploadImage,
+    hitCreateNewPostApi,
   ]);
 
   const doAddNewPostWithEnter = useCallback(
