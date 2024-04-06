@@ -8,10 +8,7 @@ import React, {
   useReducer,
 } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import {
-  createNewPosting,
-  // uploadImagePosting,
-} from "../../apiCalls/postsApiFetch";
+import { createNewPosting } from "../../apiCalls/postsApiFetch";
 import {
   setIsAddPosting,
   setPostLoadItems,
@@ -55,6 +52,11 @@ const Share = ({ userNameFromParam }) => {
 
   const previewImagePostingRef = useRef(null);
 
+  const userNameFromParamUrl = userNameFromParam;
+  const displayPlaceHolderUsername = userNameFromParamUrl
+    ? userNameFromParamUrl
+    : currentUserNameFromSlice;
+
   const loadItems = useMemo(() => {
     return [
       {
@@ -89,11 +91,6 @@ const Share = ({ userNameFromParam }) => {
       .sort((a, b) => b.loadingStatus - a.loadingStatus);
     dispatch(setPostLoadItems({ payload: filteredLoadItems }));
   }, [loadItems, dispatch]);
-
-  const userNameFromParamUrl = userNameFromParam;
-  const displayPlaceHolderUsername = userNameFromParamUrl
-    ? userNameFromParamUrl
-    : currentUserNameFromSlice;
 
   const handleSetCaptionOnParent = useCallback((val) => {
     setCaption(val);
@@ -222,15 +219,15 @@ const Share = ({ userNameFromParam }) => {
     [doPosting]
   );
 
-  useEffect(() => {
-    setFinishPostingStatus(false);
-  }, [fileImagePosting, caption]);
-
   useAutomaticCloseMessageToast({
     status: finishPostingStatus,
     setStatus: setFinishPostingStatus,
     interval: 8000,
   });
+
+  useEffect(() => {
+    setFinishPostingStatus(false);
+  }, [fileImagePosting, caption]);
 
   useEffect(() => {
     if (!openLoadDataModalSlice) {
