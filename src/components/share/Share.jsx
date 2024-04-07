@@ -4,14 +4,12 @@ import React, {
   memo,
   useRef,
   useCallback,
-  useMemo,
   useReducer,
 } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { createNewPosting } from "../../apiCalls/postsApiFetch";
 import {
   setIsAddPosting,
-  setPostLoadItems,
   setOpenLoadDataModal,
 } from "../../redux/slices/postsSlice";
 import ShareTopSection from "./share-top-section/ShareTopSection";
@@ -31,6 +29,8 @@ import {
 import { useUploadImagePostingHooks } from "./useUploadImagePostingHooks";
 
 import "./Share.scss";
+import { useShareLoadItems } from "./useShareLoadItems";
+import { useShareCommonHooks } from "./useShareCommonHooks";
 
 const CAPTION_REQUIRED_MESSAGE = "Minimal Caption harus terisi!";
 const CLOUDINARY_KEY = process.env.REACT_APP_CLOUDINARY_FORM_DATA_KEY;
@@ -43,7 +43,9 @@ const Share = ({ userNameFromParam }) => {
   const [shareState, mutate] = useReducer(shareReducer, INITIAL_SHARE_STATE);
 
   const currentUserNameFromSlice = useSelector((state) => state.user.userName);
-  const openLoadDataModalSlice = useSelector(({ posts }) => posts.openLoadDataModal);
+  const openLoadDataModalSlice = useSelector(
+    ({ posts }) => posts.openLoadDataModal
+  );
 
   const [finishPostingStatus, setFinishPostingStatus] = useState(false);
   const [caption, setCaption] = useState("");
@@ -57,68 +59,32 @@ const Share = ({ userNameFromParam }) => {
     ? userNameFromParamUrl
     : currentUserNameFromSlice;
 
-  const loadItems = useMemo(() => {
-    return [
-      {
-        title: "Upload Caption",
-        pendingStatus: shareState.uploadPostPending,
-        loadingStatus: shareState.uploadPostLoading,
-        successStatus: shareState.isUploadPostSuccess,
-        isNotSkip: !!caption,
-      },
-      {
-        title: "Upload Image",
-        pendingStatus: shareState.uploadImagePending,
-        loadingStatus: shareState.uploadImageLoading,
-        successStatus: shareState.isUploadImageSuccess,
-        isNotSkip: !!fileImagePosting,
-      },
-    ];
-  }, [
-    caption,
-    fileImagePosting,
-    shareState.uploadPostPending,
-    shareState.uploadPostLoading,
-    shareState.isUploadPostSuccess,
-    shareState.uploadImagePending,
-    shareState.uploadImageLoading,
-    shareState.isUploadImageSuccess,
-  ]);
-
-  useEffect(() => {
-    const filteredLoadItems = loadItems
-      .filter((item) => item.isNotSkip)
-      .sort((a, b) => b.loadingStatus - a.loadingStatus);
-    dispatch(setPostLoadItems({ payload: filteredLoadItems }));
-  }, [loadItems, dispatch]);
-
-  const handleSetCaptionOnParent = useCallback((val) => {
-    setCaption(val);
-  }, []);
-
-  const addFileImagePosting = useCallback((file) => {
-    setFileImagePosting(file);
-  }, []);
-
-  const cancelImagePreviewHandler = useCallback(() => {
-    previewImagePostingRef.current.value = null;
-    setFileImagePosting(null);
-  }, []);
-
-  const runPostPendingThenStopIt = async () => {
-    mutate({ type: shareActionType.RUN_POST_PENDING });
-
-    setTimeout(() => {
-      mutate({ type: shareActionType.STOP_POST_PENDING });
-    }, 2000);
-  };
-
-  const runImagePendingThenLoading = async () => {
-    mutate({ type: shareActionType.RUN_IMAGE_PENDING });
-    setTimeout(() => {
-      mutate({ type: shareActionType.RUN_IMAGE_LOADING });
-    }, 1500);
-  };
+  const {
+    handleSetCaptionOnParent,
+    addFileImagePosting,
+    cancelImagePreviewHandler,
+    runPostPendingThenStopIt,
+    runImagePendingThenLoading,
+  } = useShareCommonHooks({
+    setCaption,
+    setFileImagePosting,
+    onCancelImagePreviewHandler: () => {
+      previewImagePostingRef.current.value = null;
+      setFileImagePosting(null);
+    },
+    onRunPostPendingThenStopIt: () => {
+      mutate({ type: shareActionType.RUN_POST_PENDING });
+      setTimeout(() => {
+        mutate({ type: shareActionType.STOP_POST_PENDING });
+      }, 2000);
+    },
+    onRunImagePendingThenLoading: () => {
+      mutate({ type: shareActionType.RUN_IMAGE_PENDING });
+      setTimeout(() => {
+        mutate({ type: shareActionType.RUN_IMAGE_LOADING });
+      }, 1500);
+    },
+  });
 
   const hitCreateNewPostApi = useCallback(
     async (payloadBodyObj) => {
@@ -151,7 +117,7 @@ const Share = ({ userNameFromParam }) => {
           }, intervalToClosePostLoadModal);
         });
     },
-    [dispatch]
+    [dispatch, runPostPendingThenStopIt]
   );
 
   const { uploadProgress, executeUploadImage, appendKeyValues } =
@@ -205,6 +171,7 @@ const Share = ({ userNameFromParam }) => {
     activeStatus,
     fileImagePosting,
     dispatch,
+    runImagePendingThenLoading,
     appendKeyValues,
     executeUploadImage,
     hitCreateNewPostApi,
@@ -223,6 +190,16 @@ const Share = ({ userNameFromParam }) => {
     status: finishPostingStatus,
     setStatus: setFinishPostingStatus,
     interval: 8000,
+  });
+
+  useShareLoadItems({
+    inputCaption: caption,
+    inputFileImage: fileImagePosting,
+    inputShareState: shareState,
+    title: {
+      _1: "Upload Caption",
+      _2: "Upload Image",
+    },
   });
 
   useEffect(() => {
