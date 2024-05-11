@@ -9,7 +9,7 @@ import { setIsUserProfileMobileOpen } from "../../redux/slices/userSlice";
 import { useSelector, useDispatch } from "react-redux";
 import { setSearchPostsTerms } from "../../redux/slices/postsSlice";
 import ProfileBox from "../profile-box/ProfileBox";
-import { useScreenWidth } from "../../utils/screenWidth";
+import { useScreenWidth } from "../../custom-hooks/screenWidth";
 import withNotifData from "../../hoc/withNotifData";
 import useQueryParams from "../../custom-hooks/useQueryParams";
 import "./Topbar.scss";

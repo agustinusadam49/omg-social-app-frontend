@@ -7,7 +7,7 @@ import UserOnlineInfoModal from "../../components/user-online-info-modal/UserOnl
 import ProfileModalMobile from "../../components/profile-modal-mobile/ProfileModalMobile";
 import PostModalEdit from "../../components/post-modal-edit/PostModalEdit";
 import PostLoadDataModal from "../../components/post-load-data-modal/PostLoadDataModal";
-import { useScreenWidth } from "../../utils/screenWidth";
+import { useScreenWidth } from "../../custom-hooks/screenWidth";
 import { useSelector } from "react-redux";
 import { accessToken } from "../../utils/getLocalStorage";
 

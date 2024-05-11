@@ -34,13 +34,17 @@ export default function FollowerNotifContents() {
   );
   const currentUserIdFromSlice = useSelector((state) => state.user.userId);
 
-  const [staticFilteredData, setStaticFilteredData] = useState(followerNotifFromSlice);
+  const [staticFilteredData, setStaticFilteredData] = useState(
+    followerNotifFromSlice
+  );
   const [notifFollowerDataObj, setNotifFollowerDataObj] = useState({});
   const [activePageIndex, setActivePageIndex] = useState("page1");
   const [notifArrByActivePage, setNotifArrByActivePage] = useState([]);
 
   const notReadYetFollowerNotifications = useMemo(() => {
-    const result = followerNotifFromSlice.filter((notif) => notif.isRead === false);
+    const result = followerNotifFromSlice.filter(
+      (notif) => notif.isRead === false
+    );
     return result;
   }, [followerNotifFromSlice]);
 
@@ -63,7 +67,9 @@ export default function FollowerNotifContents() {
               isRead: true,
             }));
 
-          dispatch(setFollowerNotif({ followerNotifData: changeAllIsReadStatus }));
+          dispatch(
+            setFollowerNotif({ followerNotifData: changeAllIsReadStatus })
+          );
           mutate({ type: actionType.STOP_LOADING_STATUS });
         }
       })
@@ -74,64 +80,6 @@ export default function FollowerNotifContents() {
         console.log(errorMessageFromApi);
         mutate({ type: actionType.STOP_LOADING_STATUS });
       });
-  };
-
-  const displayFollowerNotifData = () => {
-    if (staticFilteredData.length) {
-      return (
-        <Fragment>
-          {notifArrByActivePage?.map((notifFollowItem) => (
-            <NotificationCard
-              key={notifFollowItem.id}
-              notifications={notifFollowItem}
-            />
-          ))}
-        </Fragment>
-      );
-    }
-
-    return <EmptyStateNotification type={"follows"} />;
-  };
-
-  const displayButtonMarkAllNotif = () => {
-    if (!loadingState.status) {
-      if (followerNotifFromSlice.length) {
-        return (
-          <GlobalButton
-            classStyleName={`follower-notif-mark-all-notif-button ${
-              totalAllIsRead ? "active" : "not-active"
-            }`}
-            buttonLabel={
-              totalAllIsRead
-                ? "Tandai semua sebagai dibaca"
-                : "Semua notif telah dibaca"
-            }
-            onClick={() => changeButton()}
-          />
-        );
-      }
-    } else {
-      return (
-        <div className="follower-notif-mark-all-notif-button active">
-          <RoundedLoader baseColor="gray" secondaryColor="white" />
-        </div>
-      );
-    }
-  };
-
-  const displayPagination = () => {
-    if (followerNotifFromSlice.length) {
-      return (
-        <PaginationNotif
-          pagePathName={"/follower-notifications"}
-          notifDataSlices={followerNotifFromSlice}
-          notifDataObj={notifFollowerDataObj}
-          activePageIndex={activePageIndex}
-          setActivePageIndex={setActivePageIndex}
-          setNotifDataObj={setNotifFollowerDataObj}
-        />
-      );
-    }
   };
 
   const totalAllIsRead = useMemo(() => {
@@ -164,11 +112,58 @@ export default function FollowerNotifContents() {
       <div className="follower-notif-title">Follow Notifications</div>
       <div className="follower-notif-card-wrapper">
         <div className="follower-notif-card-inner-wrapper">
-          {displayFollowerNotifData()}
+          {!!staticFilteredData.length ? (
+            <Fragment>
+              {notifArrByActivePage?.map((notifFollowItem) => (
+                <NotificationCard
+                  key={notifFollowItem.id}
+                  notifications={notifFollowItem}
+                />
+              ))}
+            </Fragment>
+          ) : (
+            <EmptyStateNotification type={"follows"} />
+          )}
         </div>
-        {displayButtonMarkAllNotif()}
+
+        {!!followerNotifFromSlice.length && (
+          <GlobalButton
+            classStyleName={`follower-notif-mark-all-notif-button ${
+              totalAllIsRead ? "active" : "not-active"
+            }`}
+            buttonLabel={
+              totalAllIsRead
+                ? "Tandai semua sebagai dibaca"
+                : "Semua notif telah dibaca"
+            }
+            onClick={() => changeButton()}
+            loading={loadingState.status}
+            isDisabled={loadingState.status}
+            renderLabel={({ label, isLoading }) => {
+              return !isLoading ? (
+                <div>{label}</div>
+              ) : (
+                <RoundedLoader
+                  baseColor="gray"
+                  secondaryColor="white"
+                  size={17}
+                />
+              );
+            }}
+          />
+        )}
       </div>
-      {displayPagination()}
+
+      {!!followerNotifFromSlice.length && (
+        <PaginationNotif
+          pagePathName={"/follower-notifications"}
+          notifDataSlices={followerNotifFromSlice}
+          notifDataObj={notifFollowerDataObj}
+          activePageIndex={activePageIndex}
+          setActivePageIndex={setActivePageIndex}
+          setNotifDataObj={setNotifFollowerDataObj}
+        />
+      )}
     </div>
   );
 }
