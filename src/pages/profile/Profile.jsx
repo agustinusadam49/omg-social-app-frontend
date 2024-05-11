@@ -9,7 +9,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { userInfoLogin } from "../../redux/apiCalls";
 import { useParams } from "react-router-dom";
 import { getUserById } from "../../apiCalls/registerAndLoginApiFetch";
-import { useScreenWidth } from "../../utils/screenWidth";
+import { useScreenWidth } from "../../custom-hooks/screenWidth";
 import "./Profile.scss";
 
 export default function Profile() {

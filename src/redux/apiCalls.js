@@ -99,9 +99,9 @@ export const getAllUsersRegistered = (dispatch) => {
 };
 
 // POSTS API CALLS
-export const getPostsAvailable = (dispatch) => {
+export const getPostsAvailable = (dispatch, size) => {
   dispatch(setLoadingGetPosts({ getAllPostsLoading: true }));
-  getAllPosts()
+  getAllPosts(size)
     .then((posts) => {
       const { totalPosts } = posts.data;
 

@@ -1,7 +1,8 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import PaginationButtonItems from "./pagination-button-items/PaginationButtonItems";
 import PaginationButtonChevron from "./pagination-button-chevron/PaginationButtonChevron";
+import useQueryLocation from "../../custom-hooks/useQueryLocation";
 
 import "./PaginationNotif.scss";
 
@@ -13,36 +14,22 @@ export default function PaginationNotif({
   setActivePageIndex,
   setNotifDataObj,
 }) {
-  // How to get query params using useLocation and new URLSearchParams
-  const useQuery = () => {
-    const { search } = useLocation();
-    return useMemo(() => new URLSearchParams(search), [search]);
-  };
-  const query = useQuery();
+  const query = useQueryLocation();
   const pageName = useMemo(() => query.get("pageName"), [query]);
 
   let navigate = useNavigate();
 
-  let notifDataFromSlice = notifDataSlices;
+  const notifDataFromSlice = notifDataSlices;
   const notifObjData = notifDataObj;
+  const objKeyOfNotif = Object.keys(notifDataObj);
+  const objKeyOfNotifLastIndex = objKeyOfNotif[objKeyOfNotif.length - 1];
+
   const [startIndexPaginationRange, setStartIndexPaginationRange] = useState(0);
   const [endIndexPaginationRange, setEndIndexPaginationRange] = useState(3);
 
   const changeActivePage = (inputItem) => {
     setActivePageIndex(inputItem.pageName);
   };
-
-  const objKeyOfNotif = useMemo(() => {
-    if (notifDataObj) {
-      const objKeyArr = Object.keys(notifDataObj);
-      return objKeyArr;
-    }
-  }, [notifDataObj]);
-
-  const objKeyOfNotifLastIndex = useMemo(
-    () => objKeyOfNotif[objKeyOfNotif.length - 1],
-    [objKeyOfNotif]
-  );
 
   useEffect(() => {
     const theLength = notifObjData[activePageIndex]?.length;
@@ -134,14 +121,14 @@ export default function PaginationNotif({
 
     let notifDataMapped = {};
     let pageNameNumbering = 1;
-    let count = 0;
     let tempArr = [];
+
     for (let i = 0; i < newSortedData.length; i++) {
       tempArr.push(newSortedData[i]);
-      count += 1;
+      const count = i + 1
+
       if (count % maxCardAppearedInOnePage === 0) {
-        const pageName = `page${pageNameNumbering}`;
-        notifDataMapped[pageName] = tempArr;
+        notifDataMapped[`page${pageNameNumbering}`] = tempArr;
         tempArr = [];
         pageNameNumbering += 1;
       }
@@ -150,6 +137,7 @@ export default function PaginationNotif({
     if (tempArr.length > 0) {
       notifDataMapped[`page${pageNameNumbering}`] = tempArr;
     }
+
     setNotifDataObj(notifDataMapped);
 
     return () => {

@@ -6,7 +6,7 @@ import {
   setMessageNotif,
   setPostNotif,
 } from "../redux/slices/notificationSlice";
-import {useScreenWidth} from "../utils/screenWidth"
+import {useScreenWidth} from "../custom-hooks/screenWidth"
 
 export default function withNotifData(OriginalComponent) {
   return () => {
