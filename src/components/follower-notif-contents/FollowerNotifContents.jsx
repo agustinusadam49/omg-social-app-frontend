@@ -1,10 +1,4 @@
-import React, {
-  Fragment,
-  useEffect,
-  useState,
-  useMemo,
-  useReducer,
-} from "react";
+import React, { Fragment, useEffect, useMemo, useReducer } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { getNotificationsBelongsToLoggedUser } from "../../redux/apiCalls";
 import { setFollowerNotif } from "../../redux/slices/notificationSlice";
@@ -19,14 +13,19 @@ import {
   loadingReducer,
 } from "../../utils/reducers/globalLoadingReducer";
 import RoundedLoader from "../rounded-loader/RoundedLoader";
+import { mappedPageObjUtil } from "../../utils/mappedPageIntoObject";
+import useQueryLocation from "../../custom-hooks/useQueryLocation";
 
 import "./FollowerNotifContents.scss";
 
 export default function FollowerNotifContents() {
+  const query = useQueryLocation();
+
   const [loadingState, mutate] = useReducer(
     loadingReducer,
     INITIAL_LOADING_STATE
   );
+
   const dispatch = useDispatch();
 
   const followerNotifFromSlice = useSelector(
@@ -34,19 +33,39 @@ export default function FollowerNotifContents() {
   );
   const currentUserIdFromSlice = useSelector((state) => state.user.userId);
 
-  const [staticFilteredData, setStaticFilteredData] = useState(
-    followerNotifFromSlice
-  );
-  const [notifFollowerDataObj, setNotifFollowerDataObj] = useState({});
-  const [activePageIndex, setActivePageIndex] = useState("page1");
-  const [notifArrByActivePage, setNotifArrByActivePage] = useState([]);
+  const pageName = useMemo(() => query.get("pageName"), [query]);
 
-  const notReadYetFollowerNotifications = useMemo(() => {
-    const result = followerNotifFromSlice.filter(
-      (notif) => notif.isRead === false
-    );
-    return result;
+  const totalAllIsRead = useMemo(() => {
+    const newDataReadStatusIsRead = followerNotifFromSlice
+      .filter((item) => !item.isRead)
+      .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+    return newDataReadStatusIsRead.length;
   }, [followerNotifFromSlice]);
+
+  const staticFilteredData = useMemo(
+    () =>
+      followerNotifFromSlice
+        .filter((item) => item)
+        .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)),
+    [followerNotifFromSlice]
+  );
+
+  const notifFollowerDataObj = useMemo(
+    () =>
+      mappedPageObjUtil({
+        notifData: followerNotifFromSlice,
+        maxCardAppearedInOnePage: 3,
+      }),
+    [followerNotifFromSlice]
+  );
+
+  const notifArrByActivePage = notifFollowerDataObj[pageName || "1"];
+
+  const notReadYetFollowerNotifications = useMemo(
+    () => followerNotifFromSlice.filter((notif) => notif.isRead === false),
+    [followerNotifFromSlice]
+  );
 
   const changeButton = () => {
     if (loadingState.status) return;
@@ -67,9 +86,7 @@ export default function FollowerNotifContents() {
               isRead: true,
             }));
 
-          dispatch(
-            setFollowerNotif({ followerNotifData: changeAllIsReadStatus })
-          );
+          dispatch(setFollowerNotif({ followerNotifData: changeAllIsReadStatus }));
           mutate({ type: actionType.STOP_LOADING_STATUS });
         }
       })
@@ -81,27 +98,6 @@ export default function FollowerNotifContents() {
         mutate({ type: actionType.STOP_LOADING_STATUS });
       });
   };
-
-  const totalAllIsRead = useMemo(() => {
-    const newDataReadStatusIsRead = followerNotifFromSlice
-      .filter((item) => !item.isRead)
-      .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-
-    return newDataReadStatusIsRead.length;
-  }, [followerNotifFromSlice]);
-
-  useEffect(() => {
-    const newArr = notifFollowerDataObj[activePageIndex];
-    setNotifArrByActivePage(newArr);
-  }, [notifFollowerDataObj, activePageIndex]);
-
-  useEffect(() => {
-    const staticSortedData = followerNotifFromSlice
-      .filter((item) => item)
-      .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-
-    setStaticFilteredData(staticSortedData);
-  }, [followerNotifFromSlice]);
 
   useEffect(() => {
     getNotificationsBelongsToLoggedUser(dispatch);
@@ -159,9 +155,6 @@ export default function FollowerNotifContents() {
           pagePathName={"/follower-notifications"}
           notifDataSlices={followerNotifFromSlice}
           notifDataObj={notifFollowerDataObj}
-          activePageIndex={activePageIndex}
-          setActivePageIndex={setActivePageIndex}
-          setNotifDataObj={setNotifFollowerDataObj}
         />
       )}
     </div>

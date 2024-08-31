@@ -1,16 +1,21 @@
-import React from "react";
+import React, { useMemo } from "react";
+import { useNavigate } from "react-router-dom";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
+import useQueryLocation from "../../../custom-hooks/useQueryLocation";
 
 import "./PaginationButtonChevron.scss";
 
 export default function PaginationButtonChevron({
   notifDataObj,
-  activePageIndex,
   objKeyOfNotifLastIndex,
-  setActivePageIndex,
+  pagePathName,
   direction = "next",
 }) {
+  let navigate = useNavigate();
+  const query = useQueryLocation();
+  const activePageIndex = useMemo(() => query.get("pageName") ?? "1", [query]);
+
   const getRequirementOfActivePage = (directionType) => {
     if (directionType === "next") {
       return activePageIndex === objKeyOfNotifLastIndex;
@@ -27,7 +32,11 @@ export default function PaginationButtonChevron({
         : notifObjKeyArr.indexOf(activePageIndex) - 1;
     const nextOrPreviousPageName = notifObjKeyArr[nextOrPreviousPageIndex];
     if (!nextOrPreviousPageName) return;
-    setActivePageIndex(nextOrPreviousPageName);
+
+    return navigate({
+      pathname: pagePathName,
+      search: `?pageName=${nextOrPreviousPageName}`,
+    });
   };
 
   return (

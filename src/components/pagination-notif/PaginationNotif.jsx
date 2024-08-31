@@ -10,68 +10,40 @@ export default function PaginationNotif({
   pagePathName,
   notifDataSlices,
   notifDataObj,
-  activePageIndex,
-  setActivePageIndex,
-  setNotifDataObj,
 }) {
-  const query = useQueryLocation();
-  const pageName = useMemo(() => query.get("pageName"), [query]);
-
   let navigate = useNavigate();
+  const query = useQueryLocation();
 
   const notifDataFromSlice = notifDataSlices;
   const notifObjData = notifDataObj;
   const objKeyOfNotif = Object.keys(notifDataObj);
   const objKeyOfNotifLastIndex = objKeyOfNotif[objKeyOfNotif.length - 1];
 
+  const pageName = useMemo(() => query.get("pageName"), [query]);
+
   const [startIndexPaginationRange, setStartIndexPaginationRange] = useState(0);
   const [endIndexPaginationRange, setEndIndexPaginationRange] = useState(3);
 
   const changeActivePage = (inputItem) => {
-    setActivePageIndex(inputItem.pageName);
+    const pageNum = inputItem.pageName;
+
+    return navigate({
+      pathname: pagePathName,
+      search: `?pageName=${pageNum}`,
+    });
   };
 
   useEffect(() => {
-    const theLength = notifObjData[activePageIndex]?.length;
-    let currentArr = [];
-    if (theLength) {
-      currentArr = notifObjData[activePageIndex];
-    }
-
-    if (currentArr.length < 1) {
-      setActivePageIndex(objKeyOfNotif[objKeyOfNotif.length - 1]);
-    }
-  }, [
-    notifObjData,
-    objKeyOfNotif,
-    activePageIndex,
-    notifDataFromSlice,
-    setActivePageIndex,
-  ]);
-
-  useEffect(() => {
-    if (activePageIndex) {
-      navigate({
+    if (!notifObjData[pageName]) {
+      return navigate({
         pathname: pagePathName,
-        search: `?pageName=${activePageIndex}`,
+        search: `?pageName=${objKeyOfNotifLastIndex}`,
       });
-      return;
     }
-  }, [activePageIndex, pagePathName, navigate]);
+  }, [navigate, notifObjData, objKeyOfNotifLastIndex, pageName, pagePathName]);
 
   useEffect(() => {
-    if (pageName) {
-      navigate({
-        pathname: pagePathName,
-        search: `?pageName=${pageName}`,
-      });
-      setActivePageIndex(pageName);
-      return;
-    }
-  }, [pageName, pagePathName, setActivePageIndex, navigate]);
-
-  useEffect(() => {
-    const index = objKeyOfNotif.indexOf(activePageIndex);
+    const index = objKeyOfNotif.indexOf(pageName);
     const objKeyLastIndex = objKeyOfNotif.length - 1;
     const isIdxLessThanObjKeyLastIdx = index < objKeyLastIndex;
     if (index > 3) {
@@ -80,11 +52,11 @@ export default function PaginationNotif({
       setStartIndexPaginationRange(startIndex);
       setEndIndexPaginationRange(endIndex);
     }
-  }, [activePageIndex, objKeyOfNotif]);
+  }, [pageName, objKeyOfNotif]);
 
   useEffect(() => {
     if (objKeyOfNotif.length) {
-      const indexChecked = objKeyOfNotif.indexOf(activePageIndex);
+      const indexChecked = objKeyOfNotif.indexOf(pageName);
       const possibilityOne = indexChecked === endIndexPaginationRange;
       const possibilityTwo = indexChecked < objKeyOfNotif.length - 1;
       if (possibilityOne && possibilityTwo) {
@@ -94,7 +66,7 @@ export default function PaginationNotif({
       }
     }
   }, [
-    activePageIndex,
+    pageName,
     endIndexPaginationRange,
     startIndexPaginationRange,
     objKeyOfNotif,
@@ -102,7 +74,7 @@ export default function PaginationNotif({
 
   useEffect(() => {
     if (objKeyOfNotif.length) {
-      const indexChecked = objKeyOfNotif.indexOf(activePageIndex);
+      const indexChecked = objKeyOfNotif.indexOf(pageName);
       const possibilityOne = indexChecked === startIndexPaginationRange;
       const possibilityTwo = indexChecked > 0;
       if (possibilityOne && possibilityTwo) {
@@ -111,49 +83,24 @@ export default function PaginationNotif({
         return;
       }
     }
-  }, [activePageIndex, startIndexPaginationRange, objKeyOfNotif]);
+  }, [pageName, startIndexPaginationRange, objKeyOfNotif]);
 
   useEffect(() => {
-    const maxCardAppearedInOnePage = 3;
-    const newSortedData = notifDataFromSlice
-      .filter((item) => item)
-      .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-
-    let notifDataMapped = {};
-    let pageNameNumbering = 1;
-    let tempArr = [];
-
-    for (let i = 0; i < newSortedData.length; i++) {
-      tempArr.push(newSortedData[i]);
-      const count = i + 1
-
-      if (count % maxCardAppearedInOnePage === 0) {
-        notifDataMapped[`page${pageNameNumbering}`] = tempArr;
-        tempArr = [];
-        pageNameNumbering += 1;
-      }
-    }
-
-    if (tempArr.length > 0) {
-      notifDataMapped[`page${pageNameNumbering}`] = tempArr;
-    }
-
-    setNotifDataObj(notifDataMapped);
-
-    return () => {
-      setNotifDataObj({});
-    };
-  }, [notifDataFromSlice, setNotifDataObj]);
+    navigate({
+      pathname: pagePathName,
+      search: `?pageName=${pageName ?? "1"}`,
+    });
+  }, [pageName, pagePathName, navigate]);
 
   return (
     <div className="pagination-container">
       <div className="pagination-wrapper">
         {notifDataObj && (
           <PaginationButtonChevron
-            notifDataObj={notifDataObj}
-            activePageIndex={activePageIndex}
+            activePageIndex={pageName}
             objKeyOfNotifLastIndex={objKeyOfNotifLastIndex}
-            setActivePageIndex={setActivePageIndex}
+            notifDataObj={notifDataObj}
+            pagePathName={pagePathName}
             direction="previous"
           />
         )}
@@ -164,17 +111,17 @@ export default function PaginationNotif({
             notifDataFromSlice={notifDataFromSlice}
             startIndexPaginationRange={startIndexPaginationRange}
             endIndexPaginationRange={endIndexPaginationRange}
-            activePageIndex={activePageIndex}
+            activePageIndex={pageName}
             changeActivePage={changeActivePage}
           />
         )}
 
         {notifDataObj && (
           <PaginationButtonChevron
-            notifDataObj={notifDataObj}
-            activePageIndex={activePageIndex}
+            activePageIndex={pageName}
             objKeyOfNotifLastIndex={objKeyOfNotifLastIndex}
-            setActivePageIndex={setActivePageIndex}
+            notifDataObj={notifDataObj}
+            pagePathName={pagePathName}
           />
         )}
       </div>

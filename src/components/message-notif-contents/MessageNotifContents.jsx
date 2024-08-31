@@ -1,10 +1,4 @@
-import React, {
-  Fragment,
-  useEffect,
-  useState,
-  useMemo,
-  useReducer,
-} from "react";
+import React, { Fragment, useEffect, useMemo, useReducer } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { getNotificationsBelongsToLoggedUser } from "../../redux/apiCalls";
 import { setMessageNotif } from "../../redux/slices/notificationSlice";
@@ -19,14 +13,19 @@ import {
   loadingReducer,
 } from "../../utils/reducers/globalLoadingReducer";
 import RoundedLoader from "../rounded-loader/RoundedLoader";
+import { mappedPageObjUtil } from "../../utils/mappedPageIntoObject";
+import useQueryLocation from "../../custom-hooks/useQueryLocation";
 
 import "./MessageNotifContents.scss";
 
 export default function MessageNotifContents() {
+  const query = useQueryLocation();
+
   const [loadingState, mutate] = useReducer(
     loadingReducer,
     INITIAL_LOADING_STATE
   );
+
   const dispatch = useDispatch();
 
   const messageNotifFromSlice = useSelector(
@@ -34,19 +33,39 @@ export default function MessageNotifContents() {
   );
   const currentUserIdFromSlice = useSelector((state) => state.user.userId);
 
-  const [staticFilteredData, setStaticFilteredData] = useState(
-    messageNotifFromSlice
-  );
-  const [notifMessageDataObj, setNotifMessageDataObj] = useState({});
-  const [activePageIndex, setActivePageIndex] = useState("page1");
-  const [notifArrByActivePage, setNotifArrByActivePage] = useState([]);
+  const pageName = useMemo(() => query.get("pageName"), [query]);
 
-  const notReadYetMessageNotifications = useMemo(() => {
-    const result = messageNotifFromSlice.filter(
-      (notif) => notif.isRead === false
-    );
-    return result;
+  const totalAllIsRead = useMemo(() => {
+    const newDataReadStatusIsRead = messageNotifFromSlice
+      .filter((item) => !item.isRead)
+      .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+    return newDataReadStatusIsRead.length;
   }, [messageNotifFromSlice]);
+
+  const staticFilteredData = useMemo(
+    () =>
+      messageNotifFromSlice
+        .filter((item) => item)
+        .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)),
+    [messageNotifFromSlice]
+  );
+
+  const notifMessageDataObj = useMemo(
+    () =>
+      mappedPageObjUtil({
+        notifData: messageNotifFromSlice,
+        maxCardAppearedInOnePage: 3,
+      }),
+    [messageNotifFromSlice]
+  );
+
+  const notifArrByActivePage = notifMessageDataObj[pageName || "1"];
+
+  const notReadYetMessageNotifications = useMemo(
+    () => messageNotifFromSlice.filter((notif) => notif.isRead === false),
+    [messageNotifFromSlice]
+  );
 
   const changeButton = () => {
     if (loadingState.status) return;
@@ -67,9 +86,7 @@ export default function MessageNotifContents() {
               isRead: true,
             }));
 
-          dispatch(
-            setMessageNotif({ messageNotifData: changeAllIsReadStatus })
-          );
+          dispatch(setMessageNotif({ messageNotifData: changeAllIsReadStatus }));
           mutate({ type: actionType.STOP_LOADING_STATUS });
         }
       })
@@ -81,27 +98,6 @@ export default function MessageNotifContents() {
         mutate({ type: actionType.STOP_LOADING_STATUS });
       });
   };
-
-  const totalAllIsRead = useMemo(() => {
-    const newDataReadStatusIsRead = messageNotifFromSlice
-      .filter((item) => !item.isRead)
-      .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-
-    return newDataReadStatusIsRead.length;
-  }, [messageNotifFromSlice]);
-
-  useEffect(() => {
-    const newArr = notifMessageDataObj[activePageIndex];
-    setNotifArrByActivePage(newArr);
-  }, [notifMessageDataObj, activePageIndex]);
-
-  useEffect(() => {
-    const staticSortedData = messageNotifFromSlice
-      .filter((item) => item)
-      .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-
-    setStaticFilteredData(staticSortedData);
-  }, [messageNotifFromSlice]);
 
   useEffect(() => {
     getNotificationsBelongsToLoggedUser(dispatch);
@@ -159,9 +155,6 @@ export default function MessageNotifContents() {
           pagePathName={"/message-notifications"}
           notifDataSlices={messageNotifFromSlice}
           notifDataObj={notifMessageDataObj}
-          activePageIndex={activePageIndex}
-          setActivePageIndex={setActivePageIndex}
-          setNotifDataObj={setNotifMessageDataObj}
         />
       )}
     </div>

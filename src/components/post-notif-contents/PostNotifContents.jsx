@@ -1,10 +1,4 @@
-import React, {
-  Fragment,
-  useEffect,
-  useState,
-  useMemo,
-  useReducer,
-} from "react";
+import React, { Fragment, useEffect, useMemo, useReducer } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { getNotificationsBelongsToLoggedUser } from "../../redux/apiCalls";
 import { setPostNotif } from "../../redux/slices/notificationSlice";
@@ -19,14 +13,19 @@ import {
   loadingReducer,
 } from "../../utils/reducers/globalLoadingReducer";
 import RoundedLoader from "../rounded-loader/RoundedLoader";
+import { mappedPageObjUtil } from "../../utils/mappedPageIntoObject";
+import useQueryLocation from "../../custom-hooks/useQueryLocation";
 
 import "./PostNotifContents.scss";
 
 export default function PostNotifContents() {
+  const query = useQueryLocation();
+
   const [loadingState, mutate] = useReducer(
     loadingReducer,
     INITIAL_LOADING_STATE
   );
+
   const dispatch = useDispatch();
 
   const postNotifFromSlice = useSelector(
@@ -34,16 +33,39 @@ export default function PostNotifContents() {
   );
   const currentUserIdFromSlice = useSelector((state) => state.user.userId);
 
-  const [staticFilteredData, setStaticFilteredData] =
-    useState(postNotifFromSlice);
-  const [notifPostsDataObj, setNotifPostsDataObj] = useState({});
-  const [activePageIndex, setActivePageIndex] = useState("page1");
-  const [notifArrByActivePage, setNotifArrByActivePage] = useState([]);
+  const pageName = useMemo(() => query.get("pageName"), [query]);
 
-  const notReadYetPostNotifications = useMemo(() => {
-    const result = postNotifFromSlice.filter((notif) => notif.isRead === false);
-    return result;
+  const totalAllIsRead = useMemo(() => {
+    const newDataReadStatusIsRead = postNotifFromSlice
+      .filter((item) => !item.isRead)
+      .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+    return newDataReadStatusIsRead.length;
   }, [postNotifFromSlice]);
+
+  const staticFilteredData = useMemo(
+    () =>
+      postNotifFromSlice
+        .filter((item) => item)
+        .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)),
+    [postNotifFromSlice]
+  );
+
+  const notifPostsDataObj = useMemo(
+    () =>
+      mappedPageObjUtil({
+        notifData: postNotifFromSlice,
+        maxCardAppearedInOnePage: 3,
+      }),
+    [postNotifFromSlice]
+  );
+
+  const notifArrByActivePage = notifPostsDataObj[pageName || "1"];
+
+  const notReadYetPostNotifications = useMemo(
+    () => postNotifFromSlice.filter((notif) => notif.isRead === false),
+    [postNotifFromSlice]
+  );
 
   const changeButton = () => {
     if (loadingState.status) return;
@@ -76,27 +98,6 @@ export default function PostNotifContents() {
         mutate({ type: actionType.STOP_LOADING_STATUS });
       });
   };
-
-  const totalAllIsRead = useMemo(() => {
-    const newDataReadStatusIsRead = postNotifFromSlice
-      .filter((item) => !item.isRead)
-      .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-
-    return newDataReadStatusIsRead.length;
-  }, [postNotifFromSlice]);
-
-  useEffect(() => {
-    const newArr = notifPostsDataObj[activePageIndex];
-    setNotifArrByActivePage(newArr);
-  }, [notifPostsDataObj, activePageIndex]);
-
-  useEffect(() => {
-    const staticSortedData = postNotifFromSlice
-      .filter((item) => item)
-      .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-
-    setStaticFilteredData(staticSortedData);
-  }, [postNotifFromSlice]);
 
   useEffect(() => {
     getNotificationsBelongsToLoggedUser(dispatch);
@@ -154,9 +155,6 @@ export default function PostNotifContents() {
           pagePathName={"/post-notifications"}
           notifDataSlices={postNotifFromSlice}
           notifDataObj={notifPostsDataObj}
-          activePageIndex={activePageIndex}
-          setActivePageIndex={setActivePageIndex}
-          setNotifDataObj={setNotifPostsDataObj}
         />
       )}
     </div>
