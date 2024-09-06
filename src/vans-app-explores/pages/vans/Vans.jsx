@@ -1,16 +1,11 @@
-import React, {
-  // useCallback,
-  useEffect,
-  useState,
-} from "react";
+import React, { useEffect, useState } from "react";
 import { Link, useSearchParams, useLoaderData } from "react-router-dom";
-// import { useFetchData } from "../../hooks/useFetchData.js";
 import { dummyVansArr } from "../../../dummyData.js";
 import {
   mappedFromArrayToObj,
   orderVansByType,
 } from "../../van-utils/vansDataControls.js";
-import { requiredAuth } from "../../van-utils/requiredAuth.js"
+import { requiredAuth } from "../../van-utils/requiredAuth.js";
 
 import "./Vans.scss";
 
@@ -18,9 +13,6 @@ export default function Vans() {
   const vans = useLoaderData();
 
   const [searchParams, setSearchParams] = useSearchParams();
-
-  // const [vans, setVans] = useState([]);
-  // const [errorMessage, setErrorMessage] = useState(null);
 
   const [filteredVans, setFilteredVans] = useState(vans);
   const [vanTypes, setVanTypes] = useState({
@@ -32,48 +24,6 @@ export default function Vans() {
 
   const urlQueryParamsType = searchParams.get("type");
 
-  // useEffect(() => {
-  //   if (loaderData.success) {
-  //     setVans(loaderData.data);
-  //   } else {
-  //     setErrorMessage(loaderData.errorMessage);
-  //   }
-  // }, [loaderData]);
-
-  // const processGetVansV1 = useCallback(
-  //   (onValidate, setLoading, setErrorMessage) => {
-  //     const promiseToGetVans = new Promise((resolve, reject) => {
-  //       setTimeout(() => {
-  //         if (!!dummyVansArr.length) {
-  //           const vanObjMapped = mappedFromArrayToObj(dummyVansArr);
-  //           const orderedVansArray = orderVansByType(vanObjMapped);
-  //           resolve(orderedVansArray);
-  //         } else {
-  //           reject("Tidak ada data vans!");
-  //         }
-  //       }, 1000);
-  //     });
-
-  //     const hitGetVansPromise = async () => {
-  //       setLoading(true);
-  //       try {
-  //         const responses = await promiseToGetVans;
-  //         if (!onValidate()) return;
-  //         setVans(responses);
-  //       } catch (error) {
-  //         setErrorMessage(error);
-  //       } finally {
-  //         setLoading(false);
-  //       }
-  //     };
-
-  //     hitGetVansPromise();
-  //   },
-  //   []
-  // );
-
-  // const { loading, errorMessage } = useFetchData(processGetVansV1);
-
   const handleVanTypeActive = (type) => {
     setVanTypes((oldVal) => {
       return {
@@ -84,10 +34,10 @@ export default function Vans() {
   };
 
   useEffect(() => {
-    const vanTypesArr = Object.keys(vanTypes);
-    const getActiveType = (type) => vanTypes[type];
-    const filterActiveVanType = (typeOfVan) => getActiveType(typeOfVan);
-    const activeVanTypes = vanTypesArr.filter(filterActiveVanType);
+    const activeVanTypes = Object.keys(vanTypes).filter(
+      (type) => vanTypes[type]
+    );
+
     setSearchParams((prevParams) => {
       if (!activeVanTypes.length) {
         prevParams.delete("type");
@@ -150,29 +100,6 @@ export default function Vans() {
         ))}
       </div>
 
-      {/* {loading && <div>Loading ... getting data</div>} */}
-
-      {/* {!!filteredVans.length && !loading && (
-        <div className="van-card-list">
-          {filteredVans.map(function (van) {
-            return (
-              <Link
-                to={`/vans/${van.id}`}
-                state={{ search: searchParams.toString() }}
-                style={{ textDecoration: "none", color: "black" }}
-                key={van.id}
-                className="van-card-item"
-              >
-                <p>Van Name: {van.name}</p>
-                <p>Van Transmision: {van.transmision}</p>
-                <p>Van Build Year: {van.buildYear}</p>
-                <p>Van Type: {van.type}</p>
-              </Link>
-            );
-          })}
-        </div>
-      )} */}
-
       <div className="van-card-list">
         {filteredVans.map(function (van) {
           return (
@@ -191,8 +118,6 @@ export default function Vans() {
           );
         })}
       </div>
-
-      {/* {!!errorMessage && <div>Error Message: {errorMessage}</div>} */}
     </div>
   );
 }
@@ -224,7 +149,7 @@ export const loader = async () => {
     }
   };
 
-  await requiredAuth()
+  await requiredAuth();
 
   return hitGetVansPromise();
 };
