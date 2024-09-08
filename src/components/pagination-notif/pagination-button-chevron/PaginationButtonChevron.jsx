@@ -17,20 +17,22 @@ export default function PaginationButtonChevron({
   const activePageIndex = useMemo(() => query.get("pageName") ?? "1", [query]);
 
   const getRequirementOfActivePage = (directionType) => {
-    if (directionType === "next") {
+    if (directionType === "next")
       return activePageIndex === objKeyOfNotifLastIndex;
-    }
 
-    return activePageIndex === "page1";
+    return activePageIndex === "1";
   };
 
   const handleNextOrPreviousPage = (directionType) => {
     const notifObjKeyArr = Object.keys(notifDataObj);
+
     const nextOrPreviousPageIndex =
       directionType === "next"
         ? notifObjKeyArr.indexOf(activePageIndex) + 1
         : notifObjKeyArr.indexOf(activePageIndex) - 1;
+
     const nextOrPreviousPageName = notifObjKeyArr[nextOrPreviousPageIndex];
+
     if (!nextOrPreviousPageName) return;
 
     return navigate({

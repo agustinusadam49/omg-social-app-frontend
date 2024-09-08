@@ -15,7 +15,7 @@ export default function PaginationButtonItems({
   const lastIndexOfDataKeyArr = notifDataKeyArr.length - 1;
 
   const maxPageNumArr = useMemo(() => {
-    const maxPageNumArr = [];
+    const resultArr = [];
 
     const finalEndAlternatif =
       totalDataNotif <= 3
@@ -27,7 +27,8 @@ export default function PaginationButtonItems({
         : 3;
 
     let start = startIndexPaginationRange;
-    let end = totalDataNotif > 12 ? endIndexPaginationRange : finalEndAlternatif;
+    let end =
+      totalDataNotif > 12 ? endIndexPaginationRange : finalEndAlternatif;
 
     if (end > lastIndexOfDataKeyArr) {
       end -= 1;
@@ -36,14 +37,14 @@ export default function PaginationButtonItems({
 
     for (let i = start; i <= end; i++) {
       const objItem = { pageName: notifDataKeyArr[i], index: i };
-      maxPageNumArr.push(objItem);
+      resultArr.push(objItem);
     }
 
-    return maxPageNumArr;
+    return resultArr;
   }, [
     totalDataNotif,
-    lastIndexOfDataKeyArr,
     notifDataKeyArr,
+    lastIndexOfDataKeyArr,
     startIndexPaginationRange,
     endIndexPaginationRange,
   ]);

@@ -34,15 +34,6 @@ export default function PaginationNotif({
   };
 
   useEffect(() => {
-    if (!notifObjData[pageName]) {
-      return navigate({
-        pathname: pagePathName,
-        search: `?pageName=${objKeyOfNotifLastIndex}`,
-      });
-    }
-  }, [navigate, notifObjData, objKeyOfNotifLastIndex, pageName, pagePathName]);
-
-  useEffect(() => {
     const index = objKeyOfNotif.indexOf(pageName);
     const objKeyLastIndex = objKeyOfNotif.length - 1;
     const isIdxLessThanObjKeyLastIdx = index < objKeyLastIndex;
@@ -86,7 +77,16 @@ export default function PaginationNotif({
   }, [pageName, startIndexPaginationRange, objKeyOfNotif]);
 
   useEffect(() => {
-    navigate({
+    if (!notifObjData[pageName]) {
+      return navigate({
+        pathname: pagePathName,
+        search: `?pageName=${objKeyOfNotifLastIndex}`,
+      });
+    }
+  }, [navigate, notifObjData, objKeyOfNotifLastIndex, pageName, pagePathName]);
+
+  useEffect(() => {
+    return navigate({
       pathname: pagePathName,
       search: `?pageName=${pageName ?? "1"}`,
     });
