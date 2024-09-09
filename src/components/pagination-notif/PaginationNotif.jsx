@@ -48,12 +48,18 @@ export default function PaginationNotif({
 
   useEffect(() => {
     if (objKeyOfNotif.length) {
-      const possibilityOne =
-        objKeyOfNotif.indexOf(pageName) === endIndexPaginationRange;
-      const possibilityTwo =
-        objKeyOfNotif.indexOf(pageName) < objKeyOfNotif.length - 1;
+      const activePageIndex = objKeyOfNotif.indexOf(pageName);
+      const lastIndexOfPagination = objKeyOfNotif.length - 1;
 
-      if (possibilityOne && possibilityTwo) {
+      const isActivePageIdxLessThanLastIdxOfPagination =
+        activePageIndex < lastIndexOfPagination;
+      const isActivePageIdxEqualToEndIdxOfPaginationRange =
+        activePageIndex === endIndexPaginationRange;
+
+      if (
+        isActivePageIdxEqualToEndIdxOfPaginationRange &&
+        isActivePageIdxLessThanLastIdxOfPagination
+      ) {
         setStartIndexPaginationRange((currentNum) => currentNum + 1);
         setEndIndexPaginationRange((currentNum) => currentNum + 1);
         return;
@@ -68,11 +74,16 @@ export default function PaginationNotif({
 
   useEffect(() => {
     if (objKeyOfNotif.length) {
-      const possibilityOne =
-        objKeyOfNotif.indexOf(pageName) === startIndexPaginationRange;
-      const possibilityTwo = objKeyOfNotif.indexOf(pageName) > 0;
+      const activePageIndex = objKeyOfNotif.indexOf(pageName);
 
-      if (possibilityOne && possibilityTwo) {
+      const isActivePageIdxEqualToStartIdxOfPaginationRange =
+        activePageIndex === startIndexPaginationRange;
+      const isActivePageIdxGreaterThanZero = activePageIndex > 0;
+
+      if (
+        isActivePageIdxEqualToStartIdxOfPaginationRange &&
+        isActivePageIdxGreaterThanZero
+      ) {
         setStartIndexPaginationRange((currentNum) => currentNum - 1);
         setEndIndexPaginationRange((currentNum) => currentNum - 1);
         return;
