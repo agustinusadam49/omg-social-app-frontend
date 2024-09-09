@@ -47,6 +47,16 @@ export default function PaginationNotif({
   }, [pageName, objKeyOfNotif]);
 
   useEffect(() => {
+    const increaseStartAndEndIdxPaginationRangeByOne = () => {
+      setStartIndexPaginationRange((currentNum) => currentNum + 1);
+      setEndIndexPaginationRange((currentNum) => currentNum + 1);
+    };
+
+    const decreaseStartAndEndIdxPaginationRangeByOne = () => {
+      setStartIndexPaginationRange((currentNum) => currentNum - 1);
+      setEndIndexPaginationRange((currentNum) => currentNum - 1);
+    };
+
     if (objKeyOfNotif.length) {
       const activePageIndex = objKeyOfNotif.indexOf(pageName);
       const lastIndexOfPagination = objKeyOfNotif.length - 1;
@@ -56,13 +66,22 @@ export default function PaginationNotif({
       const isActivePageIdxEqualToEndIdxOfPaginationRange =
         activePageIndex === endIndexPaginationRange;
 
+      const isActivePageIdxEqualToStartIdxOfPaginationRange =
+        activePageIndex === startIndexPaginationRange;
+      const isActivePageIdxGreaterThanZero = activePageIndex > 0;
+
       if (
         isActivePageIdxEqualToEndIdxOfPaginationRange &&
         isActivePageIdxLessThanLastIdxOfPagination
       ) {
-        setStartIndexPaginationRange((currentNum) => currentNum + 1);
-        setEndIndexPaginationRange((currentNum) => currentNum + 1);
-        return;
+        return increaseStartAndEndIdxPaginationRangeByOne();
+      }
+
+      if (
+        isActivePageIdxEqualToStartIdxOfPaginationRange &&
+        isActivePageIdxGreaterThanZero
+      ) {
+        return decreaseStartAndEndIdxPaginationRangeByOne();
       }
     }
   }, [
@@ -71,25 +90,6 @@ export default function PaginationNotif({
     startIndexPaginationRange,
     objKeyOfNotif,
   ]);
-
-  useEffect(() => {
-    if (objKeyOfNotif.length) {
-      const activePageIndex = objKeyOfNotif.indexOf(pageName);
-
-      const isActivePageIdxEqualToStartIdxOfPaginationRange =
-        activePageIndex === startIndexPaginationRange;
-      const isActivePageIdxGreaterThanZero = activePageIndex > 0;
-
-      if (
-        isActivePageIdxEqualToStartIdxOfPaginationRange &&
-        isActivePageIdxGreaterThanZero
-      ) {
-        setStartIndexPaginationRange((currentNum) => currentNum - 1);
-        setEndIndexPaginationRange((currentNum) => currentNum - 1);
-        return;
-      }
-    }
-  }, [pageName, startIndexPaginationRange, objKeyOfNotif]);
 
   useEffect(() => {
     if (!notifObjData[pageName]) {
