@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import React, { useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
@@ -10,17 +10,22 @@ export default function PaginationButtonChevron({
   notifDataObj,
   objKeyOfNotifLastIndex,
   pagePathName,
-  direction = "next",
+  startIndexPaginationRange,
+  endIndexPaginationRange,
+  setStartIndexPaginationRange,
+  setEndIndexPaginationRange,
+  direction,
 }) {
   let navigate = useNavigate();
   const query = useQueryLocation();
-  const activePageIndex = useMemo(() => query.get("pageName") ?? "1", [query]);
+  const activePageNumber = useMemo(() => query.get("pageName") ?? "1", [query]);
+  const objKeyOfNotif = Object.keys(notifDataObj);
 
   const getRequirementOfActivePage = (directionType) => {
     if (directionType === "next")
-      return activePageIndex === objKeyOfNotifLastIndex;
+      return activePageNumber === objKeyOfNotifLastIndex;
 
-    return activePageIndex === "1";
+    return activePageNumber === "1";
   };
 
   const handleNextOrPreviousPage = (directionType) => {
@@ -28,8 +33,8 @@ export default function PaginationButtonChevron({
 
     const nextOrPreviousPageIndex =
       directionType === "next"
-        ? notifObjKeyArr.indexOf(activePageIndex) + 1
-        : notifObjKeyArr.indexOf(activePageIndex) - 1;
+        ? notifObjKeyArr.indexOf(activePageNumber) + 1
+        : notifObjKeyArr.indexOf(activePageNumber) - 1;
 
     const nextOrPreviousPageName = notifObjKeyArr[nextOrPreviousPageIndex];
 
@@ -40,6 +45,54 @@ export default function PaginationButtonChevron({
       search: `?pageName=${nextOrPreviousPageName}`,
     });
   };
+
+  // This should be triggered after handleNextOrPreviousPage function is clicked
+  useEffect(() => {
+    const increaseStartAndEndIdxPaginationRangeByOne = () => {
+      setStartIndexPaginationRange((currentNum) => currentNum + 1);
+      setEndIndexPaginationRange((currentNum) => currentNum + 1);
+    };
+
+    const decreaseStartAndEndIdxPaginationRangeByOne = () => {
+      setStartIndexPaginationRange((currentNum) => currentNum - 1);
+      setEndIndexPaginationRange((currentNum) => currentNum - 1);
+    };
+
+    if (objKeyOfNotif.length) {
+      const activePageIndex = objKeyOfNotif.indexOf(activePageNumber);
+      const lastIndexOfPagination = objKeyOfNotif.length - 1;
+
+      const isActivePageIdxLessThanLastIdxOfPagination =
+        activePageIndex < lastIndexOfPagination;
+      const isActivePageIdxEqualToEndIdxOfPaginationRange =
+        activePageIndex === endIndexPaginationRange;
+
+      const isActivePageIdxEqualToStartIdxOfPaginationRange =
+        activePageIndex === startIndexPaginationRange;
+      const isActivePageIdxGreaterThanZero = activePageIndex > 0;
+
+      if (
+        isActivePageIdxEqualToEndIdxOfPaginationRange &&
+        isActivePageIdxLessThanLastIdxOfPagination
+      ) {
+        return increaseStartAndEndIdxPaginationRangeByOne();
+      }
+
+      if (
+        isActivePageIdxEqualToStartIdxOfPaginationRange &&
+        isActivePageIdxGreaterThanZero
+      ) {
+        return decreaseStartAndEndIdxPaginationRangeByOne();
+      }
+    }
+  }, [
+    activePageNumber,
+    objKeyOfNotif,
+    endIndexPaginationRange,
+    startIndexPaginationRange,
+    setStartIndexPaginationRange,
+    setEndIndexPaginationRange,
+  ]);
 
   return (
     <div

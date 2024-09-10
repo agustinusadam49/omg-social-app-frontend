@@ -47,51 +47,6 @@ export default function PaginationNotif({
   }, [pageName, objKeyOfNotif]);
 
   useEffect(() => {
-    const increaseStartAndEndIdxPaginationRangeByOne = () => {
-      setStartIndexPaginationRange((currentNum) => currentNum + 1);
-      setEndIndexPaginationRange((currentNum) => currentNum + 1);
-    };
-
-    const decreaseStartAndEndIdxPaginationRangeByOne = () => {
-      setStartIndexPaginationRange((currentNum) => currentNum - 1);
-      setEndIndexPaginationRange((currentNum) => currentNum - 1);
-    };
-
-    if (objKeyOfNotif.length) {
-      const activePageIndex = objKeyOfNotif.indexOf(pageName);
-      const lastIndexOfPagination = objKeyOfNotif.length - 1;
-
-      const isActivePageIdxLessThanLastIdxOfPagination =
-        activePageIndex < lastIndexOfPagination;
-      const isActivePageIdxEqualToEndIdxOfPaginationRange =
-        activePageIndex === endIndexPaginationRange;
-
-      const isActivePageIdxEqualToStartIdxOfPaginationRange =
-        activePageIndex === startIndexPaginationRange;
-      const isActivePageIdxGreaterThanZero = activePageIndex > 0;
-
-      if (
-        isActivePageIdxEqualToEndIdxOfPaginationRange &&
-        isActivePageIdxLessThanLastIdxOfPagination
-      ) {
-        return increaseStartAndEndIdxPaginationRangeByOne();
-      }
-
-      if (
-        isActivePageIdxEqualToStartIdxOfPaginationRange &&
-        isActivePageIdxGreaterThanZero
-      ) {
-        return decreaseStartAndEndIdxPaginationRangeByOne();
-      }
-    }
-  }, [
-    pageName,
-    endIndexPaginationRange,
-    startIndexPaginationRange,
-    objKeyOfNotif,
-  ]);
-
-  useEffect(() => {
     if (!notifObjData[pageName]) {
       return navigate({
         pathname: pagePathName,
@@ -116,6 +71,10 @@ export default function PaginationNotif({
             objKeyOfNotifLastIndex={objKeyOfNotifLastIndex}
             notifDataObj={notifDataObj}
             pagePathName={pagePathName}
+            startIndexPaginationRange={startIndexPaginationRange}
+            endIndexPaginationRange={endIndexPaginationRange}
+            setStartIndexPaginationRange={setStartIndexPaginationRange}
+            setEndIndexPaginationRange={setEndIndexPaginationRange}
             direction="previous"
           />
         )}
@@ -137,6 +96,11 @@ export default function PaginationNotif({
             objKeyOfNotifLastIndex={objKeyOfNotifLastIndex}
             notifDataObj={notifDataObj}
             pagePathName={pagePathName}
+            startIndexPaginationRange={startIndexPaginationRange}
+            endIndexPaginationRange={endIndexPaginationRange}
+            setStartIndexPaginationRange={setStartIndexPaginationRange}
+            setEndIndexPaginationRange={setEndIndexPaginationRange}
+            direction="next"
           />
         )}
       </div>
