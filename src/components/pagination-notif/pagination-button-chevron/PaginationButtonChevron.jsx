@@ -54,8 +54,14 @@ export default function PaginationButtonChevron({
     };
 
     const decreaseStartAndEndIdxPaginationRangeByOne = () => {
-      setStartIndexPaginationRange((currentNum) => currentNum - 1);
-      setEndIndexPaginationRange((currentNum) => currentNum - 1);
+      setStartIndexPaginationRange((currentNum) => {
+        if (currentNum === 0) return currentNum;
+        return currentNum - 1;
+      });
+      setEndIndexPaginationRange((currentNum) => {
+        if (currentNum === 3) return currentNum;
+        return currentNum - 1;
+      });
     };
 
     if (objKeyOfNotif.length) {
