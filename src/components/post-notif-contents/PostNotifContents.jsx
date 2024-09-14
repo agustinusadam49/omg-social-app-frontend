@@ -1,55 +1,39 @@
-import React, { Fragment, useEffect, useMemo, useReducer } from "react";
+import React, { useEffect, useMemo, useReducer } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { getNotificationsBelongsToLoggedUser } from "../../redux/apiCalls";
 import { setPostNotif } from "../../redux/slices/notificationSlice";
 import { updateAllNotificationStatusNotRead } from "../../apiCalls/notificationsApiFetch";
-import NotificationCard from "../notification-card/NotificationCard";
-import PaginationNotif from "../pagination-notif/PaginationNotif";
-import EmptyStateNotification from "../empty-state-notification/EmptyStateNotification";
-import GlobalButton from "../button/GlobalButton";
 import {
   INITIAL_LOADING_STATE,
   actionType,
   loadingReducer,
 } from "../../utils/reducers/globalLoadingReducer";
-import RoundedLoader from "../rounded-loader/RoundedLoader";
 import { mappedPageObjUtil } from "../../utils/mappedPageIntoObject";
 import useQueryLocation from "../../custom-hooks/useQueryLocation";
-
-import "./PostNotifContents.scss";
+import NotifContentsMain from "../notif-contents-main/NotifContentsMain";
 
 export default function PostNotifContents() {
   const query = useQueryLocation();
+  const pageName = useMemo(() => query.get("pageName"), [query]);
 
-  const [loadingState, mutate] = useReducer(
-    loadingReducer,
-    INITIAL_LOADING_STATE
-  );
+  const [loadingState, mutate] = useReducer(loadingReducer, INITIAL_LOADING_STATE);
 
   const dispatch = useDispatch();
 
-  const postNotifFromSlice = useSelector(
-    (state) => state.notifications.postNotif
-  );
+  const postNotifFromSlice = useSelector((state) => state.notifications.postNotif);
   const currentUserIdFromSlice = useSelector((state) => state.user.userId);
 
-  const pageName = useMemo(() => query.get("pageName"), [query]);
-
-  const totalAllIsRead = useMemo(() => {
-    const newDataReadStatusIsRead = postNotifFromSlice
-      .filter((item) => !item.isRead)
-      .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-
-    return newDataReadStatusIsRead.length;
-  }, [postNotifFromSlice]);
-
-  const staticFilteredData = useMemo(
-    () =>
-      postNotifFromSlice
-        .filter((item) => item)
-        .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)),
-    [postNotifFromSlice]
+  const notReadYetPostNotifications = postNotifFromSlice.filter(
+    (notif) => notif.isRead === false
   );
+
+  const totalAllIsRead = postNotifFromSlice
+    .filter((item) => !item.isRead)
+    .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+  const staticFilteredData = postNotifFromSlice
+    .filter((item) => item)
+    .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 
   const notifPostsDataObj = useMemo(
     () =>
@@ -61,11 +45,6 @@ export default function PostNotifContents() {
   );
 
   const notifArrByActivePage = notifPostsDataObj[pageName || "1"];
-
-  const notReadYetPostNotifications = useMemo(
-    () => postNotifFromSlice.filter((notif) => notif.isRead === false),
-    [postNotifFromSlice]
-  );
 
   const changeButton = () => {
     if (loadingState.status) return;
@@ -104,59 +83,16 @@ export default function PostNotifContents() {
   }, [dispatch]);
 
   return (
-    <div className="post-notif-contents">
-      <div className="post-notif-title">Post Notifications</div>
-      <div className="post-notif-card-wrapper">
-        <div className="post-notif-card-inner-wrapper">
-          {!!staticFilteredData.length ? (
-            <Fragment>
-              {notifArrByActivePage?.map((notifPostItem) => (
-                <NotificationCard
-                  key={notifPostItem.id}
-                  notifications={notifPostItem}
-                />
-              ))}
-            </Fragment>
-          ) : (
-            <EmptyStateNotification type={"posts"} />
-          )}
-        </div>
-
-        {!!postNotifFromSlice.length && (
-          <GlobalButton
-            classStyleName={`post-notif-mark-all-button ${
-              totalAllIsRead ? "active" : "not-active"
-            }`}
-            buttonLabel={
-              totalAllIsRead
-                ? "Tandai semua sebagai dibaca"
-                : "Semua notif telah dibaca"
-            }
-            onClick={() => changeButton()}
-            loading={loadingState.status}
-            isDisabled={loadingState.status}
-            renderLabel={({ label, isLoading }) => {
-              return !isLoading ? (
-                <div>{label}</div>
-              ) : (
-                <RoundedLoader
-                  baseColor="gray"
-                  secondaryColor="white"
-                  size={17}
-                />
-              );
-            }}
-          />
-        )}
-      </div>
-
-      {!!postNotifFromSlice.length && (
-        <PaginationNotif
-          pagePathName={"/post-notifications"}
-          notifDataSlices={postNotifFromSlice}
-          notifDataObj={notifPostsDataObj}
-        />
-      )}
-    </div>
+    <NotifContentsMain
+      staticFilteredData={staticFilteredData}
+      notifArrByActivePage={notifArrByActivePage}
+      notifDataFromSlice={postNotifFromSlice}
+      totalAllIsRead={totalAllIsRead.length}
+      isNotifLoadingState={loadingState.status}
+      notifDataObj={notifPostsDataObj}
+      notifTitle={"Post Notifications"}
+      pagePathName={"/post-notifications"}
+      changeButton={changeButton}
+    />
   );
 }

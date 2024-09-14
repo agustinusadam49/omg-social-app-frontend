@@ -1,55 +1,39 @@
-import React, { Fragment, useEffect, useMemo, useReducer } from "react";
+import React, { useEffect, useMemo, useReducer } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { getNotificationsBelongsToLoggedUser } from "../../redux/apiCalls";
 import { setMessageNotif } from "../../redux/slices/notificationSlice";
 import { updateAllNotificationStatusNotRead } from "../../apiCalls/notificationsApiFetch";
-import NotificationCard from "../notification-card/NotificationCard";
-import PaginationNotif from "../pagination-notif/PaginationNotif";
-import EmptyStateNotification from "../empty-state-notification/EmptyStateNotification";
-import GlobalButton from "../button/GlobalButton";
 import {
   INITIAL_LOADING_STATE,
   actionType,
   loadingReducer,
 } from "../../utils/reducers/globalLoadingReducer";
-import RoundedLoader from "../rounded-loader/RoundedLoader";
 import { mappedPageObjUtil } from "../../utils/mappedPageIntoObject";
 import useQueryLocation from "../../custom-hooks/useQueryLocation";
-
-import "./MessageNotifContents.scss";
+import NotifContentsMain from "../notif-contents-main/NotifContentsMain";
 
 export default function MessageNotifContents() {
   const query = useQueryLocation();
+  const pageName = useMemo(() => query.get("pageName"), [query]);
 
-  const [loadingState, mutate] = useReducer(
-    loadingReducer,
-    INITIAL_LOADING_STATE
-  );
+  const [loadingState, mutate] = useReducer(loadingReducer, INITIAL_LOADING_STATE);
 
   const dispatch = useDispatch();
 
-  const messageNotifFromSlice = useSelector(
-    (state) => state.notifications.messageNotif
-  );
+  const messageNotifFromSlice = useSelector((state) => state.notifications.messageNotif);
   const currentUserIdFromSlice = useSelector((state) => state.user.userId);
 
-  const pageName = useMemo(() => query.get("pageName"), [query]);
-
-  const totalAllIsRead = useMemo(() => {
-    const newDataReadStatusIsRead = messageNotifFromSlice
-      .filter((item) => !item.isRead)
-      .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-
-    return newDataReadStatusIsRead.length;
-  }, [messageNotifFromSlice]);
-
-  const staticFilteredData = useMemo(
-    () =>
-      messageNotifFromSlice
-        .filter((item) => item)
-        .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)),
-    [messageNotifFromSlice]
+  const notReadYetMessageNotifications = messageNotifFromSlice.filter(
+    (notif) => notif.isRead === false
   );
+
+  const totalAllIsRead = messageNotifFromSlice
+    .filter((item) => !item.isRead)
+    .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+  const staticFilteredData = messageNotifFromSlice
+    .filter((item) => item)
+    .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 
   const notifMessageDataObj = useMemo(
     () =>
@@ -61,11 +45,6 @@ export default function MessageNotifContents() {
   );
 
   const notifArrByActivePage = notifMessageDataObj[pageName || "1"];
-
-  const notReadYetMessageNotifications = useMemo(
-    () => messageNotifFromSlice.filter((notif) => notif.isRead === false),
-    [messageNotifFromSlice]
-  );
 
   const changeButton = () => {
     if (loadingState.status) return;
@@ -104,59 +83,16 @@ export default function MessageNotifContents() {
   }, [dispatch]);
 
   return (
-    <div className="message-notif-contents">
-      <div className="message-notif-title">Message Notifications</div>
-      <div className="message-notif-card-wrapper">
-        <div className="message-notif-card-inner-wrapper">
-          {!!staticFilteredData.length ? (
-            <Fragment>
-              {notifArrByActivePage?.map((notifMessageItem) => (
-                <NotificationCard
-                  key={notifMessageItem.id}
-                  notifications={notifMessageItem}
-                />
-              ))}
-            </Fragment>
-          ) : (
-            <EmptyStateNotification type={"messages"} />
-          )}
-        </div>
-
-        {!!messageNotifFromSlice.length && (
-          <GlobalButton
-            classStyleName={`message-notif-mark-all-button ${
-              totalAllIsRead ? "active" : "not-active"
-            }`}
-            buttonLabel={
-              totalAllIsRead
-                ? "Tandai semua sebagai dibaca"
-                : "Semua notif telah dibaca"
-            }
-            onClick={() => changeButton()}
-            loading={loadingState.status}
-            isDisabled={loadingState.status}
-            renderLabel={({ label, isLoading }) => {
-              return !isLoading ? (
-                <div>{label}</div>
-              ) : (
-                <RoundedLoader
-                  baseColor="gray"
-                  secondaryColor="white"
-                  size={17}
-                />
-              );
-            }}
-          />
-        )}
-      </div>
-
-      {!!messageNotifFromSlice.length && (
-        <PaginationNotif
-          pagePathName={"/message-notifications"}
-          notifDataSlices={messageNotifFromSlice}
-          notifDataObj={notifMessageDataObj}
-        />
-      )}
-    </div>
+    <NotifContentsMain
+      staticFilteredData={staticFilteredData}
+      notifArrByActivePage={notifArrByActivePage}
+      notifDataFromSlice={messageNotifFromSlice}
+      totalAllIsRead={totalAllIsRead.length}
+      isNotifLoadingState={loadingState.status}
+      notifDataObj={notifMessageDataObj}
+      notifTitle={"Message Notifications"}
+      pagePathName={"/message-notifications"}
+      changeButton={changeButton}
+    />
   );
 }

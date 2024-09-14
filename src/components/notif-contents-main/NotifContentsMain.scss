@@ -1,14 +1,14 @@
-.follower-notif-contents {
+.notif-contents-main {
   flex: 1;
   padding: 10px;
   width: 100%;
-  
+
   @media only screen and (min-width: 1024px) {
     flex: 6;
     padding: 10px 0;
   }
 
-  .follower-notif-title {
+  .notif-title {
     font-size: 12px;
     font-weight: 500;
     margin-bottom: 10px;
@@ -19,7 +19,7 @@
     }
   }
 
-  .follower-notif-card-wrapper {
+  .notif-card-wrapper {
     display: flex;
     flex-direction: column;
     justify-content: space-between;
@@ -29,7 +29,7 @@
       height: 280px;
     }
 
-    .follower-notif-mark-all-notif-button {
+    .notif-mark-all-notif-button {
       display: flex;
       flex-direction: row;
       align-items: center;
