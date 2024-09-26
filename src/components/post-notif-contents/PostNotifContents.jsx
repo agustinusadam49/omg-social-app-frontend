@@ -11,6 +11,7 @@ import {
 import { mappedPageObjUtil } from "../../utils/mappedPageIntoObject";
 import useQueryLocation from "../../custom-hooks/useQueryLocation";
 import NotifContentsMain from "../notif-contents-main/NotifContentsMain";
+import { NotifContextProvider } from "../../context/notifContext";
 
 export default function PostNotifContents() {
   const query = useQueryLocation();
@@ -83,7 +84,7 @@ export default function PostNotifContents() {
   }, [dispatch]);
 
   return (
-    <NotifContentsMain
+    <NotifContextProvider
       staticFilteredData={staticFilteredData}
       notifArrByActivePage={notifArrByActivePage}
       notifDataFromSlice={postNotifFromSlice}
@@ -93,6 +94,8 @@ export default function PostNotifContents() {
       notifTitle={"Post Notifications"}
       pagePathName={"/post-notifications"}
       changeButton={changeButton}
-    />
+    >
+      <NotifContentsMain />
+    </NotifContextProvider>
   );
 }

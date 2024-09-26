@@ -11,6 +11,7 @@ import {
 import { mappedPageObjUtil } from "../../utils/mappedPageIntoObject";
 import useQueryLocation from "../../custom-hooks/useQueryLocation";
 import NotifContentsMain from "../notif-contents-main/NotifContentsMain";
+import { NotifContextProvider } from "../../context/notifContext";
 
 export default function FollowerNotifContents() {
   const query = useQueryLocation();
@@ -83,7 +84,7 @@ export default function FollowerNotifContents() {
   }, [dispatch]);
 
   return (
-    <NotifContentsMain
+    <NotifContextProvider
       staticFilteredData={staticFilteredData}
       notifArrByActivePage={notifArrByActivePage}
       notifDataFromSlice={followerNotifFromSlice}
@@ -93,6 +94,8 @@ export default function FollowerNotifContents() {
       pagePathName={"/follower-notifications"}
       notifTitle={"Follow Notifications"}
       changeButton={changeButton}
-    />
+    >
+      <NotifContentsMain />
+    </NotifContextProvider>
   );
 }

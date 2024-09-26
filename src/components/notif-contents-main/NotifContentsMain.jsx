@@ -1,23 +1,26 @@
-import React from "react";
+import React, { useContext } from "react";
 import NotificationCardsSection from "../notification-cards-section/NotificationCardsSection";
 import EmptyStateNotification from "../empty-state-notification/EmptyStateNotification";
 import GlobalButton from "../button/GlobalButton";
 import RoundedLoader from "../rounded-loader/RoundedLoader";
 import PaginationNotif from "../pagination-notif/PaginationNotif";
+import { notifContext } from "../../context/notifContext";
 
 import "./NotifContentsMain.scss";
 
-export default function NotifContentsMain({
-  staticFilteredData,
-  notifArrByActivePage,
-  notifDataFromSlice,
-  totalAllIsRead,
-  isNotifLoadingState,
-  notifDataObj,
-  notifTitle,
-  pagePathName,
-  changeButton,
-}) {
+export default function NotifContentsMain() {
+  const {
+    staticFilteredData,
+    notifArrByActivePage,
+    notifDataFromSlice,
+    totalAllIsRead,
+    isNotifLoadingState,
+    notifDataObj,
+    notifTitle,
+    pagePathName,
+    changeButton,
+  } = useContext(notifContext);
+
   return (
     <div className="notif-contents-main">
       <div className="notif-title">{notifTitle}</div>
