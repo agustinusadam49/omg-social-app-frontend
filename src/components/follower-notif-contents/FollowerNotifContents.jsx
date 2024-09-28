@@ -93,6 +93,7 @@ export default function FollowerNotifContents() {
       notifDataObj={notifFollowerDataObj}
       pagePathName={"/follower-notifications"}
       notifTitle={"Follow Notifications"}
+      emptyStateType="follows"
       changeButton={changeButton}
     >
       <NotifContentsMain />

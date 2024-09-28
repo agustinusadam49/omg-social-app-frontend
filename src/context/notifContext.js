@@ -9,6 +9,7 @@ export const notifContext = createContext({
   notifDataObj: null,
   notifTitle: "",
   pagePathName: "",
+  emptyStateType: "",
   changeButton: () => {},
 });
 

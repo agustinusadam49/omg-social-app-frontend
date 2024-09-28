@@ -1,7 +1,10 @@
-import React, { Fragment } from "react";
+import React, { Fragment, useContext } from "react";
 import NotificationCard from "../notification-card/NotificationCard";
+import { notifContext } from "../../context/notifContext";
 
-export default function NotificationCardsSection({ notifArrByActivePage }) {
+export default function NotificationCardsSection() {
+  const { notifArrByActivePage } = useContext(notifContext);
+
   return (
     <Fragment>
       {notifArrByActivePage?.map((notifItem) => (

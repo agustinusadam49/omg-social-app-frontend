@@ -1,21 +1,22 @@
-import React, { useEffect, useMemo } from "react";
+import React, { useEffect, useMemo, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
 import useQueryLocation from "../../../custom-hooks/useQueryLocation";
+import { notifContext } from "../../../context/notifContext";
 
 import "./PaginationButtonChevron.scss";
 
 export default function PaginationButtonChevron({
-  notifDataObj,
   objKeyOfNotifLastIndex,
-  pagePathName,
   startIndexPaginationRange,
   endIndexPaginationRange,
   setStartIndexPaginationRange,
   setEndIndexPaginationRange,
   direction,
 }) {
+  const { notifDataObj, pagePathName } = useContext(notifContext);
+
   let navigate = useNavigate();
   const query = useQueryLocation();
   const activePageNumber = useMemo(() => query.get("pageName") ?? "1", [query]);

@@ -93,6 +93,7 @@ export default function PostNotifContents() {
       notifDataObj={notifPostsDataObj}
       notifTitle={"Post Notifications"}
       pagePathName={"/post-notifications"}
+      emptyStateType="posts"
       changeButton={changeButton}
     >
       <NotifContentsMain />

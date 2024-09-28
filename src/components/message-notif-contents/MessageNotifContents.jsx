@@ -93,6 +93,7 @@ export default function MessageNotifContents() {
       notifDataObj={notifMessageDataObj}
       notifTitle={"Message Notifications"}
       pagePathName={"/message-notifications"}
+      emptyStateType="messages"
       changeButton={changeButton}
     >
       <NotifContentsMain />

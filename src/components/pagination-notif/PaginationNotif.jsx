@@ -1,28 +1,26 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import PaginationButtonItems from "./pagination-button-items/PaginationButtonItems";
 import PaginationButtonChevron from "./pagination-button-chevron/PaginationButtonChevron";
 import useQueryLocation from "../../custom-hooks/useQueryLocation";
+import { notifContext } from "../../context/notifContext";
 
 import "./PaginationNotif.scss";
 
-export default function PaginationNotif({
-  pagePathName,
-  notifDataSlices,
-  notifDataObj,
-}) {
+export default function PaginationNotif() {
+  const { notifDataObj, pagePathName } = useContext(notifContext);
+
   let navigate = useNavigate();
   const query = useQueryLocation();
 
-  const notifDataFromSlice = notifDataSlices;
+  const [startIndexPaginationRange, setStartIndexPaginationRange] = useState(0);
+  const [endIndexPaginationRange, setEndIndexPaginationRange] = useState(3);
+
   const notifObjData = notifDataObj;
   const objKeyOfNotif = Object.keys(notifDataObj);
   const objKeyOfNotifLastIndex = objKeyOfNotif[objKeyOfNotif.length - 1];
 
   const pageName = useMemo(() => query.get("pageName"), [query]);
-
-  const [startIndexPaginationRange, setStartIndexPaginationRange] = useState(0);
-  const [endIndexPaginationRange, setEndIndexPaginationRange] = useState(3);
 
   const changeActivePage = (inputItem) => {
     const pageNum = inputItem.pageName;
@@ -69,8 +67,6 @@ export default function PaginationNotif({
           <PaginationButtonChevron
             activePageIndex={pageName}
             objKeyOfNotifLastIndex={objKeyOfNotifLastIndex}
-            notifDataObj={notifDataObj}
-            pagePathName={pagePathName}
             startIndexPaginationRange={startIndexPaginationRange}
             endIndexPaginationRange={endIndexPaginationRange}
             setStartIndexPaginationRange={setStartIndexPaginationRange}
@@ -81,8 +77,6 @@ export default function PaginationNotif({
 
         {notifDataObj && (
           <PaginationButtonItems
-            notifDataObj={notifDataObj}
-            notifDataFromSlice={notifDataFromSlice}
             startIndexPaginationRange={startIndexPaginationRange}
             endIndexPaginationRange={endIndexPaginationRange}
             activePageIndex={pageName}
@@ -94,8 +88,6 @@ export default function PaginationNotif({
           <PaginationButtonChevron
             activePageIndex={pageName}
             objKeyOfNotifLastIndex={objKeyOfNotifLastIndex}
-            notifDataObj={notifDataObj}
-            pagePathName={pagePathName}
             startIndexPaginationRange={startIndexPaginationRange}
             endIndexPaginationRange={endIndexPaginationRange}
             setStartIndexPaginationRange={setStartIndexPaginationRange}

@@ -1,15 +1,16 @@
-import React, { Fragment, useMemo } from "react";
+import React, { Fragment, useMemo, useContext } from "react";
+import { notifContext } from "../../../context/notifContext";
 
 import "./PaginationButtonItems.scss";
 
 export default function PaginationButtonItems({
-  notifDataObj,
-  notifDataFromSlice,
   startIndexPaginationRange,
   endIndexPaginationRange,
   activePageIndex,
   changeActivePage,
 }) {
+  const { notifDataFromSlice, notifDataObj } = useContext(notifContext);
+
   const totalDataNotif = notifDataFromSlice.length;
   const notifDataKeyArr = Object.keys(notifDataObj);
   const lastIndexOfDataKeyArr = notifDataKeyArr.length - 1;

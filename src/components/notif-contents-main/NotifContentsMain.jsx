@@ -11,13 +11,10 @@ import "./NotifContentsMain.scss";
 export default function NotifContentsMain() {
   const {
     staticFilteredData,
-    notifArrByActivePage,
     notifDataFromSlice,
     totalAllIsRead,
     isNotifLoadingState,
-    notifDataObj,
     notifTitle,
-    pagePathName,
     changeButton,
   } = useContext(notifContext);
 
@@ -27,11 +24,9 @@ export default function NotifContentsMain() {
       <div className="notif-card-wrapper">
         <div className="notif-card-inner-wrapper">
           {!!staticFilteredData.length ? (
-            <NotificationCardsSection
-              notifArrByActivePage={notifArrByActivePage}
-            />
+            <NotificationCardsSection />
           ) : (
-            <EmptyStateNotification type={"follows"} />
+            <EmptyStateNotification />
           )}
         </div>
 
@@ -63,13 +58,7 @@ export default function NotifContentsMain() {
         )}
       </div>
 
-      {!!notifDataFromSlice.length && (
-        <PaginationNotif
-          pagePathName={pagePathName}
-          notifDataSlices={notifDataFromSlice}
-          notifDataObj={notifDataObj}
-        />
-      )}
+      {!!notifDataFromSlice.length && <PaginationNotif />}
     </div>
   );
 }
