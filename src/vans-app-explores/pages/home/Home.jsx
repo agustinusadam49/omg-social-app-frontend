@@ -4,6 +4,7 @@ import LoremParagraph from "./lorem-paragraph/LoremParagraph";
 import CommentSimulation from "./show-case/comment-simulation/CommentSimulation";
 import DynamicFieldsSimulation from "./show-case/dynamic-fields-simulation/DynamicFieldsSimulation";
 import UserMentionedSimulation from "./show-case/user-mentioned-simulation/UserMentionedSimulation";
+import ReadAndWriteMultipleFilesSimulation from "./show-case/read-and-write-multiple-files-simulation/ReadAndWriteMultipleFilesSimulation";
 
 import "./Home.scss";
 
@@ -19,6 +20,8 @@ export default function Home() {
       <DynamicFieldsSimulation />
 
       <UserMentionedSimulation />
+
+      <ReadAndWriteMultipleFilesSimulation />
     </div>
   );
 }
