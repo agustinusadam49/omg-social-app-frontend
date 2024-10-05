@@ -1,8 +1,12 @@
-import React from "react";
+import React, { useContext } from "react";
 import { notifImageUrl } from "../../utils/notifUrl";
+import { notifContext } from "../../context/notifContext";
+
 import "./EmptyStateNotification.scss";
 
-export default function EmptyStateNotification({ type }) {
+export default function EmptyStateNotification() {
+  const { emptyStateType: type } = useContext(notifContext);
+
   const notificationObjData = {
     follows: {
       wording: "Belum ada Data Follow Notifications",
@@ -20,12 +24,14 @@ export default function EmptyStateNotification({ type }) {
 
   return (
     <div className="empty-state-notif">
-        <img
-          src={notificationObjData[type].iconImageUrl}
-          alt="notif-img-icn"
-          className="empty-state-notif-img-icon"
-        />
-        <div className="empty-state-notif-wording">{notificationObjData[type].wording}</div>
+      <img
+        src={notificationObjData[type].iconImageUrl}
+        alt="notif-img-icn"
+        className="empty-state-notif-img-icon"
+      />
+      <div className="empty-state-notif-wording">
+        {notificationObjData[type].wording}
+      </div>
     </div>
   );
 }

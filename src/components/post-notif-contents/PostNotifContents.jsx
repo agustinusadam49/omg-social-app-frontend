@@ -1,49 +1,51 @@
-import React, {
-  Fragment,
-  useEffect,
-  useState,
-  useMemo,
-  useReducer,
-} from "react";
+import React, { useEffect, useMemo, useReducer } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { getNotificationsBelongsToLoggedUser } from "../../redux/apiCalls";
 import { setPostNotif } from "../../redux/slices/notificationSlice";
 import { updateAllNotificationStatusNotRead } from "../../apiCalls/notificationsApiFetch";
-import NotificationCard from "../notification-card/NotificationCard";
-import PaginationNotif from "../pagination-notif/PaginationNotif";
-import EmptyStateNotification from "../empty-state-notification/EmptyStateNotification";
-import GlobalButton from "../button/GlobalButton";
 import {
   INITIAL_LOADING_STATE,
   actionType,
   loadingReducer,
 } from "../../utils/reducers/globalLoadingReducer";
-import RoundedLoader from "../rounded-loader/RoundedLoader";
-
-import "./PostNotifContents.scss";
+import { mappedPageObjUtil } from "../../utils/mappedPageIntoObject";
+import useQueryLocation from "../../custom-hooks/useQueryLocation";
+import NotifContentsMain from "../notif-contents-main/NotifContentsMain";
+import { NotifContextProvider } from "../../context/notifContext";
 
 export default function PostNotifContents() {
-  const [loadingState, mutate] = useReducer(
-    loadingReducer,
-    INITIAL_LOADING_STATE
-  );
+  const query = useQueryLocation();
+  const pageName = useMemo(() => query.get("pageName"), [query]);
+
+  const [loadingState, mutate] = useReducer(loadingReducer, INITIAL_LOADING_STATE);
+
   const dispatch = useDispatch();
 
-  const postNotifFromSlice = useSelector(
-    (state) => state.notifications.postNotif
-  );
+  const postNotifFromSlice = useSelector((state) => state.notifications.postNotif);
   const currentUserIdFromSlice = useSelector((state) => state.user.userId);
 
-  const [staticFilteredData, setStaticFilteredData] =
-    useState(postNotifFromSlice);
-  const [notifPostsDataObj, setNotifPostsDataObj] = useState({});
-  const [activePageIndex, setActivePageIndex] = useState("page1");
-  const [notifArrByActivePage, setNotifArrByActivePage] = useState([]);
+  const notReadYetPostNotifications = postNotifFromSlice.filter(
+    (notif) => notif.isRead === false
+  );
 
-  const notReadYetPostNotifications = useMemo(() => {
-    const result = postNotifFromSlice.filter((notif) => notif.isRead === false);
-    return result;
-  }, [postNotifFromSlice]);
+  const totalAllIsRead = postNotifFromSlice
+    .filter((item) => !item.isRead)
+    .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+  const staticFilteredData = postNotifFromSlice
+    .filter((item) => item)
+    .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+  const notifPostsDataObj = useMemo(
+    () =>
+      mappedPageObjUtil({
+        notifData: postNotifFromSlice,
+        maxCardAppearedInOnePage: 3,
+      }),
+    [postNotifFromSlice]
+  );
+
+  const notifArrByActivePage = notifPostsDataObj[pageName || "1"];
 
   const changeButton = () => {
     if (loadingState.status) return;
@@ -77,88 +79,24 @@ export default function PostNotifContents() {
       });
   };
 
-  const totalAllIsRead = useMemo(() => {
-    const newDataReadStatusIsRead = postNotifFromSlice
-      .filter((item) => !item.isRead)
-      .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-
-    return newDataReadStatusIsRead.length;
-  }, [postNotifFromSlice]);
-
-  useEffect(() => {
-    const newArr = notifPostsDataObj[activePageIndex];
-    setNotifArrByActivePage(newArr);
-  }, [notifPostsDataObj, activePageIndex]);
-
-  useEffect(() => {
-    const staticSortedData = postNotifFromSlice
-      .filter((item) => item)
-      .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-
-    setStaticFilteredData(staticSortedData);
-  }, [postNotifFromSlice]);
-
   useEffect(() => {
     getNotificationsBelongsToLoggedUser(dispatch);
   }, [dispatch]);
 
   return (
-    <div className="post-notif-contents">
-      <div className="post-notif-title">Post Notifications</div>
-      <div className="post-notif-card-wrapper">
-        <div className="post-notif-card-inner-wrapper">
-          {!!staticFilteredData.length ? (
-            <Fragment>
-              {notifArrByActivePage?.map((notifPostItem) => (
-                <NotificationCard
-                  key={notifPostItem.id}
-                  notifications={notifPostItem}
-                />
-              ))}
-            </Fragment>
-          ) : (
-            <EmptyStateNotification type={"posts"} />
-          )}
-        </div>
-
-        {!!postNotifFromSlice.length && (
-          <GlobalButton
-            classStyleName={`post-notif-mark-all-button ${
-              totalAllIsRead ? "active" : "not-active"
-            }`}
-            buttonLabel={
-              totalAllIsRead
-                ? "Tandai semua sebagai dibaca"
-                : "Semua notif telah dibaca"
-            }
-            onClick={() => changeButton()}
-            loading={loadingState.status}
-            isDisabled={loadingState.status}
-            renderLabel={({ label, isLoading }) => {
-              return !isLoading ? (
-                <div>{label}</div>
-              ) : (
-                <RoundedLoader
-                  baseColor="gray"
-                  secondaryColor="white"
-                  size={17}
-                />
-              );
-            }}
-          />
-        )}
-      </div>
-
-      {!!postNotifFromSlice.length && (
-        <PaginationNotif
-          pagePathName={"/post-notifications"}
-          notifDataSlices={postNotifFromSlice}
-          notifDataObj={notifPostsDataObj}
-          activePageIndex={activePageIndex}
-          setActivePageIndex={setActivePageIndex}
-          setNotifDataObj={setNotifPostsDataObj}
-        />
-      )}
-    </div>
+    <NotifContextProvider
+      staticFilteredData={staticFilteredData}
+      notifArrByActivePage={notifArrByActivePage}
+      notifDataFromSlice={postNotifFromSlice}
+      totalAllIsRead={totalAllIsRead.length}
+      isNotifLoadingState={loadingState.status}
+      notifDataObj={notifPostsDataObj}
+      notifTitle={"Post Notifications"}
+      pagePathName={"/post-notifications"}
+      emptyStateType="posts"
+      changeButton={changeButton}
+    >
+      <NotifContentsMain />
+    </NotifContextProvider>
   );
 }

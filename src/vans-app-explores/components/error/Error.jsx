@@ -6,6 +6,8 @@ import "./Error.scss";
 export default function Error() {
   const error = useRouteError();
 
+  console.log(error)
+
   return (
     <div className="error-content">
       <h2>Error: {error.message || "There was an error!"}</h2>
