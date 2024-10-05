@@ -147,7 +147,9 @@ export default function ReadAndWriteMultipleFilesSimulation() {
 
   return (
     <div className="read-and-write-wrapper">
-      <div className="read-and-write-title">Fitur File processing: Laporan Harian Pelayanan Pasien Diare & Ispa</div>
+      <div className="read-and-write-title">
+        Fitur File processing: Laporan Harian Pelayanan Pasien Diare & Ispa
+      </div>
 
       <div
         style={{
@@ -229,7 +231,12 @@ export default function ReadAndWriteMultipleFilesSimulation() {
           color: "white",
           marginBottom: "10px",
         }}
-        onClick={() => setFiles([])}
+        onClick={() => {
+          setFiles([]);
+          setMonthName("");
+          setYearNum("");
+          setOption("diare");
+        }}
       >
         Delete All Files
       </div>
