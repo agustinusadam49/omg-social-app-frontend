@@ -1,13 +1,41 @@
-// OLAHAN DATA UNTUK PENYAKIT ISPA BULAN MEI 2024
-
-// const xlsx = require("xlsx");
 import * as xlsx from "xlsx";
+import { DIARE_LISTS, ISPA_LISTS } from "../constants";
+
+const handleProcessData = (dataArrObj, diseaseType) => {
+  const dataHasBeenCapped = [];
+
+  const diagnoseList = diseaseType === "diare" ? DIARE_LISTS : ISPA_LISTS;
+
+  for (let i = 0; i < diagnoseList.length; i++) {
+    const slicedData = dataArrObj
+      .filter((item) => item.diagnoseOne === diagnoseList[i].disease)
+      .slice(0, 1)
+      .map((item) => ({
+        number: item.number,
+        date: item.date,
+        patientName: item.patientName,
+        ermNumber: item.ermNumber,
+        patientAge: item.patientAge,
+        monthAge: item.monthAge,
+        medicalPersonnel: item.medicalPersonnel,
+        diagnoseOne: item.diagnoseOne,
+        isAntibiotic: diagnoseList.filter(
+          (listOfDiagnose) => listOfDiagnose.disease === item.diagnoseOne
+        )[0].isAntibiotic,
+        receipt: item.receipt,
+      }));
+
+    dataHasBeenCapped.push(...slicedData);
+  }
+
+  return dataHasBeenCapped;
+};
 
 export const generateContentFileOps = async ({
   readPath,
   writePath,
   sheetName,
-  handleProcessData,
+  diseaseType,
 }) => {
   const contentArrMerged = [];
 
@@ -16,7 +44,7 @@ export const generateContentFileOps = async ({
     const stokPtData = xlsx.readFile(data, { cellDates: true });
     const sheetData = stokPtData.Sheets[sheetName];
     const arrayOfObjectsDataSheets = xlsx.utils.sheet_to_json(sheetData);
-    const content = handleProcessData(arrayOfObjectsDataSheets);
+    const content = handleProcessData(arrayOfObjectsDataSheets, diseaseType);
     contentArrMerged.push(...content);
   }
 
