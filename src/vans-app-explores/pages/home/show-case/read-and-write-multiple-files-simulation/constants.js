@@ -1,47 +1,56 @@
 export const DIARE_LISTS = [
   {
-    disease:
-      "Diarrhoea and gastroenteritis of presumed infectious origin (A09)",
+    disease: "A09",
+    description: "Diarrhoea and gastroenteritis of presumed infectious origin",
     isAntibiotic: true,
   },
   {
-    disease: "Gastroenteritis and colitis of unspecified origin (A09.9)",
+    disease: "A09.9",
+    description: "Gastroenteritis and colitis of unspecified origin",
     isAntibiotic: false,
   },
   {
-    disease: "Other noninfective gastroenteritis and colitis (K52)",
+    disease: "K52",
+    description: "Other noninfective gastroenteritis and colitis",
     isAntibiotic: false,
   },
 ];
 
 export const ISPA_LISTS = [
   {
-    disease: "Acute pharyngitis (J02)",
+    disease: "J02",
+    description: "Acute pharyngitis",
     isAntibiotic: true,
   },
   {
-    disease: "Acute tonsillitis (J03)",
+    disease: "J03",
+    description: "Acute tonsillitis",
     isAntibiotic: true,
   },
   {
-    disease:
-      "Acute upper respiratory infections of multiple and unspecified sites (J06)",
+    disease: "J06",
+    description:
+      "Acute upper respiratory infections of multiple and unspecified sites",
     isAntibiotic: false,
   },
   {
-    disease: "Bronchopneumonia, unspecified (J18.0)",
+    disease: "J18.0",
+    description: "Bronchopneumonia, unspecified",
     isAntibiotic: true,
   },
   {
-    disease: "Cough (R05)",
+    disease: "R05",
+    description: "Cough",
     isAntibiotic: true,
   },
   {
-    disease: "Acute nasopharyngitis [common cold] (J00)",
+    disease: "J00",
+    description: "Acute nasopharyngitis [common cold] ",
     isAntibiotic: false,
   },
   {
-    disease: "Acute upper respiratory infection, unspecified (J06.9)",
+    disease: "J06.9",
+    description: "Acute upper respiratory infection, unspecified",
     isAntibiotic: false,
   },
 ];
@@ -71,6 +80,7 @@ export const allWording = {
     "Umur Tahun menjadi patientAge",
     "Umur Bulan menjadi monthAge",
     "Dokter / Tenaga Medis menjadi medicalPersonnel",
+    "ICD-X 1 menjadi icdxOne",
     "Diagnosa 1 menjadi diagnoseOne",
     "Resep menjadi receipt",
   ],

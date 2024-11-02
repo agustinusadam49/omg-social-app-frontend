@@ -8,7 +8,7 @@ const handleProcessData = (dataArrObj, diseaseType) => {
 
   for (let i = 0; i < diagnoseList.length; i++) {
     const slicedData = dataArrObj
-      .filter((item) => item.diagnoseOne === diagnoseList[i].disease)
+      .filter((item) => item.icdxOne === diagnoseList[i].disease)
       .slice(0, 1)
       .map((item) => ({
         number: item.number,
@@ -18,9 +18,12 @@ const handleProcessData = (dataArrObj, diseaseType) => {
         patientAge: item.patientAge,
         monthAge: item.monthAge,
         medicalPersonnel: item.medicalPersonnel,
-        diagnoseOne: item.diagnoseOne,
+        icdxOne: item.icdxOne,
+        diagnoseOne: diagnoseList.find(
+          (listOfDiagnose) => listOfDiagnose.disease === item.icdxOne
+        ).description,
         isAntibiotic: diagnoseList.filter(
-          (listOfDiagnose) => listOfDiagnose.disease === item.diagnoseOne
+          (listOfDiagnose) => listOfDiagnose.disease === item.icdxOne
         )[0].isAntibiotic,
         receipt: item.receipt,
       }));
@@ -59,6 +62,7 @@ export const generateContentFileOps = async ({
         "UMUR BULAN": item.monthAge,
         "NO.REG": item.ermNumber,
         DOKTER: item.medicalPersonnel,
+        "ICD-X 1": item.icdxOne,
         DIAGNOSIS: item.diagnoseOne,
         "ANTIBIOTIK YA / TIDAK": item.isAntibiotic ? 1 : 0,
         "NAMA OBAT": item.receipt,
