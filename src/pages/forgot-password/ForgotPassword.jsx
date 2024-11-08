@@ -43,6 +43,8 @@ export default function ForgotPassword() {
 
   const [emailInLocalStorage, setEmailInLocalStorage] = useState("");
 
+  const isEmailValidated = emailInLocalStorage;
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -202,11 +204,6 @@ export default function ForgotPassword() {
       }
     }
   };
-
-  const isEmailValidated = useMemo(
-    () => emailInLocalStorage,
-    [emailInLocalStorage]
-  );
 
   useEffect(() => {
     const userEmailInLocalStorage = localStorage.getItem(
