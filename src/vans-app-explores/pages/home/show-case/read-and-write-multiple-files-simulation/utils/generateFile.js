@@ -1,13 +1,44 @@
-// OLAHAN DATA UNTUK PENYAKIT ISPA BULAN MEI 2024
-
-// const xlsx = require("xlsx");
 import * as xlsx from "xlsx";
+import { DIARE_LISTS, ISPA_LISTS } from "../constants";
+
+const handleProcessData = (dataArrObj, diseaseType) => {
+  const dataHasBeenCapped = [];
+
+  const diagnoseList = diseaseType === "diare" ? DIARE_LISTS : ISPA_LISTS;
+
+  for (let i = 0; i < diagnoseList.length; i++) {
+    const slicedData = dataArrObj
+      .filter((item) => item.icdxOne === diagnoseList[i].disease)
+      .slice(0, 1)
+      .map((item) => ({
+        number: item.number,
+        date: item.date,
+        patientName: item.patientName,
+        ermNumber: item.ermNumber,
+        patientAge: item.patientAge,
+        monthAge: item.monthAge,
+        medicalPersonnel: item.medicalPersonnel,
+        icdxOne: item.icdxOne,
+        diagnoseOne: diagnoseList.find(
+          (listOfDiagnose) => listOfDiagnose.disease === item.icdxOne
+        ).description,
+        isAntibiotic: diagnoseList.filter(
+          (listOfDiagnose) => listOfDiagnose.disease === item.icdxOne
+        )[0].isAntibiotic,
+        receipt: item.receipt,
+      }));
+
+    dataHasBeenCapped.push(...slicedData);
+  }
+
+  return dataHasBeenCapped;
+};
 
 export const generateContentFileOps = async ({
   readPath,
   writePath,
   sheetName,
-  handleProcessData,
+  diseaseType,
 }) => {
   const contentArrMerged = [];
 
@@ -16,7 +47,7 @@ export const generateContentFileOps = async ({
     const stokPtData = xlsx.readFile(data, { cellDates: true });
     const sheetData = stokPtData.Sheets[sheetName];
     const arrayOfObjectsDataSheets = xlsx.utils.sheet_to_json(sheetData);
-    const content = handleProcessData(arrayOfObjectsDataSheets);
+    const content = handleProcessData(arrayOfObjectsDataSheets, diseaseType);
     contentArrMerged.push(...content);
   }
 
@@ -31,6 +62,7 @@ export const generateContentFileOps = async ({
         "UMUR BULAN": item.monthAge,
         "NO.REG": item.ermNumber,
         DOKTER: item.medicalPersonnel,
+        "ICD-X 1": item.icdxOne,
         DIAGNOSIS: item.diagnoseOne,
         "ANTIBIOTIK YA / TIDAK": item.isAntibiotic ? 1 : 0,
         "NAMA OBAT": item.receipt,
