@@ -1,4 +1,5 @@
 import React, { useMemo } from "react";
+import Post from "../Post";
 
 import "./PostMiddleSection.scss";
 
@@ -17,6 +18,11 @@ export default function PostMiddleSection({ caption, postImage, dataPost }) {
         <div className="post-middle-text">{caption}</div>
       ) : (
         ""
+      )}
+
+      {(dataPost?.postStatus === "REPOST_QUOTE" ||
+        dataPost?.postStatus === "REPOST") && (
+        <Post postedData={dataPost.repost} isRepost={true} />
       )}
 
       {dataPost?.postImageUrl && !isVideo ? (

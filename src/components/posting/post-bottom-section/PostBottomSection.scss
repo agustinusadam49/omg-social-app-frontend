@@ -11,7 +11,11 @@
   }
 
   .post-bottom-right {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
     font-size: 12px;
     font-weight: bold;
+    width: 80px;
   }
 }

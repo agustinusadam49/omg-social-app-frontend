@@ -1,0 +1,15 @@
+.repost-icon-section {
+  display: flex;
+  align-items: center;
+
+  .auto-renew-icon {
+    width: 24px;
+    height: 24px;
+    margin-right: 5px;
+    cursor: pointer;
+  }
+
+  .total-repost {
+    color: black;
+  }
+}

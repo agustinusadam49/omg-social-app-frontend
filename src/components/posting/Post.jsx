@@ -10,8 +10,9 @@ import PostBottomSection from "./post-bottom-section/PostBottomSection.jsx";
 import LoveShape from "./love-shape/LoveShape.jsx";
 import PostLikeCounter from "./post-like-counter/PostLikeCounter.jsx";
 import PostCommentText from "./post-comment-text/PostCommentText.jsx";
+import RepostIconSection from "./repost-icon-section/RepostIconSection.jsx";
 
-export default function Post({ postedData }) {
+export default function Post({ postedData, isRepost }) {
   const thisPostId = postedData.id;
   const currentUserIdFromSlice = useSelector((state) => state.user.userId);
   const addNewPosting = useSelector((state) => state.comments.isAddNewComment);
@@ -91,6 +92,7 @@ export default function Post({ postedData }) {
           createdDate={postedData.createdAt}
           statusPost={postedData.status}
           postData={postedData}
+          isRepost={isRepost}
         />
 
         <PostMiddleSection
@@ -99,7 +101,7 @@ export default function Post({ postedData }) {
           dataPost={postedData}
         />
 
-        {postedData.status !== "PRIVATE" && (
+        {postedData.status !== "PRIVATE" && !isRepost && (
           <PostBottomSection
             leftContent={() => (
               <Fragment>
@@ -118,11 +120,15 @@ export default function Post({ postedData }) {
               </Fragment>
             )}
             rightContent={() => (
-              <PostCommentText
-                onClick={() => toggleCommentHandler(!isCommentSectionOpen)}
-                isCommentLoading={isLoadingComment}
-                currentCommentTotal={currentCommentByIdTotal}
-              />
+              <Fragment>
+                <RepostIconSection totalRepost={postedData.repostCounter} />
+
+                <PostCommentText
+                  onClick={() => toggleCommentHandler(!isCommentSectionOpen)}
+                  isCommentLoading={isLoadingComment}
+                  currentCommentTotal={currentCommentByIdTotal}
+                />
+              </Fragment>
             )}
           />
         )}

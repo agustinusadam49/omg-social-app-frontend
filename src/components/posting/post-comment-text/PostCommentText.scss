@@ -1,7 +1,6 @@
 .post-comment-text {
   font-size: 10px;
   cursor: pointer;
-  border-bottom: 1px dashed gray;
   color: black;
 
   &:hover {
@@ -10,5 +9,17 @@
 
   @media only screen and (min-width: 1024px) {
     font-size: 12px;
+  }
+
+  .comment-and-counter-wrapper {
+    display: flex;
+    align-items: center;
+
+    .comment-icon {
+      width: 24px;
+      height: 24px;
+      margin-right: 5px;
+      cursor: pointer;
+    }
   }
 }
