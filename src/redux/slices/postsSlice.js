@@ -12,6 +12,7 @@ export const postsSlice = createSlice({
     loadingGetPostsByUserId: true,
     searchPostsTerms: "",
     isPostModalEditOpen: false,
+    isRepostModalOpen: false,
     statusPost: "",
     postItem: null,
     postLoadItems: [],
@@ -45,6 +46,9 @@ export const postsSlice = createSlice({
     setIsPostModalEditOpen: (state, action) => {
       state.isPostModalEditOpen = action.payload.isPostModalEditOpen;
     },
+    setIsRepostModalOpen: (state, action) => {
+      state.isRepostModalOpen = action.payload.isRepostModalOpen;
+    },
     setStatusPost: (state, action) => {
       state.statusPost = action.payload.statusPost;
     },
@@ -70,6 +74,7 @@ export const {
   setLoadingGetPostsById,
   setSearchPostsTerms,
   setIsPostModalEditOpen,
+  setIsRepostModalOpen,
   setStatusPost,
   setPostItem,
   setPostLoadItems,

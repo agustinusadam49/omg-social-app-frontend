@@ -43,6 +43,7 @@ export default function PostTopSection({
     dispatch(setStatusPost({ statusPost: statusPost }));
     dispatch(setPostItem({ postItem: postData }));
   };
+
   return (
     <div className="post-top">
       <div className="post-top-left">

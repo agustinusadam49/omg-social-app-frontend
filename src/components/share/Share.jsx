@@ -150,7 +150,6 @@ const Share = ({ userNameFromParam }) => {
       postCaption: caption,
       senderName: currentUserNameFromSlice,
       status: activeStatus,
-      postStatus: "ORIGINAL_POST",
     };
 
     if (fileImagePosting) {
