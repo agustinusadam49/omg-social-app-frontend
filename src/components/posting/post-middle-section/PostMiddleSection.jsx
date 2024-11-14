@@ -15,7 +15,10 @@ export default function PostMiddleSection({ caption, postImage, dataPost }) {
   return (
     <div className="post-middle">
       {dataPost?.postCaption ? (
-        <div className="post-middle-text">{caption}</div>
+        <div className="post-middle-text">
+          {dataPost.postStatus === "REPOST" ? dataPost.User.userName : ""}{" "}
+          {caption}
+        </div>
       ) : (
         ""
       )}
