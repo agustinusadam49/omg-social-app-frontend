@@ -37,6 +37,7 @@ export default function RepostModal() {
 
   const dispatch = useDispatch();
 
+  const currentUserNameFromSlice = useSelector((state) => state.user.userName);
   const postItemFromSlice = useSelector((state) => state.posts.postItem);
   const openLoadDataModalSlice = useSelector(
     ({ posts }) => posts.openLoadDataModal
@@ -119,7 +120,7 @@ export default function RepostModal() {
       postCaption: caption,
       postStatus: activeRepostType,
       sourcePostId: postItemFromSlice.id,
-      senderName: postItemFromSlice.User.userName,
+      senderName: currentUserNameFromSlice,
     };
 
     if (activeRepostType === "REPOST") {
@@ -134,10 +135,10 @@ export default function RepostModal() {
   }, [
     activeRepostType,
     caption,
+    currentUserNameFromSlice,
     dispatch,
     hitCreateNewRepostApi,
     isValid,
-    postItemFromSlice.User.userName,
     postItemFromSlice.id,
   ]);
 
