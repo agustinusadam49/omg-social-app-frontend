@@ -23,10 +23,11 @@ export default function PostMiddleSection({ caption, postImage, dataPost }) {
         ""
       )}
 
-      {(dataPost?.postStatus === "REPOST_QUOTE" ||
-        dataPost?.postStatus === "REPOST") && (
-        <Post postedData={dataPost.repost} isRepost={true} />
-      )}
+      {dataPost.repost &&
+        (dataPost?.postStatus === "REPOST_QUOTE" ||
+          dataPost?.postStatus === "REPOST") && (
+          <Post postedData={dataPost.repost} isRepost={true} />
+        )}
 
       {dataPost?.postImageUrl && !isVideo ? (
         <img src={postImage} alt="user-post-pict" className="post-img" />

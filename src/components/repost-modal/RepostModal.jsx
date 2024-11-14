@@ -90,12 +90,12 @@ export default function RepostModal() {
           if (postingResult.data.success) {
             mutate({ type: shareActionType.STOP_POST_LOADING_WHEN_SUCCESS });
             dispatch(setIsAddPosting({ isSuccessPosting: true }));
-            dispatch(setIsRepostModalOpen({ isRepostModalOpen: false }));
-            dispatch(setPostItem({ postItem: null }));
-            setActiveRepostType("REPOST");
 
             setTimeout(() => {
               dispatch(setOpenLoadDataModal({ payload: false }));
+              dispatch(setIsRepostModalOpen({ isRepostModalOpen: false }));
+              dispatch(setPostItem({ postItem: null }));
+              setActiveRepostType("REPOST");
             }, intervalToClosePostLoadModal);
           }
         })

@@ -41,7 +41,14 @@ export default function Post({ postedData, isRepost }) {
   const openModalRepost = (val) => {
     dispatch(setIsRepostModalOpen({ isRepostModalOpen: val }));
     dispatch(setStatusPost({ statusPost: postedData.status }));
-    dispatch(setPostItem({ postItem: postedData }));
+    dispatch(
+      setPostItem({
+        postItem:
+          postedData.postStatus === "ORIGINAL_POST"
+            ? postedData
+            : postedData.repost,
+      })
+    );
   };
 
   useEffect(() => {
@@ -67,7 +74,8 @@ export default function Post({ postedData, isRepost }) {
       getAllCommentsDataByPostId(this_post_id)
         .then((commentByPostId) => {
           setIsLoadingComment(true);
-          const commentsByPostIdTotal = commentByPostId.data.totalCommentsByPostId;
+          const commentsByPostIdTotal =
+            commentByPostId.data.totalCommentsByPostId;
 
           if (commentsByPostIdTotal > 0) {
             setCurrentCommentByIdTotal(commentsByPostIdTotal);
