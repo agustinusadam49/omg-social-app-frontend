@@ -1,4 +1,4 @@
-import React, { useRef, useState, useMemo, Fragment } from "react";
+import React, { useRef, useState, Fragment } from "react";
 import { useDispatch } from "react-redux";
 import { generateContentFileOps } from "./utils/generateFile";
 import InputTextGlobal from "../../../../../components/input-text-global/InputTextGlobal";
@@ -26,8 +26,8 @@ export default function ReadAndWriteMultipleFilesSimulation() {
 
   const [option, setOption] = useState("diare");
 
-  const readAndWriteRulesSchema = useMemo(
-    () => ({
+  const { isValid, handleInputErrorMessage } = useFormValidation({
+    rulesSchema: {
       monthName: {
         currentValue: monthName,
         isRequired: true,
@@ -36,12 +36,7 @@ export default function ReadAndWriteMultipleFilesSimulation() {
         currentValue: yearNum,
         isRequired: true,
       },
-    }),
-    [monthName, yearNum]
-  );
-
-  const { isValid, handleInputErrorMessage } = useFormValidation({
-    rulesSchema: readAndWriteRulesSchema,
+    },
   });
 
   const handleAddFiles = (targetFiles) => {

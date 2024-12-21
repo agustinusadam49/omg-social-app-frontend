@@ -1,7 +1,7 @@
 import React, {
   useState,
   useReducer,
-  useMemo,
+  // useMemo,
   useEffect,
   Fragment,
 } from "react";
@@ -55,8 +55,58 @@ export default function ForgotPassword() {
     confirmPassword: "",
   });
 
-  const checkEmailRules = useMemo(
-    () => ({
+  // const checkEmailRules = useMemo(
+  //   () => ({
+  //     email: {
+  //       currentValue: email,
+  //       isRequired: true,
+  //       function: helpersWithMessage("email tidak valid", email, (val) => {
+  //         const emailValue = val;
+  //         return emailValue.includes("@") && emailValue.includes(".com");
+  //       }),
+  //     },
+  //   }),
+  //   [email]
+  // );
+
+  // const passwordRules = useMemo(
+  //   () => ({
+  //     password: {
+  //       currentValue: password,
+  //       isRequired: true,
+  //       function: helpersWithMessage(
+  //         "Password harus memiliki minimal 4 dan maximal 16 characters",
+  //         password,
+  //         (val) => {
+  //           const minCharacterLength = 4;
+  //           const maxCharacterLength = 16;
+  //           const passwordValue = val;
+  //           return (
+  //             passwordValue.length >= minCharacterLength &&
+  //             passwordValue.length <= maxCharacterLength
+  //           );
+  //         }
+  //       ),
+  //     },
+  //     confirmPassword: {
+  //       currentValue: confirmPassword,
+  //       isRequired: true,
+  //       function: helpersWithMessage(
+  //         "password tidak sama!",
+  //         confirmPassword,
+  //         (val) => {
+  //           const confirmPasswordValue = val;
+  //           const passwordValue = password;
+  //           return confirmPasswordValue === passwordValue;
+  //         }
+  //       ),
+  //     },
+  //   }),
+  //   [password, confirmPassword]
+  // );
+
+  const { isValid, errorMessage } = useFormValidation({
+    rulesSchema: {
       email: {
         currentValue: email,
         isRequired: true,
@@ -65,53 +115,43 @@ export default function ForgotPassword() {
           return emailValue.includes("@") && emailValue.includes(".com");
         }),
       },
-    }),
-    [email]
-  );
-
-  const passwordRules = useMemo(
-    () => ({
-      password: {
-        currentValue: password,
-        isRequired: true,
-        function: helpersWithMessage(
-          "Password harus memiliki minimal 4 dan maximal 16 characters",
-          password,
-          (val) => {
-            const minCharacterLength = 4;
-            const maxCharacterLength = 16;
-            const passwordValue = val;
-            return (
-              passwordValue.length >= minCharacterLength &&
-              passwordValue.length <= maxCharacterLength
-            );
-          }
-        ),
-      },
-      confirmPassword: {
-        currentValue: confirmPassword,
-        isRequired: true,
-        function: helpersWithMessage(
-          "password tidak sama!",
-          confirmPassword,
-          (val) => {
-            const confirmPasswordValue = val;
-            const passwordValue = password;
-            return confirmPasswordValue === passwordValue;
-          }
-        ),
-      },
-    }),
-    [password, confirmPassword]
-  );
-
-  const { isValid, errorMessage } = useFormValidation({
-    rulesSchema: checkEmailRules,
+    },
   });
 
   const { isValid: isPasswordValid, errorMessage: errorMessagePassword } =
     useFormValidation({
-      rulesSchema: passwordRules,
+      rulesSchema: {
+        password: {
+          currentValue: password,
+          isRequired: true,
+          function: helpersWithMessage(
+            "Password harus memiliki minimal 4 dan maximal 16 characters",
+            password,
+            (val) => {
+              const minCharacterLength = 4;
+              const maxCharacterLength = 16;
+              const passwordValue = val;
+              return (
+                passwordValue.length >= minCharacterLength &&
+                passwordValue.length <= maxCharacterLength
+              );
+            }
+          ),
+        },
+        confirmPassword: {
+          currentValue: confirmPassword,
+          isRequired: true,
+          function: helpersWithMessage(
+            "password tidak sama!",
+            confirmPassword,
+            (val) => {
+              const confirmPasswordValue = val;
+              const passwordValue = password;
+              return confirmPasswordValue === passwordValue;
+            }
+          ),
+        },
+      },
     });
 
   const clearField = () => {

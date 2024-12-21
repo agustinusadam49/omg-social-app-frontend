@@ -1,4 +1,4 @@
-import React, { useReducer, useState, useMemo, Fragment } from "react";
+import React, { useReducer, useState, Fragment } from "react";
 import CancelIcon from "@mui/icons-material/Cancel";
 import {
   setIsRepostModalOpen,
@@ -35,18 +35,13 @@ export default function RepostModal() {
   const [activeRepostType, setActiveRepostType] = useState("REPOST");
   const [caption, setCaption] = useState("");
 
-  const registrationRulesSchema = useMemo(
-    () => ({
+  const { isValid, handleInputErrorMessage } = useFormValidation({
+    rulesSchema: {
       caption: {
         currentValue: caption,
         isRequired: true,
       },
-    }),
-    [caption]
-  );
-
-  const { isValid, handleInputErrorMessage } = useFormValidation({
-    rulesSchema: registrationRulesSchema,
+    },
   });
 
   const getStatus = (repostTypeEnum) => {

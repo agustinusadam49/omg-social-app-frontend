@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState } from "react";
 import {
   useNavigate,
   useLocation,
@@ -43,8 +43,8 @@ export default function LoginVan() {
     });
   };
 
-  const loginRulesSchema = useMemo(
-    () => ({
+  const { isValid, errorMessage } = useFormValidation({
+    rulesSchema: {
       email: {
         currentValue: email,
         isRequired: true,
@@ -53,12 +53,7 @@ export default function LoginVan() {
         currentValue: password,
         isRequired: true,
       },
-    }),
-    [email, password]
-  );
-
-  const { isValid, errorMessage } = useFormValidation({
-    rulesSchema: loginRulesSchema,
+    },
   });
 
   const setToLocalStorage = (payload) => {
