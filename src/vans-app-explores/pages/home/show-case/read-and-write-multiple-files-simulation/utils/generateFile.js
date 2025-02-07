@@ -1,13 +1,49 @@
 import * as xlsx from "xlsx";
 import { DIARE_LISTS, ISPA_LISTS } from "../constants";
 
+const DATA_MAP_OBJ = {
+  "No.": "number",
+  Tanggal: "date",
+  "Nama Pasien": "patientName",
+  "No. eRM": "ermNumber",
+  "Umur Tahun": "patientAge",
+  "Umur Bulan": "monthAge",
+  "Dokter / Tenaga Medis": "medicalPersonnel",
+  "ICD-X 1": "icdxOne",
+  "Diagnosa 1": "diagnoseOne",
+  Resep: "receipt",
+};
+
+const changeObj = (itemObj) => {
+  const keys = Object.keys(itemObj);
+  const resultObj = {};
+
+  for (let i = 0; i < keys.length; i++) {
+    const itemValue = itemObj[keys[i]];
+
+    if (DATA_MAP_OBJ[keys[i]]) {
+      resultObj[DATA_MAP_OBJ[keys[i]]] = itemValue;
+    } else {
+      resultObj[keys[i]] = itemValue;
+    }
+  }
+
+  return resultObj;
+};
+
+const changeArrOutput = (inputArr) => {
+  return inputArr.map((item) => changeObj(item));
+};
+
 const handleProcessData = (dataArrObj, diseaseType) => {
   const dataHasBeenCapped = [];
 
   const diagnoseList = diseaseType === "diare" ? DIARE_LISTS : ISPA_LISTS;
 
+  const modifiedDataArr = changeArrOutput(dataArrObj);
+
   for (let i = 0; i < diagnoseList.length; i++) {
-    const slicedData = dataArrObj
+    const slicedData = modifiedDataArr
       .filter((item) => item.icdxOne === diagnoseList[i].disease)
       .slice(0, 1)
       .map((item) => ({
