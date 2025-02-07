@@ -10,7 +10,7 @@ import {
   deleteAllFilesButtonStyle,
   chooseFileButtonStyle,
   filesSectionListStyle,
-  warningSectionStyle,
+  // warningSectionStyle,
 } from "./styleObj";
 import { diseaseOptions, allWording } from "./constants";
 
@@ -78,7 +78,7 @@ export default function ReadAndWriteMultipleFilesSimulation() {
     <div className="read-and-write-wrapper">
       <div className="read-and-write-title">{allWording.featureTitle}</div>
 
-      <div style={warningSectionStyle}>
+      {/* <div style={warningSectionStyle}>
         <h1>{allWording.h1Warning}</h1>
         <p>{allWording.paragraphOne}</p>{" "}
         <ul>
@@ -86,7 +86,7 @@ export default function ReadAndWriteMultipleFilesSimulation() {
             <li key={item}>{item}</li>
           ))}
         </ul>
-      </div>
+      </div> */}
 
       {!!files.length &&
         files.map((item) => (

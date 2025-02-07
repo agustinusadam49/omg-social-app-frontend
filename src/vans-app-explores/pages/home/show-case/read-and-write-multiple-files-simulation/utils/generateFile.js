@@ -47,21 +47,25 @@ const handleProcessData = (dataArrObj, diseaseType) => {
       .filter((item) => item.icdxOne === diagnoseList[i].disease)
       .slice(0, 1)
       .map((item) => ({
-        number: item.number,
-        date: item.date,
-        patientName: item.patientName,
-        ermNumber: item.ermNumber,
-        patientAge: item.patientAge,
-        monthAge: item.monthAge,
-        medicalPersonnel: item.medicalPersonnel,
-        icdxOne: item.icdxOne,
-        diagnoseOne: diagnoseList.find(
-          (listOfDiagnose) => listOfDiagnose.disease === item.icdxOne
-        ).description,
-        isAntibiotic: diagnoseList.filter(
-          (listOfDiagnose) => listOfDiagnose.disease === item.icdxOne
-        )[0].isAntibiotic,
-        receipt: item.receipt,
+        number: item?.number ?? "",
+        date: item?.date ?? "",
+        patientName: item?.patientName ?? "",
+        ermNumber: item?.ermNumber ?? "",
+        patientAge: item?.patientAge ?? "",
+        monthAge: item?.monthAge ?? "",
+        medicalPersonnel: item?.medicalPersonnel ?? "",
+        icdxOne: item?.icdxOne ?? "",
+        diagnoseOne: item?.icdxOne
+          ? diagnoseList.find(
+              (listOfDiagnose) => listOfDiagnose.disease === item.icdxOne
+            ).description
+          : "",
+        isAntibiotic: item?.icdxOne
+          ? diagnoseList.filter(
+              (listOfDiagnose) => listOfDiagnose.disease === item.icdxOne
+            )[0].isAntibiotic
+          : "",
+        receipt: item?.receipt ?? "",
       }));
 
     dataHasBeenCapped.push(...slicedData);
@@ -82,7 +86,9 @@ export const generateContentFileOps = async ({
     const data = await readPath[i].arrayBuffer();
     const stokPtData = xlsx.readFile(data, { cellDates: true });
     const sheetData = stokPtData.Sheets[sheetName];
-    const arrayOfObjectsDataSheets = xlsx.utils.sheet_to_json(sheetData);
+    const arrayOfObjectsDataSheets = xlsx.utils.sheet_to_json(sheetData, {
+      range: 25,
+    });
     const content = handleProcessData(arrayOfObjectsDataSheets, diseaseType);
     contentArrMerged.push(...content);
   }
