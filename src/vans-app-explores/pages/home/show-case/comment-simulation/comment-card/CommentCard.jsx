@@ -1,9 +1,12 @@
 import React, { useState, useMemo } from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import InputTextGlobal from "../../../../../../components/input-text-global/InputTextGlobal";
 import { useFormValidation } from "../../../../../../custom-hooks/useFormValidation";
 import { getFirstError } from "../../../../../../utils/formValidationFunction";
-import { setIsClicked } from "../../../../../../redux/slices/buttonsSlice";
+import {
+  setIsClicked,
+  setCounter,
+} from "../../../../../../redux/slices/buttonsSlice";
 
 import "./CommentCard.scss";
 
@@ -23,6 +26,8 @@ export default function CommentCard({ commentItem, setCommentList }) {
   const [childrenCommentToUpdate, setChildrenCommentToUpdate] = useState(
     commentItem.commentText
   );
+
+  const currentCounter = useSelector(({ button }) => button.counter);
 
   const childrenCommentRulesSchema = useMemo(
     () => ({
@@ -49,18 +54,15 @@ export default function CommentCard({ commentItem, setCommentList }) {
     dispatch(setIsClicked({ payload: true }));
     if (isChildrenCommentValid) {
       const payload = {
+        id: `children-id-${childrenComment}-${currentCounter}`,
         commentText: childrenComment,
         isDeleted: false,
         children: [],
       };
 
       const addItemRecursively = (itemOfCommentList) => {
-        let readyContent = {
-          ...itemOfCommentList,
-        };
-
-        if (itemOfCommentList.commentText === commentItem.commentText) {
-          readyContent.children.push(payload);
+        if (itemOfCommentList.id === commentItem.id) {
+          itemOfCommentList.children.push(payload);
         }
 
         if (itemOfCommentList.children.length) {
@@ -82,6 +84,7 @@ export default function CommentCard({ commentItem, setCommentList }) {
         return doAddCommentItem(prevVal);
       });
       setChildrenComment("");
+      dispatch(setCounter({ value: 1 }));
       setIsAddChildren(false);
     }
   };
@@ -90,7 +93,7 @@ export default function CommentCard({ commentItem, setCommentList }) {
     dispatch(setIsClicked({ payload: true }));
     if (isChildrenCommentValid) {
       const updateItemRecursively = (itemOfCommentList) => {
-        if (itemOfCommentList.commentText === commentItem.commentText) {
+        if (itemOfCommentList.id === commentItem.id) {
           itemOfCommentList.commentText = childrenCommentToUpdate;
         }
 
@@ -118,7 +121,7 @@ export default function CommentCard({ commentItem, setCommentList }) {
 
   const deleteChildrenComment = () => {
     const deleteItemRecursively = (itemOfCommentList) => {
-      if (itemOfCommentList.commentText === commentItem.commentText) {
+      if (itemOfCommentList.id === commentItem.id) {
         itemOfCommentList.isDeleted = true;
       }
 
@@ -170,7 +173,7 @@ export default function CommentCard({ commentItem, setCommentList }) {
               onClick={() => {
                 setIsAddChildren((prevVal) => !prevVal);
                 setIsUpdate(false);
-                setChildrenCommentToUpdate(commentItem.commentText)
+                setChildrenCommentToUpdate(commentItem.commentText);
               }}
             >
               {">"}
@@ -181,7 +184,7 @@ export default function CommentCard({ commentItem, setCommentList }) {
               onClick={() => {
                 setIsUpdate((prevVal) => !prevVal);
                 setIsAddChildren(false);
-                setChildrenCommentToUpdate(commentItem.commentText)
+                setChildrenCommentToUpdate(commentItem.commentText);
               }}
             >
               {"U"}
