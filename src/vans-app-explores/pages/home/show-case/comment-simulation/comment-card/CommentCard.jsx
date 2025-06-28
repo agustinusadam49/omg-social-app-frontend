@@ -1,12 +1,10 @@
-import React, { useState, useMemo } from "react";
+import { useState, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import InputTextGlobal from "../../../../../../components/input-text-global/InputTextGlobal";
 import { useFormValidation } from "../../../../../../custom-hooks/useFormValidation";
 import { getFirstError } from "../../../../../../utils/formValidationFunction";
-import {
-  setIsClicked,
-  setCounter,
-} from "../../../../../../redux/slices/buttonsSlice";
+import { setIsClicked } from "../../../../../../redux/slices/buttonsSlice";
+import { setCommentSimulationCounterForId } from "../../../../../../redux/slices/commentsSlice";
 
 import "./CommentCard.scss";
 
@@ -27,7 +25,9 @@ export default function CommentCard({ commentItem, setCommentList }) {
     commentItem.commentText
   );
 
-  const currentCounter = useSelector(({ button }) => button.counter);
+  const currentCounter = useSelector(
+    ({ comments }) => comments.commentSimulationCounterForId
+  );
 
   const childrenCommentRulesSchema = useMemo(
     () => ({
@@ -84,7 +84,7 @@ export default function CommentCard({ commentItem, setCommentList }) {
         return doAddCommentItem(prevVal);
       });
       setChildrenComment("");
-      dispatch(setCounter({ value: 1 }));
+      dispatch(setCommentSimulationCounterForId({ value: 1 }));
       setIsAddChildren(false);
     }
   };

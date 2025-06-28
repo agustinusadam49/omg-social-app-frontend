@@ -1,13 +1,11 @@
-import React, { useState, useMemo } from "react";
+import { useState, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { getFirstError } from "../../../../../utils/formValidationFunction";
 import { useFormValidation } from "../../../../../custom-hooks/useFormValidation";
-import {
-  setIsClicked,
-  setCounter,
-} from "../../../../../redux/slices/buttonsSlice";
+import { setIsClicked } from "../../../../../redux/slices/buttonsSlice";
 import InputTextGlobal from "../../../../../components/input-text-global/InputTextGlobal";
 import CommentCard from "./comment-card/CommentCard";
+import { setCommentSimulationCounterForId } from "../../../../../redux/slices/commentsSlice";
 
 import "./CommentSimulation.scss";
 
@@ -15,7 +13,9 @@ export default function CommentSimulation() {
   const dispatch = useDispatch();
   const [commentList, setCommentList] = useState([]);
   const [comment, setComment] = useState("");
-  const currentCounter = useSelector(({ button }) => button.counter);
+  const currentCounter = useSelector(
+    ({ comments }) => comments.commentSimulationCounterForId
+  );
 
   const commentRulesSchema = useMemo(
     () => ({
@@ -48,7 +48,7 @@ export default function CommentSimulation() {
 
       setCommentList((prevVal) => [...prevVal, payload]);
       setComment("");
-      dispatch(setCounter({ value: 1 }));
+      dispatch(setCommentSimulationCounterForId({ value: 1 }));
     }
   };
 
