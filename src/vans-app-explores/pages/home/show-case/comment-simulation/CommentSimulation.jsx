@@ -1,6 +1,5 @@
-import { useState, useMemo } from "react";
+import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { getFirstError } from "../../../../../utils/formValidationFunction";
 import { useFormValidation } from "../../../../../custom-hooks/useFormValidation";
 import { setIsClicked } from "../../../../../redux/slices/buttonsSlice";
 import InputTextGlobal from "../../../../../components/input-text-global/InputTextGlobal";
@@ -17,24 +16,15 @@ export default function CommentSimulation() {
     ({ comments }) => comments.commentSimulationCounterForId
   );
 
-  const commentRulesSchema = useMemo(
-    () => ({
-      comment: {
-        currentValue: comment,
-        isRequired: true,
-      },
-    }),
-    [comment]
-  );
-
-  const { isValid: isCommentValid, errorMessage: errorMessageComment } =
+  const { isValid: isCommentValid, handleInputErrorMessage } =
     useFormValidation({
-      rulesSchema: commentRulesSchema,
+      rulesSchema: {
+        comment: {
+          currentValue: comment,
+          isRequired: true,
+        },
+      },
     });
-
-  const handleInputErrorMessage = (type) => {
-    return getFirstError(errorMessageComment[type]);
-  };
 
   const confirmAddComent = () => {
     dispatch(setIsClicked({ payload: true }));
