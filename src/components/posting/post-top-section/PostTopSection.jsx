@@ -18,6 +18,7 @@ export default function PostTopSection({
   createdDate,
   statusPost,
   postData,
+  isRepost,
 }) {
   const dispatch = useDispatch();
   const currentUserIdFromSlice = useSelector((state) => state.user.userId);
@@ -42,6 +43,7 @@ export default function PostTopSection({
     dispatch(setStatusPost({ statusPost: statusPost }));
     dispatch(setPostItem({ postItem: postData }));
   };
+
   return (
     <div className="post-top">
       <div className="post-top-left">
@@ -71,23 +73,25 @@ export default function PostTopSection({
         </div>
       </div>
 
-      <div className="post-top-right">
-        <div
-          className={`post-status ${
-            statusPost === "PUBLIC"
-              ? "public"
-              : statusPost === "PRIVATE"
-              ? "private"
-              : "followers-only"
-          }`}
-        >
-          {getStatus(statusPost)}
+      {!isRepost && (
+        <div className="post-top-right">
+          <div
+            className={`post-status ${
+              statusPost === "PUBLIC"
+                ? "public"
+                : statusPost === "PRIVATE"
+                ? "private"
+                : "followers-only"
+            }`}
+          >
+            {getStatus(statusPost)}
+          </div>
+          <MoreVertIcon
+            style={{ cursor: "pointer" }}
+            onClick={() => openModalEditPost(true)}
+          />
         </div>
-        <MoreVertIcon
-          style={{ cursor: "pointer" }}
-          onClick={() => openModalEditPost(true)}
-        />
-      </div>
+      )}
     </div>
   );
 }

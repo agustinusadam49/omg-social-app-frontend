@@ -1,9 +1,10 @@
-import React, { useState, useMemo } from "react";
-import { useDispatch } from "react-redux";
+import { useState, useMemo } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import InputTextGlobal from "../../../../../../components/input-text-global/InputTextGlobal";
 import { useFormValidation } from "../../../../../../custom-hooks/useFormValidation";
-import { getFirstError } from "../../../../../../utils/formValidationFunction";
 import { setIsClicked } from "../../../../../../redux/slices/buttonsSlice";
+import { setCommentSimulationCounterForId } from "../../../../../../redux/slices/commentsSlice";
+import { useCommentChilderHooks } from "./useCommentChildrenHooks";
 
 import "./CommentCard.scss";
 
@@ -24,122 +25,51 @@ export default function CommentCard({ commentItem, setCommentList }) {
     commentItem.commentText
   );
 
-  const childrenCommentRulesSchema = useMemo(
-    () => ({
-      childrenComment: {
-        currentValue: isAddChildren ? childrenComment : childrenCommentToUpdate,
-        isRequired: true,
-      },
-    }),
-    [childrenComment, childrenCommentToUpdate, isAddChildren]
+  const currentCounter = useSelector(
+    ({ comments }) => comments.commentSimulationCounterForId
   );
 
-  const {
-    isValid: isChildrenCommentValid,
-    errorMessage: errorMessageChildrenComment,
-  } = useFormValidation({
-    rulesSchema: childrenCommentRulesSchema,
-  });
+  const { isValid: isChildrenCommentValid, handleInputErrorMessage } =
+    useFormValidation({
+      rulesSchema: {
+        childrenComment: {
+          currentValue: isAddChildren
+            ? childrenComment
+            : childrenCommentToUpdate,
+          isRequired: true,
+        },
+      },
+    });
 
-  const handleInputErrorMessage = (type) => {
-    return getFirstError(errorMessageChildrenComment[type]);
-  };
+  const { doRecursiveOps } = useCommentChilderHooks({
+    setCommentList,
+    commentItem,
+    childrenCommentToUpdate,
+    payloadToAdd: {
+      id: `children-id-${childrenComment}-${currentCounter}`,
+      commentText: childrenComment,
+      isDeleted: false,
+      children: [],
+    },
+  });
 
   const confirmAddChildrenComent = () => {
     dispatch(setIsClicked({ payload: true }));
     if (isChildrenCommentValid) {
-      const payload = {
-        commentText: childrenComment,
-        isDeleted: false,
-        children: [],
-      };
-
-      const addItemRecursively = (itemOfCommentList) => {
-        let readyContent = {
-          ...itemOfCommentList,
-        };
-
-        if (itemOfCommentList.commentText === commentItem.commentText) {
-          readyContent.children.push(payload);
-        }
-
-        if (itemOfCommentList.children.length) {
-          for (let i = 0; i < itemOfCommentList.children.length; i++) {
-            addItemRecursively(itemOfCommentList.children[i]);
-          }
-        }
-      };
-
-      const doAddCommentItem = (prevVal) => {
-        for (let i = 0; i < prevVal.length; i++) {
-          addItemRecursively(prevVal[i]);
-        }
-
-        return [...prevVal];
-      };
-
-      setCommentList((prevVal) => {
-        return doAddCommentItem(prevVal);
-      });
+      doRecursiveOps(crudTypeEnum.ADD);
       setChildrenComment("");
+      dispatch(setCommentSimulationCounterForId({ value: 1 }));
       setIsAddChildren(false);
     }
   };
 
   const confirmUpdateChildrenComment = () => {
     dispatch(setIsClicked({ payload: true }));
+
     if (isChildrenCommentValid) {
-      const updateItemRecursively = (itemOfCommentList) => {
-        if (itemOfCommentList.commentText === commentItem.commentText) {
-          itemOfCommentList.commentText = childrenCommentToUpdate;
-        }
-
-        if (itemOfCommentList.children.length) {
-          for (let i = 0; i < itemOfCommentList.children.length; i++) {
-            updateItemRecursively(itemOfCommentList.children[i]);
-          }
-        }
-      };
-
-      const doGetCommentItem = (prevVal) => {
-        for (let i = 0; i < prevVal.length; i++) {
-          updateItemRecursively(prevVal[i]);
-        }
-
-        return [...prevVal];
-      };
-
-      setCommentList((prevVal) => {
-        return doGetCommentItem(prevVal);
-      });
+      doRecursiveOps(crudTypeEnum.UPDATE);
       setIsUpdate(false);
     }
-  };
-
-  const deleteChildrenComment = () => {
-    const deleteItemRecursively = (itemOfCommentList) => {
-      if (itemOfCommentList.commentText === commentItem.commentText) {
-        itemOfCommentList.isDeleted = true;
-      }
-
-      if (itemOfCommentList.children.length) {
-        for (let i = 0; i < itemOfCommentList.children.length; i++) {
-          deleteItemRecursively(itemOfCommentList.children[i]);
-        }
-      }
-    };
-
-    const doGetCommentItem = (prevVal) => {
-      for (let i = 0; i < prevVal.length; i++) {
-        deleteItemRecursively(prevVal[i]);
-      }
-
-      return [...prevVal];
-    };
-
-    setCommentList((prevVal) => {
-      return doGetCommentItem(prevVal);
-    });
   };
 
   const doCrudChildrenComment = (event, crudType) => {
@@ -170,7 +100,7 @@ export default function CommentCard({ commentItem, setCommentList }) {
               onClick={() => {
                 setIsAddChildren((prevVal) => !prevVal);
                 setIsUpdate(false);
-                setChildrenCommentToUpdate(commentItem.commentText)
+                setChildrenCommentToUpdate(commentItem.commentText);
               }}
             >
               {">"}
@@ -181,7 +111,7 @@ export default function CommentCard({ commentItem, setCommentList }) {
               onClick={() => {
                 setIsUpdate((prevVal) => !prevVal);
                 setIsAddChildren(false);
-                setChildrenCommentToUpdate(commentItem.commentText)
+                setChildrenCommentToUpdate(commentItem.commentText);
               }}
             >
               {"U"}
@@ -189,7 +119,9 @@ export default function CommentCard({ commentItem, setCommentList }) {
 
             <div
               className="pluss-button delete"
-              onClick={deleteChildrenComment}
+              onClick={() => {
+                doRecursiveOps(crudTypeEnum.DELETE);
+              }}
             >
               {"D"}
             </div>

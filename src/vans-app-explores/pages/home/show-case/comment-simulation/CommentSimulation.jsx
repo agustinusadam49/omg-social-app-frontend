@@ -1,10 +1,10 @@
-import React, { useState, useMemo } from "react";
-import { useDispatch } from "react-redux";
-import { getFirstError } from "../../../../../utils/formValidationFunction";
+import { useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { useFormValidation } from "../../../../../custom-hooks/useFormValidation";
 import { setIsClicked } from "../../../../../redux/slices/buttonsSlice";
 import InputTextGlobal from "../../../../../components/input-text-global/InputTextGlobal";
 import CommentCard from "./comment-card/CommentCard";
+import { setCommentSimulationCounterForId } from "../../../../../redux/slices/commentsSlice";
 
 import "./CommentSimulation.scss";
 
@@ -12,30 +12,25 @@ export default function CommentSimulation() {
   const dispatch = useDispatch();
   const [commentList, setCommentList] = useState([]);
   const [comment, setComment] = useState("");
-
-  const commentRulesSchema = useMemo(
-    () => ({
-      comment: {
-        currentValue: comment,
-        isRequired: true,
-      },
-    }),
-    [comment]
+  const currentCounter = useSelector(
+    ({ comments }) => comments.commentSimulationCounterForId
   );
 
-  const { isValid: isCommentValid, errorMessage: errorMessageComment } =
+  const { isValid: isCommentValid, handleInputErrorMessage } =
     useFormValidation({
-      rulesSchema: commentRulesSchema,
+      rulesSchema: {
+        comment: {
+          currentValue: comment,
+          isRequired: true,
+        },
+      },
     });
-
-  const handleInputErrorMessage = (type) => {
-    return getFirstError(errorMessageComment[type]);
-  };
 
   const confirmAddComent = () => {
     dispatch(setIsClicked({ payload: true }));
     if (isCommentValid) {
       const payload = {
+        id: `parent-id-${comment}-${currentCounter}`,
         commentText: comment,
         isDeleted: false,
         children: [],
@@ -43,6 +38,7 @@ export default function CommentSimulation() {
 
       setCommentList((prevVal) => [...prevVal, payload]);
       setComment("");
+      dispatch(setCommentSimulationCounterForId({ value: 1 }));
     }
   };
 

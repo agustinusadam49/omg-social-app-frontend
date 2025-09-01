@@ -1,4 +1,4 @@
-import React, { useState, useReducer, useMemo } from "react";
+import React, { useState, useReducer } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { setToLocalStorageWhenSuccess } from "../../utils/setLocalStorage";
 import { loginUser } from "../../apiCalls/registerAndLoginApiFetch";
@@ -14,7 +14,10 @@ import {
 } from "../../utils/reducers/globalLoadingReducer";
 import RoundedLoader from "../../components/rounded-loader/RoundedLoader";
 import { useFormValidation } from "../../custom-hooks/useFormValidation";
-import { getFirstError } from "../../utils/formValidationFunction";
+import {
+  getFirstError,
+  helpersWithMessage,
+} from "../../utils/formValidationFunction";
 import { setIsClicked } from "../../redux/slices/buttonsSlice";
 import LoginWrapper from "../../components/login-wrapper/LoginWrapper";
 import LoginRightSection from "../../components/login-right-section/LoginRightSection";
@@ -51,22 +54,21 @@ export default function Login() {
     mutate({ type: actionType.STOP_LOADING_STATUS });
   };
 
-  const loginRulesSchema = useMemo(
-    () => ({
+  const { isValid, errorMessage } = useFormValidation({
+    rulesSchema: {
       email: {
         currentValue: email,
         isRequired: true,
+        function: helpersWithMessage("email tidak valid", email, (val) => {
+          const emailValue = val;
+          return emailValue.includes("@") && emailValue.includes(".com");
+        }),
       },
       password: {
         currentValue: password,
         isRequired: true,
       },
-    }),
-    [email, password]
-  );
-
-  const { isValid, errorMessage } = useFormValidation({
-    rulesSchema: loginRulesSchema,
+    },
   });
 
   const doLogin = () => {
@@ -198,17 +200,11 @@ export default function Login() {
               }
             />
 
-            <Link
-              className="login-forgot-wrapper"
-              to="/forgot-password"
-            >
+            <Link className="login-forgot-wrapper" to="/forgot-password">
               <span className="login-forgot">Forgot Password?</span>
             </Link>
 
-            <Link
-              className="login-register-button"
-              to="/register"
-            >
+            <Link className="login-register-button" to="/register">
               Create a New Account
             </Link>
           </LoginBox>

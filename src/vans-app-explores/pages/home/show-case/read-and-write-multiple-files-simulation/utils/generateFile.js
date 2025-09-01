@@ -1,31 +1,71 @@
 import * as xlsx from "xlsx";
 import { DIARE_LISTS, ISPA_LISTS } from "../constants";
 
+const DATA_MAP_OBJ = {
+  "No.": "number",
+  Tanggal: "date",
+  "Nama Pasien": "patientName",
+  "No. eRM": "ermNumber",
+  "Umur Tahun": "patientAge",
+  "Umur Bulan": "monthAge",
+  "Dokter / Tenaga Medis": "medicalPersonnel",
+  "ICD-X 1": "icdxOne",
+  "Diagnosa 1": "diagnoseOne",
+  Resep: "receipt",
+};
+
+const changeObj = (itemObj) => {
+  const keys = Object.keys(itemObj);
+  const resultObj = {};
+
+  for (let i = 0; i < keys.length; i++) {
+    const itemValue = itemObj[keys[i]];
+
+    if (DATA_MAP_OBJ[keys[i]]) {
+      resultObj[DATA_MAP_OBJ[keys[i]]] = itemValue;
+    } else {
+      resultObj[keys[i]] = itemValue;
+    }
+  }
+
+  return resultObj;
+};
+
+const changeArrOutput = (inputArr) => {
+  return inputArr.map((item) => changeObj(item));
+};
+
 const handleProcessData = (dataArrObj, diseaseType) => {
   const dataHasBeenCapped = [];
 
   const diagnoseList = diseaseType === "diare" ? DIARE_LISTS : ISPA_LISTS;
 
+  const modifiedDataArr = changeArrOutput(dataArrObj);
+
   for (let i = 0; i < diagnoseList.length; i++) {
-    const slicedData = dataArrObj
+    const slicedData = modifiedDataArr
       .filter((item) => item.icdxOne === diagnoseList[i].disease)
       .slice(0, 1)
       .map((item) => ({
-        number: item.number,
-        date: item.date,
-        patientName: item.patientName,
-        ermNumber: item.ermNumber,
-        patientAge: item.patientAge,
-        monthAge: item.monthAge,
-        medicalPersonnel: item.medicalPersonnel,
-        icdxOne: item.icdxOne,
-        diagnoseOne: diagnoseList.find(
-          (listOfDiagnose) => listOfDiagnose.disease === item.icdxOne
-        ).description,
-        isAntibiotic: diagnoseList.filter(
-          (listOfDiagnose) => listOfDiagnose.disease === item.icdxOne
-        )[0].isAntibiotic,
-        receipt: item.receipt,
+        number: item?.number ?? "",
+        date: item?.date ?? "",
+        patientName: item?.patientName ?? "",
+        ermNumber: item?.ermNumber ?? "",
+        patientAge: item?.patientAge ?? "",
+        monthAge: item?.monthAge ?? "",
+        medicalPersonnel: item?.medicalPersonnel ?? "",
+        icdxOne: item?.icdxOne ?? "",
+        diagnoseOne: item?.icdxOne
+          ? diagnoseList.find(
+              (listOfDiagnose) => listOfDiagnose.disease === item.icdxOne
+            ).description
+          : "",
+        isAntibiotic: item?.icdxOne
+          ? diagnoseList.filter(
+              (listOfDiagnose) => listOfDiagnose.disease === item.icdxOne
+            )[0].isAntibiotic
+          : "",
+        receipt: item?.receipt ?? "",
       }));
 
     dataHasBeenCapped.push(...slicedData);
@@ -46,7 +86,9 @@ export const generateContentFileOps = async ({
     const data = await readPath[i].arrayBuffer();
     const stokPtData = xlsx.readFile(data, { cellDates: true });
     const sheetData = stokPtData.Sheets[sheetName];
-    const arrayOfObjectsDataSheets = xlsx.utils.sheet_to_json(sheetData);
+    const arrayOfObjectsDataSheets = xlsx.utils.sheet_to_json(sheetData, {
+      range: 25,
+    });
     const content = handleProcessData(arrayOfObjectsDataSheets, diseaseType);
     contentArrMerged.push(...content);
   }

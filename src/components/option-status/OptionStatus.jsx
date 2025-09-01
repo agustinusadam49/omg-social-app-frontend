@@ -6,19 +6,12 @@ import OptionStatusWrapper from "./option-status-wrapper/OptionStatusWrapper";
 import OptionStatusItem from "./option-status-item/OptionStatusItem";
 import OptionStatusName from "./option-status-name/OptionStatusName";
 import OptionStatusDescription from "./option-status-description/OptionStatusDescription";
+import {
+  STATUS_OPTIONS_DESCRIPTION_ENUM,
+  STATUS_OPTIONS_ENUM,
+} from "./constant";
 
-const STATUS_OPTIONS_ENUM = {
-  PUBLIC: "PUBLIC",
-  PRIVATE: "PRIVATE",
-  FOLLOWERS_ONLY: "FOLLOWERS_ONLY",
-};
-
-const STATUS_OPTIONS_DESCRIPTION_ENUM = {
-  PUBLIC: "Semua orang dapat melihat postingan mu.",
-  PRIVATE: "Hanya kamu yang dapat melihat postingan ini.",
-  FOLLOWERS_ONLY:
-    "Hanya kamu dan followers mu yang dapat melihat postingan ini.",
-};
+import { getStatus } from "./utils";
 
 export default function OptionStatusSection({ setActiveStatus, activeStatus }) {
   const dispatch = useDispatch();
@@ -53,13 +46,6 @@ export default function OptionStatusSection({ setActiveStatus, activeStatus }) {
     return statusOptions;
   }, [currentUserLoginFollowers]);
 
-  const getStatus = (statusFromResponse) => {
-    return STATUS_OPTIONS_ENUM[statusFromResponse]
-      .split("_")
-      .map((status) => status[0] + status.substring(1).toLowerCase())
-      .join(" ");
-  };
-
   const toggleActiveStatus = (status) => {
     if (status === activeStatus) return;
     setActiveStatus(status);
@@ -80,13 +66,14 @@ export default function OptionStatusSection({ setActiveStatus, activeStatus }) {
     <OptionStatusWrapper>
       {shareOptionStatus.map((status, index) => {
         const { name, description } = status;
+
         return (
           <OptionStatusItem
             key={index}
             isActive={activeStatus === name}
             onClick={() => toggleActiveStatus(name)}
           >
-            <OptionStatusName statusName={getStatus(name)} />
+            <OptionStatusName statusName={getStatus(name, STATUS_OPTIONS_ENUM)} />
             <OptionStatusDescription statusDescription={description} />
           </OptionStatusItem>
         );

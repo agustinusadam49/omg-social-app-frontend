@@ -1,4 +1,4 @@
-import React, { useState, Fragment, useMemo } from "react";
+import React, { useState, Fragment } from "react";
 import { updateProfileById } from "../../apiCalls/profileApiFetch";
 import InputTextGlobalV2 from "../input-text-global-v2/InputTextGlobalV2";
 import GlobalButton from "../button/GlobalButton";
@@ -78,8 +78,8 @@ const EditProfileModal = ({
     hitApiEditProfile(profileId, profilePayloadObj);
   };
 
-  const editProfileRulesSchema = useMemo(
-    () => ({
+  const { isValid, errorMessage } = useFormValidation({
+    rulesSchema: {
       biodata: { currentValue: biodata, isRequired: true },
       addressData: { currentValue: addressData, isRequired: true },
       birthdate: { currentValue: birthdate, isRequired: true },
@@ -115,22 +115,7 @@ const EditProfileModal = ({
       userCurrentCity: { currentValue: userCurrentCity, isRequired: true },
       userNationality: { currentValue: userNationality, isRequired: true },
       userRelationship: { currentValue: userRelationship, isRequired: true },
-    }),
-    [
-      biodata,
-      addressData,
-      birthdate,
-      statusUser,
-      quotes,
-      userPhoneNumber,
-      userCurrentCity,
-      userNationality,
-      userRelationship,
-    ]
-  );
-
-  const { isValid, errorMessage } = useFormValidation({
-    rulesSchema: editProfileRulesSchema,
+    },
   });
 
   const doSaveEditProfile = () => {

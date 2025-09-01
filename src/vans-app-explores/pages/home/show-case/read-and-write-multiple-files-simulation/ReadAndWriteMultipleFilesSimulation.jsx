@@ -1,4 +1,4 @@
-import React, { useRef, useState, useMemo, Fragment } from "react";
+import React, { useRef, useState, Fragment } from "react";
 import { useDispatch } from "react-redux";
 import { generateContentFileOps } from "./utils/generateFile";
 import InputTextGlobal from "../../../../../components/input-text-global/InputTextGlobal";
@@ -10,7 +10,7 @@ import {
   deleteAllFilesButtonStyle,
   chooseFileButtonStyle,
   filesSectionListStyle,
-  warningSectionStyle,
+  // warningSectionStyle,
 } from "./styleObj";
 import { diseaseOptions, allWording } from "./constants";
 
@@ -26,8 +26,8 @@ export default function ReadAndWriteMultipleFilesSimulation() {
 
   const [option, setOption] = useState("diare");
 
-  const readAndWriteRulesSchema = useMemo(
-    () => ({
+  const { isValid, handleInputErrorMessage } = useFormValidation({
+    rulesSchema: {
       monthName: {
         currentValue: monthName,
         isRequired: true,
@@ -36,12 +36,7 @@ export default function ReadAndWriteMultipleFilesSimulation() {
         currentValue: yearNum,
         isRequired: true,
       },
-    }),
-    [monthName, yearNum]
-  );
-
-  const { isValid, handleInputErrorMessage } = useFormValidation({
-    rulesSchema: readAndWriteRulesSchema,
+    },
   });
 
   const handleAddFiles = (targetFiles) => {
@@ -83,7 +78,7 @@ export default function ReadAndWriteMultipleFilesSimulation() {
     <div className="read-and-write-wrapper">
       <div className="read-and-write-title">{allWording.featureTitle}</div>
 
-      <div style={warningSectionStyle}>
+      {/* <div style={warningSectionStyle}>
         <h1>{allWording.h1Warning}</h1>
         <p>{allWording.paragraphOne}</p>{" "}
         <ul>
@@ -91,7 +86,7 @@ export default function ReadAndWriteMultipleFilesSimulation() {
             <li key={item}>{item}</li>
           ))}
         </ul>
-      </div>
+      </div> */}
 
       {!!files.length &&
         files.map((item) => (

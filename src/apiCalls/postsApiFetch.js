@@ -35,6 +35,16 @@ export const createNewPosting = (payloadData) => {
   });
 };
 
+export const createNewRepost = (payloadData) => {
+  const user_access_token = accessToken();
+  return axios.post(`${POSTS_URL}/repost`, payloadData, {
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `${user_access_token}`,
+    },
+  });
+};
+
 export const uploadImagePosting = (imageData, config) => {
   return axios.post(`${CLOUDINARY_API_URL}`, imageData, config);
 };
