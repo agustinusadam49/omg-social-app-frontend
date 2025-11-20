@@ -38,6 +38,7 @@ const ShareTopSection = ({
         className="share-input"
         value={caption}
         onChange={(e) => handleSetCaptionFromParent(e.target.value)}
+        id="share-input-caption-id"
       />
     </div>
   );

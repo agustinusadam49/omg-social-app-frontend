@@ -85,3 +85,25 @@ export const allWording = {
     "Resep menjadi receipt",
   ],
 };
+
+export const DATA_MAP_OBJ = {
+  "No.": "number",
+  Tanggal: "date",
+  "Nama Pasien": "patientName",
+  "No. eRM": "ermNumber",
+  "Umur Tahun": "patientAge",
+  "Umur Bulan": "monthAge",
+  "Dokter / Tenaga Medis": "medicalPersonnel",
+  "ICD-X 1": "icdxOne",
+  "Diagnosa 1": "diagnoseOne",
+  Resep: "receipt",
+};
+
+export const ANTIBIOTIC_STATUS_MAP_OBJ = {
+  SEMUA_ANTIBIOTIC: "SEMUA_ANTIBIOTIC",
+  LEBIH_BANYAK_ANTIBIOTIC: "LEBIH_BANYAK_ANTIBIOTIC",
+  SEIMBANG: "SEIMBANG",
+  LEBIH_BANYAK_NON_ANTIBIOTIC: "LEBIH_BANYAK_NON_ANTIBIOTIC",
+  SEMUA_NON_ANTIBIOTIC: "SEMUA_NON_ANTIBIOTIC",
+  ALL_DATA_EMPTY: "ALL_DATA_EMPTY",
+};

@@ -174,6 +174,7 @@ export default function Login() {
               inputPlaceholder={"Email"}
               inputErrorMessage={handleInputErrorMessage("email")}
               inputSecondErrorMessage={secondaryErrorObj.email}
+              id={"email-id"}
             />
 
             <InputTextGlobal
@@ -183,6 +184,7 @@ export default function Login() {
               inputType={"password"}
               inputErrorMessage={handleInputErrorMessage("password")}
               inputSecondErrorMessage={secondaryErrorObj.password}
+              id={"password-id"}
             />
 
             <GlobalButton
@@ -198,6 +200,7 @@ export default function Login() {
                   <RoundedLoader baseColor="gray" secondaryColor="white" />
                 )
               }
+              id={"login-button-id"}
             />
 
             <Link className="login-forgot-wrapper" to="/forgot-password">

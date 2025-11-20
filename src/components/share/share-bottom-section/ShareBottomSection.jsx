@@ -54,6 +54,7 @@ const ShareBottomSection = ({
           buttonLabel={"Share"}
           classStyleName="share-button"
           onClick={handleCreatePosting}
+          id={"share-button-id"}
         />
       )}
     </div>
