@@ -1,12 +1,10 @@
-import { useMemo } from "react";
-import { formValidationV2 } from "../utils/formValidationFunction";
-import { getFirstError } from "../utils/formValidationFunction";
+import {
+  formValidationV2,
+  getFirstError,
+} from "../utils/formValidationFunction";
 
 export const useFormValidation = ({ rulesSchema }) => {
-  const { isValid, errorMessage } = useMemo(
-    () => formValidationV2(rulesSchema),
-    [rulesSchema]
-  );
+  const { isValid, errorMessage } = formValidationV2(rulesSchema);
 
   const handleInputErrorMessage = (type) => {
     return getFirstError(errorMessage[type]);
