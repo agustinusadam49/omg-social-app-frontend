@@ -1,4 +1,4 @@
-import React, { useState, useReducer } from "react";
+import { useState, useReducer } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { setToLocalStorageWhenSuccess } from "../../utils/setLocalStorage";
 import { loginUser } from "../../apiCalls/registerAndLoginApiFetch";
@@ -14,10 +14,7 @@ import {
 } from "../../utils/reducers/globalLoadingReducer";
 import RoundedLoader from "../../components/rounded-loader/RoundedLoader";
 import { useFormValidation } from "../../custom-hooks/useFormValidation";
-import {
-  getFirstError,
-  helpersWithMessage,
-} from "../../utils/formValidationFunction";
+import { helpersWithMessage } from "../../utils/formValidationFunction";
 import { setIsClicked } from "../../redux/slices/buttonsSlice";
 import LoginWrapper from "../../components/login-wrapper/LoginWrapper";
 import LoginRightSection from "../../components/login-right-section/LoginRightSection";
@@ -54,7 +51,7 @@ export default function Login() {
     mutate({ type: actionType.STOP_LOADING_STATUS });
   };
 
-  const { isValid, errorMessage } = useFormValidation({
+  const { isValid, handleInputErrorMessage } = useFormValidation({
     rulesSchema: {
       email: {
         currentValue: email,
@@ -133,10 +130,6 @@ export default function Login() {
     if (event.key === "Enter") {
       doLogin();
     }
-  };
-
-  const handleInputErrorMessage = (type) => {
-    return getFirstError(errorMessage[type]);
   };
 
   const handleOnChangeEmail = (val) => {

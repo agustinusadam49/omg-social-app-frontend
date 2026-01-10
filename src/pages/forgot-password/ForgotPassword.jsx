@@ -1,14 +1,5 @@
-import React, {
-  useState,
-  useReducer,
-  // useMemo,
-  useEffect,
-  Fragment,
-} from "react";
-import {
-  helpersWithMessage,
-  getFirstError,
-} from "../../utils/formValidationFunction";
+import { useState, useReducer, useEffect, Fragment } from "react";
+import { helpersWithMessage } from "../../utils/formValidationFunction";
 import InputTextGlobal from "../../components/input-text-global/InputTextGlobal";
 import GlobalButton from "../../components/button/GlobalButton";
 import LeftSideWording from "../../components/auth-feature/LeftSideWording";
@@ -55,57 +46,7 @@ export default function ForgotPassword() {
     confirmPassword: "",
   });
 
-  // const checkEmailRules = useMemo(
-  //   () => ({
-  //     email: {
-  //       currentValue: email,
-  //       isRequired: true,
-  //       function: helpersWithMessage("email tidak valid", email, (val) => {
-  //         const emailValue = val;
-  //         return emailValue.includes("@") && emailValue.includes(".com");
-  //       }),
-  //     },
-  //   }),
-  //   [email]
-  // );
-
-  // const passwordRules = useMemo(
-  //   () => ({
-  //     password: {
-  //       currentValue: password,
-  //       isRequired: true,
-  //       function: helpersWithMessage(
-  //         "Password harus memiliki minimal 4 dan maximal 16 characters",
-  //         password,
-  //         (val) => {
-  //           const minCharacterLength = 4;
-  //           const maxCharacterLength = 16;
-  //           const passwordValue = val;
-  //           return (
-  //             passwordValue.length >= minCharacterLength &&
-  //             passwordValue.length <= maxCharacterLength
-  //           );
-  //         }
-  //       ),
-  //     },
-  //     confirmPassword: {
-  //       currentValue: confirmPassword,
-  //       isRequired: true,
-  //       function: helpersWithMessage(
-  //         "password tidak sama!",
-  //         confirmPassword,
-  //         (val) => {
-  //           const confirmPasswordValue = val;
-  //           const passwordValue = password;
-  //           return confirmPasswordValue === passwordValue;
-  //         }
-  //       ),
-  //     },
-  //   }),
-  //   [password, confirmPassword]
-  // );
-
-  const { isValid, errorMessage } = useFormValidation({
+  const { isValid, handleInputErrorMessage } = useFormValidation({
     rulesSchema: {
       email: {
         currentValue: email,
@@ -118,41 +59,43 @@ export default function ForgotPassword() {
     },
   });
 
-  const { isValid: isPasswordValid, errorMessage: errorMessagePassword } =
-    useFormValidation({
-      rulesSchema: {
-        password: {
-          currentValue: password,
-          isRequired: true,
-          function: helpersWithMessage(
-            "Password harus memiliki minimal 4 dan maximal 16 characters",
-            password,
-            (val) => {
-              const minCharacterLength = 4;
-              const maxCharacterLength = 16;
-              const passwordValue = val;
-              return (
-                passwordValue.length >= minCharacterLength &&
-                passwordValue.length <= maxCharacterLength
-              );
-            }
-          ),
-        },
-        confirmPassword: {
-          currentValue: confirmPassword,
-          isRequired: true,
-          function: helpersWithMessage(
-            "password tidak sama!",
-            confirmPassword,
-            (val) => {
-              const confirmPasswordValue = val;
-              const passwordValue = password;
-              return confirmPasswordValue === passwordValue;
-            }
-          ),
-        },
+  const {
+    isValid: isPasswordValid,
+    handleInputErrorMessage: handleInputErrorMessagePassword,
+  } = useFormValidation({
+    rulesSchema: {
+      password: {
+        currentValue: password,
+        isRequired: true,
+        function: helpersWithMessage(
+          "Password harus memiliki minimal 4 dan maximal 16 characters",
+          password,
+          (val) => {
+            const minCharacterLength = 4;
+            const maxCharacterLength = 16;
+            const passwordValue = val;
+            return (
+              passwordValue.length >= minCharacterLength &&
+              passwordValue.length <= maxCharacterLength
+            );
+          }
+        ),
       },
-    });
+      confirmPassword: {
+        currentValue: confirmPassword,
+        isRequired: true,
+        function: helpersWithMessage(
+          "password tidak sama!",
+          confirmPassword,
+          (val) => {
+            const confirmPasswordValue = val;
+            const passwordValue = password;
+            return confirmPasswordValue === passwordValue;
+          }
+        ),
+      },
+    },
+  });
 
   const clearField = () => {
     setEmail("");
@@ -259,14 +202,6 @@ export default function ForgotPassword() {
       localStorage.removeItem("user_email_forgot_password");
     };
   }, []);
-
-  const handleInputErrorMessage = (type) => {
-    return getFirstError(errorMessage[type]);
-  };
-
-  const handleInputErrorMessagePassword = (type) => {
-    return getFirstError(errorMessagePassword[type]);
-  };
 
   const handleOnChangeEmail = (val) => {
     setEmail(val);

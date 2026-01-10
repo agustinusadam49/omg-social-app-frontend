@@ -1,13 +1,6 @@
-import React, {
-  useState,
-  useReducer,
-  // useMemo
-} from "react";
+import { useState, useReducer } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import {
-  helpersWithMessage,
-  getFirstError,
-} from "../../utils/formValidationFunction";
+import { helpersWithMessage } from "../../utils/formValidationFunction";
 import { setToLocalStorageWhenSuccess } from "../../utils/setLocalStorage";
 import { registerNewUser } from "../../apiCalls/registerAndLoginApiFetch";
 import { setIsAuthUser, setUserToken } from "../../redux/slices/userSlice";
@@ -56,59 +49,7 @@ export default function Register() {
     mutate({ type: actionType.STOP_LOADING_STATUS });
   };
 
-  // const registrationRulesSchema = useMemo(
-  //   () => ({
-  //     fullname: {
-  //       currentValue: fullname,
-  //       isRequired: true,
-  //     },
-  //     username: {
-  //       currentValue: username,
-  //       isRequired: true,
-  //     },
-  //     email: {
-  //       currentValue: email,
-  //       isRequired: true,
-  //       function: helpersWithMessage("email tidak valid", email, (val) => {
-  //         const emailValue = val;
-  //         return emailValue.includes("@") && emailValue.includes(".com");
-  //       }),
-  //     },
-  //     password: {
-  //       currentValue: password,
-  //       isRequired: true,
-  //       function: helpersWithMessage(
-  //         "Password harus memiliki minimal 4 dan maximal 16 characters",
-  //         password,
-  //         (val) => {
-  //           const minCharacterLength = 4;
-  //           const maxCharacterLength = 16;
-  //           const passwordValue = val;
-  //           return (
-  //             passwordValue.length >= minCharacterLength &&
-  //             passwordValue.length <= maxCharacterLength
-  //           );
-  //         }
-  //       ),
-  //     },
-  //     confirmPassword: {
-  //       currentValue: confirmPassword,
-  //       isRequired: true,
-  //       function: helpersWithMessage(
-  //         "password tidak sama!",
-  //         confirmPassword,
-  //         (val) => {
-  //           const confirmPasswordValue = val;
-  //           const passwordValue = password;
-  //           return confirmPasswordValue === passwordValue;
-  //         }
-  //       ),
-  //     },
-  //   }),
-  //   [fullname, username, email, password, confirmPassword]
-  // );
-
-  const { isValid, errorMessage } = useFormValidation({
+  const { isValid, handleInputErrorMessage } = useFormValidation({
     rulesSchema: {
       fullname: {
         currentValue: fullname,
@@ -206,10 +147,6 @@ export default function Register() {
     if (event.key === "Enter") {
       doRegister();
     }
-  };
-
-  const handleInputErrorMessage = (type) => {
-    return getFirstError(errorMessage[type]);
   };
 
   const handleOnChangeEmail = (val) => {

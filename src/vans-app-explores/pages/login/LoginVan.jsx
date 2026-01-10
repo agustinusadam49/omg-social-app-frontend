@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import {
   useNavigate,
   useLocation,
@@ -9,7 +9,6 @@ import { useFormValidation } from "../../../custom-hooks/useFormValidation";
 import InputTextGlobal from "../../../components/input-text-global/InputTextGlobal";
 import GlobalButton from "../../../components/button/GlobalButton";
 import RequiredLoginMessage from "../../components/required-login-message/RequiredLoginMessage";
-import { getFirstError } from "../../../utils/formValidationFunction";
 import { isAuth } from "../../van-utils/isAuth";
 import { useDispatch } from "react-redux";
 import { setIsClicked } from "../../../redux/slices/buttonsSlice";
@@ -18,8 +17,9 @@ import "./LoginVan.scss";
 
 export default function LoginVan() {
   const dispatch = useDispatch();
-  const isUserAuth = isAuth();
   const navigate = useNavigate();
+
+  const isUserAuth = isAuth();
   const location = useLocation();
 
   const [email, setEmail] = useState("");
@@ -43,7 +43,7 @@ export default function LoginVan() {
     });
   };
 
-  const { isValid, errorMessage } = useFormValidation({
+  const { isValid, handleInputErrorMessage } = useFormValidation({
     rulesSchema: {
       email: {
         currentValue: email,
@@ -80,10 +80,6 @@ export default function LoginVan() {
       const from = location?.state?.from?.pathname || "/";
       navigate(from, { replace: true });
     }
-  };
-
-  const handleInputErrorMessage = (type) => {
-    return getFirstError(errorMessage[type]);
   };
 
   const handleOnChangeEmail = (val) => {
