@@ -1,6 +1,6 @@
 import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { dummyVansArr } from "../../dummyDataV2.js";
+import { dummyVansArr } from "../../../dummyDataV2.js";
 
 export default function VanDetail() {
   const params = useParams();
@@ -44,6 +44,10 @@ export default function VanDetail() {
     };
 
     getVanDetailById();
+
+    return () => {
+      setVanDetail(null);
+    };
   }, [params.vanId]);
 
   return (

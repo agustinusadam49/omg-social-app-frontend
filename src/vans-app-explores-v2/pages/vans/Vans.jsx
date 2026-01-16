@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { dummyVansArr } from "../../dummyDataV2";
+import { dummyVansArr } from "../../../dummyDataV2";
 
 export default function Vans() {
   const [vans, setVans] = useState([]);
@@ -31,6 +31,10 @@ export default function Vans() {
     };
 
     hitGetVansPromise();
+
+    return () => {
+      setVans([]);
+    };
   }, []);
 
   return (
