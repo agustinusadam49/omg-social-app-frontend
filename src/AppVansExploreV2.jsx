@@ -7,8 +7,9 @@ import PageWithHeaderAndFooter from "./vans-app-explores-v2/layout/PageWithHeade
 import HostWithNav from "./vans-app-explores-v2/layout/HostWithNav";
 import Dashboard from "./vans-app-explores-v2/pages/host/Dashboard";
 import Income from "./vans-app-explores-v2/pages/host/Income";
-import HostVans from "./vans-app-explores-v2/pages/host/HostVans";
 import Reviews from "./vans-app-explores-v2/pages/host/Reviews";
+import HostVans from "./vans-app-explores-v2/pages/host/HostVans";
+import HostVanDetail from "./vans-app-explores-v2/pages/host/HostVanDetail";
 
 import "./AppVansExploreV2.scss";
 
@@ -25,8 +26,9 @@ export default function AppVansExploreV2() {
           <Route path="host" element={<HostWithNav />}>
             <Route index element={<Dashboard />} />
             <Route path="income" element={<Income />} />
-            <Route path="vans" element={<HostVans />} />
             <Route path="reviews" element={<Reviews />} />
+            <Route path="vans" element={<HostVans />} />
+            <Route path="vans/:hostVanId" element={<HostVanDetail />} />
           </Route>
         </Route>
       </Routes>

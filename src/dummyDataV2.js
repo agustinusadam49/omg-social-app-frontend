@@ -7,6 +7,7 @@ export const dummyVansArr = [
     type: "Jenskin",
     visibility: "Public",
     price: 30,
+    hostId: "123dgs234",
     imageUrl:
       "https://res.cloudinary.com/adamwijaya/image/upload/v1731652724/t3qypaf7s3ngh7gqdbcx.jpg",
     photos: [
@@ -26,6 +27,7 @@ export const dummyVansArr = [
     type: "Aplore",
     visibility: "Private",
     price: 10,
+    hostId: "123",
     imageUrl:
       "https://res.cloudinary.com/adamwijaya/image/upload/v1731378756/skdnfdrmlnnn2mj7zeym.jpg",
     photos: [
@@ -45,6 +47,7 @@ export const dummyVansArr = [
     type: "Jenskin",
     visibility: "Only Member",
     price: 55,
+    hostId: "123",
     imageUrl:
       "https://res.cloudinary.com/adamwijaya/image/upload/v1712468475/txcxcp5i57mwhjtbpsdi.jpg",
     photos: [
@@ -64,6 +67,7 @@ export const dummyVansArr = [
     type: "Lombar-Fox",
     visibility: "Public",
     price: 75,
+    hostId: "123",
     imageUrl:
       "https://res.cloudinary.com/adamwijaya/image/upload/v1712467244/bvpokinyd2i7q9a29f6i.jpg",
     photos: [
@@ -83,6 +87,7 @@ export const dummyVansArr = [
     type: "Rugged",
     visibility: "Public",
     price: 145,
+    hostId: "123dfsd@#$",
     imageUrl:
       "https://res.cloudinary.com/adamwijaya/image/upload/v1708835797/u0zvwslsfk6q7ggykcdd.png",
     photos: [
@@ -102,6 +107,7 @@ export const dummyVansArr = [
     type: "Rugged",
     visibility: "Only Member",
     price: 63,
+    hostId: "123",
     imageUrl:
       "https://res.cloudinary.com/adamwijaya/image/upload/v1700997911/gvjwzelo86slfpskoskk.jpg",
     photos: [

@@ -58,7 +58,7 @@ header a {
 }
 
 header a:hover {
-  color: #161616;
+  color: #b95151;
   text-decoration: underline;
 }
 
@@ -97,7 +97,8 @@ footer {
 
 /*** HOME PAGE ***/
 .home-container {
-  background: linear-gradient(0deg, rgba(0, 0, 0, 0.46), rgba(0, 0, 0, 0.46)),
+  background:
+    linear-gradient(0deg, rgba(0, 0, 0, 0.46), rgba(0, 0, 0, 0.46)),
     url("./vans-app-explores-v2/images/home-hero.png") no-repeat center center;
   -webkit-background-size: cover;
   -moz-background-size: cover;
@@ -334,7 +335,46 @@ i[class*="van-type-"] {
 }
 
 .host-nav a:hover {
-  color: #161616;
+  color: #20841e;
   text-decoration: underline;
   font-weight: 600;
+}
+
+.host-vans-title {
+  padding-inline: 26px;
+  margin-bottom: 20px;
+}
+
+.host-vans-link-wrapper {
+  color: unset;
+  text-decoration: unset;
+}
+
+.host-vans-list {
+  padding-inline: 26px;
+}
+
+.host-vans-single {
+  display: flex;
+  align-items: center;
+  background-color: white;
+  margin-bottom: 15px;
+  padding-block: 18px;
+  padding-left: 24px;
+}
+
+.host-vans-single > img {
+  height: 70px;
+  border-radius: 5px;
+  margin-right: 17px;
+}
+
+.host-vans-info h3 {
+  font-size: 20px;
+  font-weight: 600;
+  margin-block: 10px;
+}
+
+.host-vans-info p {
+  margin-block: 10px;
 }
