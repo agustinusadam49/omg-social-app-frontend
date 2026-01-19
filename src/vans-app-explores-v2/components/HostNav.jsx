@@ -7,7 +7,7 @@ export default function HostNav() {
     color: "#20841e",
   };
 
-  const getStyleNavlink = (isNavActive, nameOfThePath) => {
+  const getStyleNavlink = (isNavActive) => {
     return isNavActive ? activeStyle : null;
   };
 
