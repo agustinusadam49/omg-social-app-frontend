@@ -64,7 +64,7 @@ export const dummyVansArr = [
     name: "Forton GL",
     transmision: "A/T",
     buildYear: 2019,
-    type: "Lombar-Fox",
+    type: "Lombar Fox",
     visibility: "Public",
     price: 75,
     hostId: "123",

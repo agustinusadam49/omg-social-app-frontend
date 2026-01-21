@@ -1,49 +1,98 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { dummyVansArr } from "../../../dummyDataV2";
+import { modifiedToClassCssName } from "./util";
 
 export default function Vans() {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const typeFilter = searchParams.get("type");
+
   const [vans, setVans] = useState([]);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
-    const promiseToGetVans = new Promise((resolve, reject) => {
-      setTimeout(() => {
-        if (!!dummyVansArr.length) {
-          resolve(dummyVansArr);
-        } else {
-          const errorObj = {
-            message: "Tidak dapat menemukan data vans!",
-            statusText: "Bad Request",
-            code: 400,
-          };
-          reject(errorObj);
-        }
-      }, 500);
-    });
+    const promiseToGetVans = (typeOfVanQuery) => {
+      const errorObj = {
+        message: "Tidak dapat menemukan data vans!",
+        statusText: "Bad Request",
+        code: 400,
+      };
 
-    const hitGetVansPromise = async () => {
+      return new Promise((resolve, reject) => {
+        setTimeout(() => {
+          if (dummyVansArr.length) {
+            if (typeOfVanQuery) {
+              const filteredVansByType = dummyVansArr.filter(
+                (vanItem) =>
+                  String(vanItem.type).toLowerCase() ===
+                  String(typeOfVanQuery).toLowerCase(),
+              );
+
+              if (filteredVansByType.length) {
+                resolve(filteredVansByType);
+              } else {
+                reject(errorObj);
+              }
+            } else {
+              resolve(dummyVansArr);
+            }
+          } else {
+            reject(errorObj);
+          }
+        }, 500);
+      });
+    };
+
+    const hitGetVansPromise = async (vanType) => {
       try {
-        const vanDataResponses = await promiseToGetVans;
-        setVans(vanDataResponses);
+        const vanDataResponses = await promiseToGetVans(vanType);
+        if (vanType) {
+          const filteredVansByType = vanDataResponses.filter(
+            (vanItem) => vanItem.type === vanType,
+          );
+          setVans(filteredVansByType);
+        } else {
+          setVans(vanDataResponses);
+        }
       } catch (error) {
-        throw error;
+        setError(error);
       }
     };
 
-    hitGetVansPromise();
+    hitGetVansPromise(typeFilter);
 
     return () => {
       setVans([]);
     };
-  }, []);
+  }, [typeFilter]);
 
   return (
     <div className="van-list-container">
       <h1>Explore our van options</h1>
 
+      <div className="van-list-filter-buttons">
+        <Link to="?type=Jenskin" className={`van-type jenskin`}>
+          Jenskin
+        </Link>
+        <Link to="?type=Aplore" className={`van-type aplore`}>
+          Aplore
+        </Link>
+        <Link to="?type=Lombar Fox" className={`van-type rugged`}>
+          Lombar Fox
+        </Link>
+        <Link to="?type=Rugged" className={`van-type lombar-fox`}>
+          Rugged
+        </Link>
+        <Link to="." className="van-type clear-filters">
+          Clear filter
+        </Link>
+      </div>
+
       <div className="van-list">
-        {!vans.length ? (
+        {!vans.length && !error ? (
           <h2>Loading ...</h2>
+        ) : error ? (
+          <h1>{error.message}</h1>
         ) : (
           vans.map((van) => (
             <div key={van.id} className="van-tile">
@@ -56,7 +105,9 @@ export default function Vans() {
                     <span>/day</span>
                   </p>
                 </div>
-                <div className={`van-type ${van.type} selected`}>
+                <div
+                  className={`van-type ${modifiedToClassCssName(van.type)} selected`}
+                >
                   {van.type}
                 </div>
               </Link>
