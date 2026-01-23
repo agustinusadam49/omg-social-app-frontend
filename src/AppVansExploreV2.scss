@@ -229,7 +229,7 @@ footer {
 
 .van-type:hover {
   color: #ffead0;
-  background-color: #e56cf0;
+  background-color: #71593a;
 }
 
 .van-type:focus {
@@ -238,7 +238,6 @@ footer {
 
 .van-type.selected {
   color: #ffead0;
-  background-color: #c52bd3;
 }
 
 .van-type.jenskin:hover,
@@ -285,9 +284,6 @@ i[class*="van-type-"] {
 .van-detail-container .back-button {
   color: black;
   text-decoration: none;
-}
-
-.van-detail-container .back-button:visited {
 }
 
 .van-detail-container .back-button span {

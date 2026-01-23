@@ -1,36 +1,10 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { dummyVansArr } from "../../../dummyDataV2";
+import { processGetVanHostVans } from "../../api-calls-simulations/api-calls";
 export default function HostVans() {
   const [hostVans, setHostVans] = useState([]);
 
   useEffect(() => {
-    const processGetVanHostVans = (targetedHostId) => {
-      const errorObj = {
-        message: "Tidak dapat menemukan data host vans!",
-        statusText: "Bad Request",
-        code: 400,
-      };
-
-      return new Promise((resolve, reject) => {
-        setTimeout(() => {
-          if (dummyVansArr.length) {
-            const hostVansByHostId = dummyVansArr.filter(
-              (vans) => vans.hostId === targetedHostId
-            );
-
-            if (hostVansByHostId.length) {
-              resolve(hostVansByHostId);
-            } else {
-              reject(errorObj);
-            }
-          } else {
-            reject(errorObj);
-          }
-        }, 500);
-      });
-    };
-
     const getHostVans = async () => {
       try {
         const hostVansResponses = await processGetVanHostVans("123");

@@ -1,41 +1,16 @@
 import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { dummyVansArr } from "../../../dummyDataV2.js";
+import { processGetVanDetailById } from "../../api-calls-simulations/api-calls";
+import { modifiedToClassCssName } from "../../utils/index";
 
 export default function VanDetail() {
   const params = useParams();
   const [vanDetail, setVanDetail] = useState(null);
 
   useEffect(() => {
-    const processGetVanDetailById = (idOfVanDetail) => {
-      const errorObj = {
-        message: `Tidak dapat menemukan data van detail dengan id: ${idOfVanDetail}`,
-        statusText: "Bad Request",
-        code: 400,
-      };
-
-      return new Promise((resolve, reject) => {
-        setTimeout(() => {
-          if (!!dummyVansArr.length) {
-            const vanDetailById = dummyVansArr.filter(
-              (van) => van.id === Number(idOfVanDetail)
-            );
-
-            if (vanDetailById.length) {
-              resolve(vanDetailById);
-            } else {
-              reject(errorObj);
-            }
-          } else {
-            reject(errorObj);
-          }
-        }, 500);
-      });
-    };
-
-    const getVanDetailById = async () => {
+    const getVanDetailById = async (idOfVanDetail) => {
       try {
-        const vanDetailResponses = await processGetVanDetailById(params.vanId);
+        const vanDetailResponses = await processGetVanDetailById(idOfVanDetail);
 
         setVanDetail(vanDetailResponses[0]);
       } catch (error) {
@@ -43,7 +18,7 @@ export default function VanDetail() {
       }
     };
 
-    getVanDetailById();
+    getVanDetailById(params.vanId);
 
     return () => {
       setVanDetail(null);
@@ -57,7 +32,9 @@ export default function VanDetail() {
       ) : (
         <div className="van-detail">
           <img alt={vanDetail.name} src={vanDetail.imageUrl} />
-          <div className={`van-type ${vanDetail.type} selected`}>
+          <div
+            className={`van-type ${modifiedToClassCssName(vanDetail.type)} selected`}
+          >
             {vanDetail.type}
           </div>
           <h2>{vanDetail.name}</h2>

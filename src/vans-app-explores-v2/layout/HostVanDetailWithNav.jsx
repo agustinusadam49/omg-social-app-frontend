@@ -1,38 +1,14 @@
 import { useEffect, useState } from "react";
 import { useParams, Link, Outlet } from "react-router-dom";
-import { dummyVansArr } from "../../dummyDataV2";
+import { processGetHostVanDetail } from "../api-calls-simulations/api-calls";
 import HostVanDetailNav from "../components/HostVanDetailNav";
+import { modifiedToClassCssName } from "../utils/index";
 
 export default function HostVanDetailWithNav() {
   const paramObj = useParams();
   const [hostVan, setHostVan] = useState(null);
 
   useEffect(() => {
-    const processGetHostVanDetail = (idOfHostVan) => {
-      const errorObj = {
-        message: `Tidak dapat menemukan data host van detail dengan id: ${idOfHostVan}`,
-        statusText: "Bad Request",
-        code: 401,
-      };
-      return new Promise((resolve, reject) => {
-        setTimeout(() => {
-          if (dummyVansArr.length) {
-            const hostVanByIdArr = dummyVansArr.filter(
-              (hostVan) => hostVan.id === idOfHostVan
-            );
-
-            if (hostVanByIdArr.length) {
-              resolve(hostVanByIdArr[0]);
-            } else {
-              reject(errorObj);
-            }
-          } else {
-            reject(errorObj);
-          }
-        }, 500);
-      });
-    };
-
     const getHostVanDetail = async (hostVanTheId) => {
       try {
         const hostVanDetailResponseObj =
@@ -63,7 +39,9 @@ export default function HostVanDetailWithNav() {
         <div className="host-van-detail-v2">
           <img src={hostVan.imageUrl} alt={hostVan.name} />
           <div className="host-van-detail-v2-info-text">
-            <i className={`van-type van-type-${hostVan.type}`}>
+            <i
+              className={`van-type ${modifiedToClassCssName(hostVan.type)} selected van-type-${hostVan.type}`}
+            >
               {hostVan.type}
             </i>
             <h3>{hostVan.name}</h3>
@@ -72,7 +50,7 @@ export default function HostVanDetailWithNav() {
         </div>
 
         <HostVanDetailNav />
-        <Outlet context={hostVan}/>
+        <Outlet context={hostVan} />
       </div>
     </section>
   );

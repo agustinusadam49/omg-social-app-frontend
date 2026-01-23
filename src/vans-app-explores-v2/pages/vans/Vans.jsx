@@ -1,14 +1,9 @@
 import { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
-import { dummyVansArr } from "../../../dummyDataV2";
-import { modifiedToClassCssName } from "./util";
+import { modifiedToClassCssName } from "../../utils/index";
+import { promiseToGetVans } from "../../api-calls-simulations/api-calls";
 
-const vanTypeQueryList = [
-  "Jenskin",
-  "Aplore",
-  "Rugged",
-  "Lombar Fox",
-];
+const vanTypeQueryList = ["Jenskin", "Aplore", "Rugged", "Lombar Fox"];
 
 export default function Vans() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -17,45 +12,19 @@ export default function Vans() {
   const [vans, setVans] = useState([]);
   const [error, setError] = useState(null);
 
-  const doClickTypeFilter = (inputType) => {
-    return setSearchParams(
-      inputType === "Clear Filters" ? {} : { type: inputType },
-    );
+  const doClickTypeFilter = (key, value) => {
+    setSearchParams((oldParams) => {
+      if (value === null) {
+        oldParams.delete(key);
+      } else {
+        oldParams.set(key, value);
+      }
+
+      return oldParams;
+    });
   };
 
   useEffect(() => {
-    const promiseToGetVans = (typeOfVanQuery) => {
-      const errorObj = {
-        message: "Tidak dapat menemukan data vans!",
-        statusText: "Bad Request",
-        code: 400,
-      };
-
-      return new Promise((resolve, reject) => {
-        setTimeout(() => {
-          if (dummyVansArr.length) {
-            if (typeOfVanQuery) {
-              const filteredVansByType = dummyVansArr.filter(
-                (vanItem) =>
-                  String(vanItem.type).toLowerCase() ===
-                  String(typeOfVanQuery).toLowerCase(),
-              );
-
-              if (filteredVansByType.length) {
-                resolve(filteredVansByType);
-              } else {
-                reject(errorObj);
-              }
-            } else {
-              resolve(dummyVansArr);
-            }
-          } else {
-            reject(errorObj);
-          }
-        }, 500);
-      });
-    };
-
     const hitGetVansPromise = async (vanType) => {
       try {
         const vanDataResponses = await promiseToGetVans(vanType);
@@ -87,8 +56,8 @@ export default function Vans() {
         {vanTypeQueryList.map((vanType, index) => (
           <button
             key={`${vanType}-${index}`}
-            className={`van-type ${modifiedToClassCssName(typeFilter) === modifiedToClassCssName(vanType) ? "selected" : ""}`}
-            onClick={() => doClickTypeFilter(vanType)}
+            className={`van-type ${modifiedToClassCssName(typeFilter) === modifiedToClassCssName(vanType) ? `${modifiedToClassCssName(vanType)} selected` : ""}`}
+            onClick={() => doClickTypeFilter("type", vanType)}
           >
             {vanType}
           </button>
@@ -97,7 +66,7 @@ export default function Vans() {
         {typeFilter ? (
           <button
             className={`van-type clear-filters`}
-            onClick={() => doClickTypeFilter("Clear Filters")}
+            onClick={() => doClickTypeFilter("type", null)}
           >
             Clear Filters
           </button>
