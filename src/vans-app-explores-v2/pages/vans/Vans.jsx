@@ -3,12 +3,25 @@ import { Link, useSearchParams } from "react-router-dom";
 import { dummyVansArr } from "../../../dummyDataV2";
 import { modifiedToClassCssName } from "./util";
 
+const vanTypeQueryList = [
+  "Jenskin",
+  "Aplore",
+  "Rugged",
+  "Lombar Fox",
+];
+
 export default function Vans() {
   const [searchParams, setSearchParams] = useSearchParams();
   const typeFilter = searchParams.get("type");
 
   const [vans, setVans] = useState([]);
   const [error, setError] = useState(null);
+
+  const doClickTypeFilter = (inputType) => {
+    return setSearchParams(
+      inputType === "Clear Filters" ? {} : { type: inputType },
+    );
+  };
 
   useEffect(() => {
     const promiseToGetVans = (typeOfVanQuery) => {
@@ -71,21 +84,24 @@ export default function Vans() {
       <h1>Explore our van options</h1>
 
       <div className="van-list-filter-buttons">
-        <Link to="?type=Jenskin" className={`van-type jenskin`}>
-          Jenskin
-        </Link>
-        <Link to="?type=Aplore" className={`van-type aplore`}>
-          Aplore
-        </Link>
-        <Link to="?type=Lombar Fox" className={`van-type rugged`}>
-          Lombar Fox
-        </Link>
-        <Link to="?type=Rugged" className={`van-type lombar-fox`}>
-          Rugged
-        </Link>
-        <Link to="." className="van-type clear-filters">
-          Clear filter
-        </Link>
+        {vanTypeQueryList.map((vanType, index) => (
+          <button
+            key={`${vanType}-${index}`}
+            className={`van-type ${modifiedToClassCssName(typeFilter) === modifiedToClassCssName(vanType) ? "selected" : ""}`}
+            onClick={() => doClickTypeFilter(vanType)}
+          >
+            {vanType}
+          </button>
+        ))}
+
+        {typeFilter ? (
+          <button
+            className={`van-type clear-filters`}
+            onClick={() => doClickTypeFilter("Clear Filters")}
+          >
+            Clear Filters
+          </button>
+        ) : null}
       </div>
 
       <div className="van-list">
