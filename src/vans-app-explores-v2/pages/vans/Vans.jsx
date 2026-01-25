@@ -12,6 +12,10 @@ export default function Vans() {
   const [vans, setVans] = useState([]);
   const [error, setError] = useState(null);
 
+  const getSearchParamsString = () => {
+    return searchParams.toString() ? `?${searchParams.toString()}` : "";
+  };
+
   const doClickTypeFilter = (key, value) => {
     setSearchParams((oldParams) => {
       if (value === null) {
@@ -81,7 +85,10 @@ export default function Vans() {
         ) : (
           vans.map((van) => (
             <div key={van.id} className="van-tile">
-              <Link to={`/vans/${van.id}`}>
+              <Link
+                to={`/vans/${van.id}`}
+                state={{ search: getSearchParamsString(), type: typeFilter }}
+              >
                 <img alt={van.name} src={van.imageUrl} />
                 <div className="van-info">
                   <h3>{van.name}</h3>
