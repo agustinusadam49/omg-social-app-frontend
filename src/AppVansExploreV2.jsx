@@ -13,6 +13,7 @@ import HostVanDetailWithNav from "./vans-app-explores-v2/layout/HostVanDetailWit
 import HostVanDetail from "./vans-app-explores-v2/pages/host/HostVanDetail";
 import HostVanDetailPricing from "./vans-app-explores-v2/pages/host/HostVanDetailPricing";
 import HostVanDetailPhotos from "./vans-app-explores-v2/pages/host/HostVanDetailPhotos";
+import NotFoundV2 from "./vans-app-explores-v2/pages/NotFoundV2";
 
 import "./AppVansExploreV2.scss";
 
@@ -34,16 +35,12 @@ export default function AppVansExploreV2() {
 
             <Route path="vans/:hostVanId" element={<HostVanDetailWithNav />}>
               <Route index element={<HostVanDetail />} />
-              <Route
-                path="pricing"
-                element={<HostVanDetailPricing />}
-              />
-              <Route
-                path="photos"
-                element={<HostVanDetailPhotos />}
-              />
+              <Route path="pricing" element={<HostVanDetailPricing />} />
+              <Route path="photos" element={<HostVanDetailPhotos />} />
             </Route>
           </Route>
+
+          <Route path="*" element={<NotFoundV2 />} />
         </Route>
       </Routes>
     </BrowserRouter>
