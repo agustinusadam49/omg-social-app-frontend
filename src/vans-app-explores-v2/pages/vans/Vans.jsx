@@ -11,6 +11,7 @@ export default function Vans() {
 
   const [vans, setVans] = useState([]);
   const [error, setError] = useState(null);
+  const [loadingVans, setLoadingVans] = useState(false);
 
   const getSearchParamsString = () => {
     return searchParams.toString() ? `?${searchParams.toString()}` : "";
@@ -30,6 +31,8 @@ export default function Vans() {
 
   useEffect(() => {
     const hitGetVansPromise = async (vanType) => {
+      setLoadingVans(true);
+
       try {
         const vanDataResponses = await promiseToGetVans(vanType);
         if (vanType) {
@@ -40,8 +43,11 @@ export default function Vans() {
         } else {
           setVans(vanDataResponses);
         }
+        setError(null);
       } catch (error) {
         setError(error);
+      } finally {
+        setLoadingVans(false);
       }
     };
 
@@ -49,6 +55,8 @@ export default function Vans() {
 
     return () => {
       setVans([]);
+      setError(null);
+      setLoadingVans(false);
     };
   }, [typeFilter]);
 
@@ -78,9 +86,9 @@ export default function Vans() {
       </div>
 
       <div className="van-list">
-        {!vans.length && !error ? (
+        {loadingVans ? (
           <h2>Loading ...</h2>
-        ) : error ? (
+        ) : !loadingVans && !vans.length && error !== null ? (
           <h1>{error.message}</h1>
         ) : (
           vans.map((van) => (
