@@ -1,48 +1,7 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import Home from "./vans-app-explores-v2/pages/Home";
-import About from "./vans-app-explores-v2/pages/About";
-import Vans from "./vans-app-explores-v2/pages/vans/Vans";
-import VanDetail from "./vans-app-explores-v2/pages/vans/VanDetail";
-import PageWithHeaderAndFooter from "./vans-app-explores-v2/layout/PageWithHeaderAndFooter";
-import HostWithNav from "./vans-app-explores-v2/layout/HostWithNav";
-import Dashboard from "./vans-app-explores-v2/pages/host/Dashboard";
-import Income from "./vans-app-explores-v2/pages/host/Income";
-import Reviews from "./vans-app-explores-v2/pages/host/Reviews";
-import HostVans from "./vans-app-explores-v2/pages/host/HostVans";
-import HostVanDetailWithNav from "./vans-app-explores-v2/layout/HostVanDetailWithNav";
-import HostVanDetail from "./vans-app-explores-v2/pages/host/HostVanDetail";
-import HostVanDetailPricing from "./vans-app-explores-v2/pages/host/HostVanDetailPricing";
-import HostVanDetailPhotos from "./vans-app-explores-v2/pages/host/HostVanDetailPhotos";
-import NotFoundV2 from "./vans-app-explores-v2/pages/NotFoundV2";
-
+import { RouterProvider } from "react-router-dom";
+import { vansAppV2Router } from "./vans-app-explores-v2/router-vans-app-v2/index";
 import "./AppVansExploreV2.scss";
 
 export default function AppVansExploreV2() {
-  return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<PageWithHeaderAndFooter />}>
-          <Route index element={<Home />} />
-          <Route path="About" element={<About />} />
-          <Route path="vans" element={<Vans />} />
-          <Route path="vans/:vanId" element={<VanDetail />} />
-
-          <Route path="host" element={<HostWithNav />}>
-            <Route index element={<Dashboard />} />
-            <Route path="income" element={<Income />} />
-            <Route path="reviews" element={<Reviews />} />
-            <Route path="vans" element={<HostVans />} />
-
-            <Route path="vans/:hostVanId" element={<HostVanDetailWithNav />}>
-              <Route index element={<HostVanDetail />} />
-              <Route path="pricing" element={<HostVanDetailPricing />} />
-              <Route path="photos" element={<HostVanDetailPhotos />} />
-            </Route>
-          </Route>
-
-          <Route path="*" element={<NotFoundV2 />} />
-        </Route>
-      </Routes>
-    </BrowserRouter>
-  );
+  return <RouterProvider router={vansAppV2Router} />;
 }

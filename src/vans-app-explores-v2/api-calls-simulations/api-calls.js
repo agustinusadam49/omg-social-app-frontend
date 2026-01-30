@@ -1,6 +1,6 @@
 import { dummyVansArr } from "../../dummyDataV2";
 
-export const promiseToGetVans = (typeOfVanQuery) => {
+export const promiseToGetVansV2 = () => {
   const errorObj = {
     message: "Tidak dapat menemukan data vans!",
     statusText: "Bad Request",
@@ -10,21 +10,7 @@ export const promiseToGetVans = (typeOfVanQuery) => {
   return new Promise((resolve, reject) => {
     setTimeout(() => {
       if (dummyVansArr.length) {
-        if (typeOfVanQuery) {
-          const filteredVansByType = dummyVansArr.filter(
-            (vanItem) =>
-              String(vanItem.type).toLowerCase() ===
-              String(typeOfVanQuery).toLowerCase(),
-          );
-
-          if (filteredVansByType.length) {
-            resolve(filteredVansByType);
-          } else {
-            reject(errorObj);
-          }
-        } else {
-          resolve(dummyVansArr);
-        }
+        resolve(dummyVansArr);
       } else {
         reject(errorObj);
       }
@@ -32,7 +18,7 @@ export const promiseToGetVans = (typeOfVanQuery) => {
   });
 };
 
-export const processGetHostVanDetail = (idOfHostVan) => {
+export const processGetHostVanDetailV2 = (idOfHostVan) => {
   const errorObj = {
     message: `Tidak dapat menemukan data host van detail dengan id: ${idOfHostVan}`,
     statusText: "Bad Request",

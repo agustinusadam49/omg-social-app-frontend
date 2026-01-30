@@ -1,17 +1,17 @@
-import { useEffect, useState } from "react";
-import { Link, useSearchParams } from "react-router-dom";
+import { Link, useSearchParams, useLoaderData, } from "react-router-dom";
 import { modifiedToClassCssName } from "../../utils/index";
-import { promiseToGetVans } from "../../api-calls-simulations/api-calls";
-
-const vanTypeQueryList = ["Jenskin", "Aplore", "Rugged", "Lombar Fox"];
+import { promiseToGetVansV2 } from "../../api-calls-simulations/api-calls";
 
 export default function Vans() {
+  const vanTypeQueryList = ["Jenskin", "Aplore", "Rugged", "Lombar Fox"];
+
   const [searchParams, setSearchParams] = useSearchParams();
   const typeFilter = searchParams.get("type");
+  const vans = useLoaderData();
 
-  const [vans, setVans] = useState([]);
-  const [error, setError] = useState(null);
-  const [loadingVans, setLoadingVans] = useState(false);
+  const filteredVansByType = typeFilter
+    ? vans.filter((vanItem) => vanItem.type === typeFilter)
+    : vans;
 
   const getSearchParamsString = () => {
     return searchParams.toString() ? `?${searchParams.toString()}` : "";
@@ -28,37 +28,6 @@ export default function Vans() {
       return oldParams;
     });
   };
-
-  useEffect(() => {
-    const hitGetVansPromise = async (vanType) => {
-      setLoadingVans(true);
-
-      try {
-        const vanDataResponses = await promiseToGetVans(vanType);
-        if (vanType) {
-          const filteredVansByType = vanDataResponses.filter(
-            (vanItem) => vanItem.type === vanType,
-          );
-          setVans(filteredVansByType);
-        } else {
-          setVans(vanDataResponses);
-        }
-        setError(null);
-      } catch (error) {
-        setError(error);
-      } finally {
-        setLoadingVans(false);
-      }
-    };
-
-    hitGetVansPromise(typeFilter);
-
-    return () => {
-      setVans([]);
-      setError(null);
-      setLoadingVans(false);
-    };
-  }, [typeFilter]);
 
   return (
     <div className="van-list-container">
@@ -86,35 +55,42 @@ export default function Vans() {
       </div>
 
       <div className="van-list">
-        {loadingVans ? (
-          <h2>Loading ...</h2>
-        ) : !loadingVans && !vans.length && error !== null ? (
-          <h1>{error.message}</h1>
-        ) : (
-          vans.map((van) => (
-            <div key={van.id} className="van-tile">
-              <Link
-                to={`/vans/${van.id}`}
-                state={{ search: getSearchParamsString(), type: typeFilter }}
+        {filteredVansByType.map((van) => (
+          <div key={van.id} className="van-tile">
+            <Link
+              to={`/vans/${van.id}`}
+              state={{ search: getSearchParamsString(), type: typeFilter }}
+            >
+              <img alt={van.name} src={van.imageUrl} />
+              <div className="van-info">
+                <h3>{van.name}</h3>
+                <p>
+                  ${van.price}
+                  <span>/day</span>
+                </p>
+              </div>
+              <div
+                className={`van-type ${modifiedToClassCssName(van.type)} selected`}
               >
-                <img alt={van.name} src={van.imageUrl} />
-                <div className="van-info">
-                  <h3>{van.name}</h3>
-                  <p>
-                    ${van.price}
-                    <span>/day</span>
-                  </p>
-                </div>
-                <div
-                  className={`van-type ${modifiedToClassCssName(van.type)} selected`}
-                >
-                  {van.type}
-                </div>
-              </Link>
-            </div>
-          ))
-        )}
+                {van.type}
+              </div>
+            </Link>
+          </div>
+        ))}
       </div>
     </div>
   );
 }
+
+export const vansLoader = async () => {
+  const hitGetVansPromise = async () => {
+    try {
+      const vanDataResponses = await promiseToGetVansV2();
+      return vanDataResponses;
+    } catch (error) {
+      throw error;
+    }
+  };
+
+  return hitGetVansPromise();
+};

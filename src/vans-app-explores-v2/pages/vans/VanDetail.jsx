@@ -1,42 +1,22 @@
-import { useParams, Link, useLocation } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { Link, useLocation, useLoaderData } from "react-router-dom";
 import { processGetVanDetailById } from "../../api-calls-simulations/api-calls";
 import { modifiedToClassCssName } from "../../utils/index";
 
 export default function VanDetail() {
-  const params = useParams();
   const { state } = useLocation();
+  const vanDetail = useLoaderData();
 
-  const [vanDetail, setVanDetail] = useState(null);
-
-  const { search, type } = state;
-  const currentVanType = type || "all";
-
-  useEffect(() => {
-    const getVanDetailById = async (idOfVanDetail) => {
-      try {
-        const vanDetailResponses = await processGetVanDetailById(idOfVanDetail);
-
-        setVanDetail(vanDetailResponses[0]);
-      } catch (error) {
-        throw error;
-      }
-    };
-
-    getVanDetailById(params.vanId);
-
-    return () => {
-      setVanDetail(null);
-    };
-  }, [params.vanId]);
+  const currentVanType = state?.type ?? "all";
+  const currentVanSearch = state?.search ?? "";
 
   return (
     <div className="van-detail-container">
-      {!vanDetail ? (
-        <h2>Loading ....</h2>
-      ) : (
+      {
         <div className="van-detail">
-          <Link to={`/vans${search}`} className="van-detail-v2-back-button">
+          <Link
+            to={`/vans${currentVanSearch}`}
+            className="van-detail-v2-back-button"
+          >
             &larr; <span>{`Back to ${currentVanType} vans`}</span>
           </Link>
           <img alt={vanDetail.name} src={vanDetail.imageUrl} />
@@ -52,7 +32,23 @@ export default function VanDetail() {
           <p>{vanDetail.descriptions}</p>
           <button className="link-button">Rent this van</button>
         </div>
-      )}
+      }
     </div>
   );
 }
+
+export const vanDetailLoader = async ({ params }) => {
+  const { vanId } = params;
+
+  const getVanDetailById = async (idOfVanDetail) => {
+    try {
+      const vanDetailResponses = await processGetVanDetailById(idOfVanDetail);
+
+      return vanDetailResponses[0];
+    } catch (error) {
+      throw error;
+    }
+  };
+
+  return getVanDetailById(vanId);
+};

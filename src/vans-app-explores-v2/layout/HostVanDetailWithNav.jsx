@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams, Link, Outlet } from "react-router-dom";
-import { processGetHostVanDetail } from "../api-calls-simulations/api-calls";
+import { processGetHostVanDetailV2 } from "../api-calls-simulations/api-calls";
 import HostVanDetailNav from "../components/HostVanDetailNav";
 import { modifiedToClassCssName } from "../utils/index";
 
@@ -12,7 +12,7 @@ export default function HostVanDetailWithNav() {
     const getHostVanDetail = async (hostVanTheId) => {
       try {
         const hostVanDetailResponseObj =
-          await processGetHostVanDetail(hostVanTheId);
+          await processGetHostVanDetailV2(hostVanTheId);
         setHostVan(hostVanDetailResponseObj);
       } catch (error) {
         throw error;
