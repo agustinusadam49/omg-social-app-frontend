@@ -64,9 +64,21 @@ const routesElement = createRoutesFromElements(
         element={<HostVanDetailWithNav />}
         loader={hostVanDetailV2Loader}
       >
-        <Route index element={<HostVanDetail />} />
-        <Route path="pricing" element={<HostVanDetailPricing />} />
-        <Route path="photos" element={<HostVanDetailPhotos />} />
+        <Route
+          index
+          element={<HostVanDetail />}
+          loader={async () => await authUserCheck()}
+        />
+        <Route
+          path="pricing"
+          element={<HostVanDetailPricing />}
+          loader={async () => await authUserCheck()}
+        />
+        <Route
+          path="photos"
+          element={<HostVanDetailPhotos />}
+          loader={async () => await authUserCheck()}
+        />
       </Route>
     </Route>
 
