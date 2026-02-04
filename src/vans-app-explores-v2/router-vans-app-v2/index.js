@@ -6,43 +6,64 @@ import {
 import Home from "../pages/Home";
 import About from "../pages/About";
 import Vans, { vansLoader } from "../pages/vans/Vans";
-import VanDetail, { vanDetailLoader } from "../pages/vans/VanDetail";
+import VanDetailV2, { vanDetailLoaderV2 } from "../pages/vans/VanDetailV2";
 import PageWithHeaderAndFooter from "../layout/PageWithHeaderAndFooter";
 import HostWithNav from "../layout/HostWithNav";
 import Dashboard from "../pages/host/Dashboard";
 import Income from "../pages/host/Income";
 import Reviews from "../pages/host/Reviews";
-import HostVans from "../pages/host/HostVans";
-import HostVanDetailWithNav from "../layout/HostVanDetailWithNav";
+import HostVans, { hostVansLoaderV2 } from "../pages/host/HostVans";
+import HostVanDetailWithNav, {
+  hostVanDetailV2Loader,
+} from "../layout/HostVanDetailWithNav";
 import HostVanDetail from "../pages/host/HostVanDetail";
 import HostVanDetailPricing from "../pages/host/HostVanDetailPricing";
 import HostVanDetailPhotos from "../pages/host/HostVanDetailPhotos";
 import NotFoundV2 from "../pages/NotFoundV2";
+import LoginVanV2 from "../pages/LoginVanV2";
+import { authUserCheck } from "../utils/index";
 
 const routesElement = createRoutesFromElements(
   <Route path="/" element={<PageWithHeaderAndFooter />}>
     <Route index element={<Home />} />
-    <Route path="About" element={<About />} />
+    <Route path="login-van-v2" element={<LoginVanV2 />} />
+    <Route path="about-v2" element={<About />} />
     <Route
-      path="vans"
+      path="vans-v2"
       element={<Vans />}
       loader={vansLoader}
       errorElement={<NotFoundV2 />}
     />
     <Route
-      path="vans/:vanId"
-      element={<VanDetail />}
-      loader={vanDetailLoader}
+      path="vans-v2/:vanId"
+      element={<VanDetailV2 />}
+      loader={vanDetailLoaderV2}
       errorElement={<NotFoundV2 />}
     />
 
-    <Route path="host" element={<HostWithNav />}>
-      <Route index element={<Dashboard />} />
-      <Route path="income" element={<Income />} />
-      <Route path="reviews" element={<Reviews />} />
-      <Route path="vans" element={<HostVans />} />
+    <Route path="host-v2" element={<HostWithNav />}>
+      <Route
+        index
+        element={<Dashboard />}
+        loader={async () => await authUserCheck()}
+      />
+      <Route
+        path="income"
+        element={<Income />}
+        loader={async () => await authUserCheck()}
+      />
+      <Route
+        path="reviews"
+        element={<Reviews />}
+        loader={async () => await authUserCheck()}
+      />
+      <Route path="vans" element={<HostVans />} loader={hostVansLoaderV2} />
 
-      <Route path="vans/:hostVanId" element={<HostVanDetailWithNav />}>
+      <Route
+        path="vans/:hostVanId"
+        element={<HostVanDetailWithNav />}
+        loader={hostVanDetailV2Loader}
+      >
         <Route index element={<HostVanDetail />} />
         <Route path="pricing" element={<HostVanDetailPricing />} />
         <Route path="photos" element={<HostVanDetailPhotos />} />

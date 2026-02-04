@@ -1,25 +1,10 @@
-import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLoaderData } from "react-router-dom";
 import { processGetVanHostVans } from "../../api-calls-simulations/api-calls";
+import { authUserCheck } from "../../utils/index";
+
 export default function HostVans() {
-  const [hostVans, setHostVans] = useState([]);
+  const hostVans = useLoaderData();
 
-  useEffect(() => {
-    const getHostVans = async () => {
-      try {
-        const hostVansResponses = await processGetVanHostVans("123");
-        setHostVans(hostVansResponses);
-      } catch (error) {
-        throw error;
-      }
-    };
-
-    getHostVans();
-
-    return () => {
-      setHostVans([]);
-    };
-  }, []);
   return (
     <section>
       <h1 className="host-vans-title">Your listed vans</h1>
@@ -29,7 +14,7 @@ export default function HostVans() {
           <section>
             {hostVans.map((hostVan) => (
               <Link
-                to={`/host/vans/${hostVan.id}`}
+                to={`/host-v2/vans/${hostVan.id}`}
                 key={hostVan.id}
                 className="host-vans-link-wrapper"
               >
@@ -50,3 +35,18 @@ export default function HostVans() {
     </section>
   );
 }
+
+export const hostVansLoaderV2 = async () => {
+  const getHostVans = async () => {
+    try {
+      const hostVansResponses = await processGetVanHostVans("123");
+      return hostVansResponses;
+    } catch (error) {
+      throw error;
+    }
+  };
+
+  await authUserCheck();
+
+  return getHostVans();
+};

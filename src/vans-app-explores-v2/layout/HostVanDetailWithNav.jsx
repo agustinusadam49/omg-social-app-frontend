@@ -1,38 +1,14 @@
-import { useEffect, useState } from "react";
-import { useParams, Link, Outlet } from "react-router-dom";
+import { Link, Outlet, useLoaderData } from "react-router-dom";
 import { processGetHostVanDetailV2 } from "../api-calls-simulations/api-calls";
 import HostVanDetailNav from "../components/HostVanDetailNav";
 import { modifiedToClassCssName } from "../utils/index";
 
 export default function HostVanDetailWithNav() {
-  const paramObj = useParams();
-  const [hostVan, setHostVan] = useState(null);
-
-  useEffect(() => {
-    const getHostVanDetail = async (hostVanTheId) => {
-      try {
-        const hostVanDetailResponseObj =
-          await processGetHostVanDetailV2(hostVanTheId);
-        setHostVan(hostVanDetailResponseObj);
-      } catch (error) {
-        throw error;
-      }
-    };
-
-    getHostVanDetail(Number(paramObj.hostVanId));
-
-    return () => {
-      setHostVan(null);
-    };
-  }, [paramObj.hostVanId]);
-
-  if (!hostVan) {
-    return <h1>Loading ....</h1>;
-  }
+  const hostVan = useLoaderData();
 
   return (
     <section>
-      <Link to="/host/vans" className="host-van-detail-v2-back-button">
+      <Link to="/host-v2/vans" className="host-van-detail-v2-back-button">
         &larr; <span>Back to all vans</span>
       </Link>
       <div className="host-van-detail-v2-layout-container">
@@ -55,3 +31,20 @@ export default function HostVanDetailWithNav() {
     </section>
   );
 }
+
+export const hostVanDetailV2Loader = async ({ params }) => {
+  const { hostVanId } = params;
+
+  const getHostVanDetail = async (hostVanTheId) => {
+    try {
+      const hostVanDetailResponseObj =
+        await processGetHostVanDetailV2(hostVanTheId);
+
+      return hostVanDetailResponseObj;
+    } catch (error) {
+      throw error;
+    }
+  };
+
+  return getHostVanDetail(Number(hostVanId));
+};

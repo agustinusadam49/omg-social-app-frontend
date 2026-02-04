@@ -15,20 +15,20 @@ export default function HostVanDetailNav() {
   return (
     <nav className="host-van-detail-nav">
       <NavLink
-        to={`/host/vans/${hostVanId}`}
+        to={`/host-v2/vans/${hostVanId}`}
         end
         style={({ isActive }) => getActiveStyles(isActive)}
       >
         Details
       </NavLink>
       <NavLink
-        to={`/host/vans/${hostVanId}/pricing`}
+        to={`/host-v2/vans/${hostVanId}/pricing`}
         style={({ isActive }) => getActiveStyles(isActive)}
       >
         Pricing
       </NavLink>
       <NavLink
-        to={`/host/vans/${hostVanId}/photos`}
+        to={`/host-v2/vans/${hostVanId}/photos`}
         style={({ isActive }) => getActiveStyles(isActive)}
       >
         Photos

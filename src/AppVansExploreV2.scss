@@ -63,6 +63,18 @@ header a:hover {
   text-decoration: underline;
 }
 
+nav {
+  display: flex;
+  flex-direction: row;
+}
+
+nav .logout-button-van-v2 {
+  cursor: pointer;
+  color: #cb1010;
+  font-weight: 600;
+  padding: 5px 0px 5px 20px;
+}
+
 main {
   margin-bottom: 84px;
 }

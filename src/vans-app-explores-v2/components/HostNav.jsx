@@ -14,26 +14,26 @@ export default function HostNav() {
   return (
     <nav className="host-nav">
       <NavLink
-        to="/host"
+        to="/host-v2"
         style={({ isActive }) => getStyleNavlink(isActive)}
         end
       >
         Dashboard
       </NavLink>
       <NavLink
-        to="/host/income"
+        to="/host-v2/income"
         style={({ isActive }) => getStyleNavlink(isActive)}
       >
         Income
       </NavLink>
       <NavLink
-        to="/host/vans"
+        to="/host-v2/vans"
         style={({ isActive }) => getStyleNavlink(isActive)}
       >
         Vans
       </NavLink>
       <NavLink
-        to="/host/reviews"
+        to="/host-v2/reviews"
         style={({ isActive }) => getStyleNavlink(isActive)}
       >
         Reviews

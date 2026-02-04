@@ -1,5 +1,5 @@
-import { Link, useSearchParams, useLoaderData, } from "react-router-dom";
-import { modifiedToClassCssName } from "../../utils/index";
+import { Link, useSearchParams, useLoaderData } from "react-router-dom";
+import { modifiedToClassCssName, authUserCheck } from "../../utils/index";
 import { promiseToGetVansV2 } from "../../api-calls-simulations/api-calls";
 
 export default function Vans() {
@@ -58,7 +58,7 @@ export default function Vans() {
         {filteredVansByType.map((van) => (
           <div key={van.id} className="van-tile">
             <Link
-              to={`/vans/${van.id}`}
+              to={`/vans-v2/${van.id}`}
               state={{ search: getSearchParamsString(), type: typeFilter }}
             >
               <img alt={van.name} src={van.imageUrl} />
@@ -91,6 +91,8 @@ export const vansLoader = async () => {
       throw error;
     }
   };
+
+  await authUserCheck();
 
   return hitGetVansPromise();
 };

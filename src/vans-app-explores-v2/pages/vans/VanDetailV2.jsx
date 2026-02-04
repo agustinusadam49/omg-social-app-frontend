@@ -1,8 +1,8 @@
 import { Link, useLocation, useLoaderData } from "react-router-dom";
 import { processGetVanDetailById } from "../../api-calls-simulations/api-calls";
-import { modifiedToClassCssName } from "../../utils/index";
+import { modifiedToClassCssName, authUserCheck } from "../../utils/index";
 
-export default function VanDetail() {
+export default function VanDetailV2() {
   const { state } = useLocation();
   const vanDetail = useLoaderData();
 
@@ -14,7 +14,7 @@ export default function VanDetail() {
       {
         <div className="van-detail">
           <Link
-            to={`/vans${currentVanSearch}`}
+            to={`/vans-v2${currentVanSearch}`}
             className="van-detail-v2-back-button"
           >
             &larr; <span>{`Back to ${currentVanType} vans`}</span>
@@ -37,7 +37,7 @@ export default function VanDetail() {
   );
 }
 
-export const vanDetailLoader = async ({ params }) => {
+export const vanDetailLoaderV2 = async ({ params }) => {
   const { vanId } = params;
 
   const getVanDetailById = async (idOfVanDetail) => {
@@ -49,6 +49,8 @@ export const vanDetailLoader = async ({ params }) => {
       throw error;
     }
   };
+
+  await authUserCheck();
 
   return getVanDetailById(vanId);
 };
