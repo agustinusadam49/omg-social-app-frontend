@@ -20,13 +20,17 @@ import HostVanDetail from "../pages/host/HostVanDetail";
 import HostVanDetailPricing from "../pages/host/HostVanDetailPricing";
 import HostVanDetailPhotos from "../pages/host/HostVanDetailPhotos";
 import NotFoundV2 from "../pages/NotFoundV2";
-import LoginVanV2 from "../pages/LoginVanV2";
+import LoginVanV2, { loginVanLoaderV2 } from "../pages/LoginVanV2";
 import { authUserCheck } from "../utils/index";
 
 const routesElement = createRoutesFromElements(
   <Route path="/" element={<PageWithHeaderAndFooter />}>
     <Route index element={<Home />} />
-    <Route path="login-van-v2" element={<LoginVanV2 />} />
+    <Route
+      path="login-van-v2"
+      element={<LoginVanV2 />}
+      loader={loginVanLoaderV2}
+    />
     <Route path="about-v2" element={<About />} />
     <Route
       path="vans-v2"
@@ -45,17 +49,26 @@ const routesElement = createRoutesFromElements(
       <Route
         index
         element={<Dashboard />}
-        loader={async () => await authUserCheck()}
+        loader={async ({ request }) => {
+          const pathName = new URL(request.url).pathname;
+          return authUserCheck(pathName);
+        }}
       />
       <Route
         path="income"
         element={<Income />}
-        loader={async () => await authUserCheck()}
+        loader={async ({ request }) => {
+          const pathName = new URL(request.url).pathname;
+          return authUserCheck(pathName);
+        }}
       />
       <Route
         path="reviews"
         element={<Reviews />}
-        loader={async () => await authUserCheck()}
+        loader={async ({ request }) => {
+          const pathName = new URL(request.url).pathname;
+          return authUserCheck(pathName);
+        }}
       />
       <Route path="vans" element={<HostVans />} loader={hostVansLoaderV2} />
 
@@ -67,17 +80,26 @@ const routesElement = createRoutesFromElements(
         <Route
           index
           element={<HostVanDetail />}
-          loader={async () => await authUserCheck()}
+          loader={async ({ request }) => {
+            const pathName = new URL(request.url).pathname;
+            return authUserCheck(pathName);
+          }}
         />
         <Route
           path="pricing"
           element={<HostVanDetailPricing />}
-          loader={async () => await authUserCheck()}
+          loader={async ({ request }) => {
+            const pathName = new URL(request.url).pathname;
+            return authUserCheck(pathName);
+          }}
         />
         <Route
           path="photos"
           element={<HostVanDetailPhotos />}
-          loader={async () => await authUserCheck()}
+          loader={async ({ request }) => {
+            const pathName = new URL(request.url).pathname;
+            return authUserCheck(pathName);
+          }}
         />
       </Route>
     </Route>

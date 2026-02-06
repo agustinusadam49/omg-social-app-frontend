@@ -16,14 +16,16 @@ export const checkUserLogin = () => {
   return !!email && !!password;
 };
 
-export const authUserCheck = async () => {
+export const authUserCheck = async (fromPath = "/") => {
   const email = localStorage.getItem("email");
   const password = localStorage.getItem("password");
 
   const isAuth = !!email && !!password;
 
   if (!isAuth) {
-    throw redirect("/login-van-v2?message=You must login first VAN APP V2!");
+    throw redirect(
+      `/login-van-v2?message=You must login first VAN APP V2!&from=${fromPath}`,
+    );
   }
 
   return null;

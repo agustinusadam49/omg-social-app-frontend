@@ -36,7 +36,9 @@ export default function HostVans() {
   );
 }
 
-export const hostVansLoaderV2 = async () => {
+export const hostVansLoaderV2 = async ({request}) => {
+  const pathName = new URL(request.url).pathname;
+
   const getHostVans = async () => {
     try {
       const hostVansResponses = await processGetVanHostVans("123");
@@ -46,7 +48,7 @@ export const hostVansLoaderV2 = async () => {
     }
   };
 
-  await authUserCheck();
+  await authUserCheck(pathName);
 
   return getHostVans();
 };

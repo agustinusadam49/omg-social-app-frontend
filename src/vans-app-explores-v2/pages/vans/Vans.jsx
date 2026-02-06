@@ -82,7 +82,9 @@ export default function Vans() {
   );
 }
 
-export const vansLoader = async () => {
+export const vansLoader = async ({ request }) => {
+  const pathName = new URL(request.url).pathname;
+
   const hitGetVansPromise = async () => {
     try {
       const vanDataResponses = await promiseToGetVansV2();
@@ -92,7 +94,7 @@ export const vansLoader = async () => {
     }
   };
 
-  await authUserCheck();
+  await authUserCheck(pathName);
 
   return hitGetVansPromise();
 };

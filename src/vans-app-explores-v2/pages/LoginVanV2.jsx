@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
+import { useNavigate, useLoaderData } from "react-router-dom";
 import { useFormValidation } from "../../custom-hooks/useFormValidation";
 import { helpersWithMessage } from "../../utils/formValidationFunction";
 import { useDispatch } from "react-redux";
@@ -11,13 +11,10 @@ export default function LoginVanV2() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const location = useLocation();
+  const { requiredLoginMessage, fromPastPath } = useLoaderData();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [searchParams] = useSearchParams();
-
-  const loginMessage = searchParams.get("message");
 
   const { isValid, handleInputErrorMessage } = useFormValidation({
     rulesSchema: {
@@ -46,23 +43,26 @@ export default function LoginVanV2() {
 
   const doLogin = () => {
     dispatch(setIsClicked({ payload: true }));
+
     if (isValid) {
       localStorage.setItem("email", email);
       localStorage.setItem("password", password);
 
-      setEmail("");
-      setPassword("");
-
-      const from = location?.state?.from?.pathname || "/";
-      navigate(from, { replace: true });
+      navigate(fromPastPath || "/", { replace: true });
     }
   };
 
   return (
     <div>
-      <h1>Sign in to your account</h1>
+      <h1 style={{ textAlign: "center", marginBottom: "10px" }}>
+        Sign in to your account
+      </h1>
 
-      {loginMessage ? <h4>{loginMessage}</h4> : null}
+      {requiredLoginMessage && (
+        <h4 style={{ color: "red", textAlign: "center", marginBottom: "10px" }}>
+          {requiredLoginMessage}
+        </h4>
+      )}
 
       <InputTextGlobal
         value={email}
@@ -79,7 +79,18 @@ export default function LoginVanV2() {
         inputErrorMessage={handleInputErrorMessage("password")}
       />
 
-      <GlobalButton buttonLabel="Sign In" onClick={doLogin} />
+      <GlobalButton
+        buttonLabel="Sign In"
+        onClick={doLogin}
+        classStyleName="login-button-van-app-v2"
+      />
     </div>
   );
 }
+
+export const loginVanLoaderV2 = async ({ request }) => {
+  const messageQuery = new URL(request.url).searchParams.get("message");
+  const fromQuery = new URL(request.url).searchParams.get("from");
+
+  return { requiredLoginMessage: messageQuery, fromPastPath: fromQuery };
+};

@@ -1,7 +1,7 @@
 import { Link, Outlet, useLoaderData } from "react-router-dom";
 import { processGetHostVanDetailV2 } from "../api-calls-simulations/api-calls";
 import HostVanDetailNav from "../components/HostVanDetailNav";
-import { modifiedToClassCssName } from "../utils/index";
+import { modifiedToClassCssName, authUserCheck } from "../utils/index";
 
 export default function HostVanDetailWithNav() {
   const hostVan = useLoaderData();
@@ -32,7 +32,9 @@ export default function HostVanDetailWithNav() {
   );
 }
 
-export const hostVanDetailV2Loader = async ({ params }) => {
+export const hostVanDetailV2Loader = async ({ params, request }) => {
+  const pathName = new URL(request.url).pathname;
+
   const { hostVanId } = params;
 
   const getHostVanDetail = async (hostVanTheId) => {
@@ -45,6 +47,8 @@ export const hostVanDetailV2Loader = async ({ params }) => {
       throw error;
     }
   };
+
+  await authUserCheck(pathName);
 
   return getHostVanDetail(Number(hostVanId));
 };

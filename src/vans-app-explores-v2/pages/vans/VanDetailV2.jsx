@@ -37,7 +37,9 @@ export default function VanDetailV2() {
   );
 }
 
-export const vanDetailLoaderV2 = async ({ params }) => {
+export const vanDetailLoaderV2 = async ({ params, request }) => {
+  const pathName = new URL(request.url).pathname
+
   const { vanId } = params;
 
   const getVanDetailById = async (idOfVanDetail) => {
@@ -50,7 +52,7 @@ export const vanDetailLoaderV2 = async ({ params }) => {
     }
   };
 
-  await authUserCheck();
+  await authUserCheck(pathName);
 
   return getVanDetailById(vanId);
 };
