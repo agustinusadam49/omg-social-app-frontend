@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate, useLoaderData } from "react-router-dom";
+import { useNavigate, useLoaderData, redirect } from "react-router-dom";
 import { useFormValidation } from "../../custom-hooks/useFormValidation";
 import { helpersWithMessage } from "../../utils/formValidationFunction";
 import { useDispatch } from "react-redux";
@@ -89,6 +89,14 @@ export default function LoginVanV2() {
 }
 
 export const loginVanLoaderV2 = async ({ request }) => {
+  const email = localStorage.getItem("email");
+  const password = localStorage.getItem("password");
+
+  const isAuth = !!email && !!password;
+  if (isAuth) {
+    throw redirect("/");
+  }
+
   const messageQuery = new URL(request.url).searchParams.get("message");
   const fromQuery = new URL(request.url).searchParams.get("from");
 
