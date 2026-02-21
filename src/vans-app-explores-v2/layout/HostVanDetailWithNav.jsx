@@ -1,16 +1,17 @@
-import { Link, Outlet, useLoaderData } from "react-router-dom";
+import { Suspense } from "react";
+import { Link, Outlet, useLoaderData, defer, Await } from "react-router-dom";
 import { processGetHostVanDetailV2 } from "../api-calls-simulations/api-calls";
 import HostVanDetailNav from "../components/HostVanDetailNav";
 import { modifiedToClassCssName, authUserCheck } from "../utils/index";
+import Loading from "../components/Loading";
 
 export default function HostVanDetailWithNav() {
-  const hostVan = useLoaderData();
+  const hostVanDetailPromise = useLoaderData();
 
-  return (
-    <section>
-      <Link to="/host-v2/vans" className="host-van-detail-v2-back-button">
-        &larr; <span>Back to all vans</span>
-      </Link>
+  const renderHostVanDetailSection = (hostVanDetailData) => {
+    const hostVan = hostVanDetailData;
+
+    return (
       <div className="host-van-detail-v2-layout-container">
         <div className="host-van-detail-v2">
           <img src={hostVan.imageUrl} alt={hostVan.name} />
@@ -28,27 +29,41 @@ export default function HostVanDetailWithNav() {
         <HostVanDetailNav />
         <Outlet context={hostVan} />
       </div>
+    );
+  };
+
+  return (
+    <section>
+      <Link to="/host-v2/vans" className="host-van-detail-v2-back-button">
+        &larr; <span>Back to all vans</span>
+      </Link>
+
+      <Suspense fallback={<Loading loadingName="host van detail" />}>
+        <Await resolve={hostVanDetailPromise.vanHostDetail}>
+          {renderHostVanDetailSection}
+        </Await>
+      </Suspense>
     </section>
   );
 }
+
+const getHostVanDetail = async (hostVanTheId) => {
+  try {
+    const hostVanDetailResponseObj =
+      await processGetHostVanDetailV2(hostVanTheId);
+
+    return hostVanDetailResponseObj;
+  } catch (error) {
+    throw error;
+  }
+};
 
 export const hostVanDetailV2Loader = async ({ params, request }) => {
   const pathName = new URL(request.url).pathname;
 
   const { hostVanId } = params;
 
-  const getHostVanDetail = async (hostVanTheId) => {
-    try {
-      const hostVanDetailResponseObj =
-        await processGetHostVanDetailV2(hostVanTheId);
-
-      return hostVanDetailResponseObj;
-    } catch (error) {
-      throw error;
-    }
-  };
-
   await authUserCheck(pathName);
 
-  return getHostVanDetail(Number(hostVanId));
+  return defer({ vanHostDetail: getHostVanDetail(Number(hostVanId)) });
 };
