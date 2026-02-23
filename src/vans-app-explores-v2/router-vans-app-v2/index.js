@@ -70,12 +70,18 @@ const routesElement = createRoutesFromElements(
           return authUserCheck(pathName);
         }}
       />
-      <Route path="vans" element={<HostVans />} loader={hostVansLoaderV2} />
+      <Route
+        path="vans"
+        element={<HostVans />}
+        loader={hostVansLoaderV2}
+        errorElement={<NotFoundV2 />}
+      />
 
       <Route
         path="vans/:hostVanId"
         element={<HostVanDetailWithNav />}
         loader={hostVanDetailV2Loader}
+        errorElement={<NotFoundV2 />}
       >
         <Route
           index
