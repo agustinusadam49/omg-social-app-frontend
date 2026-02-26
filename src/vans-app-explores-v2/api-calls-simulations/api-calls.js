@@ -1,6 +1,6 @@
-import { dummyVansArr } from "../../dummyDataV2";
+import { dummyVansArr, dummyVanReviews } from "../../dummyDataV2";
 
-export const promiseToGetVansV2 = () => {
+export const promiseToGetVansV2 = async () => {
   const errorObj = {
     message: "Tidak dapat menemukan data vans!",
     statusText: "Bad Request",
@@ -18,7 +18,7 @@ export const promiseToGetVansV2 = () => {
   });
 };
 
-export const processGetHostVanDetailV2 = (idOfHostVan) => {
+export const processGetHostVanDetailV2 = async (idOfHostVan) => {
   const errorObj = {
     message: `Tidak dapat menemukan data host van detail dengan id: ${idOfHostVan}`,
     statusText: "Bad Request",
@@ -43,7 +43,7 @@ export const processGetHostVanDetailV2 = (idOfHostVan) => {
   });
 };
 
-export const processGetVanHostVans = (targetedHostId) => {
+export const processGetVanHostVans = async (targetedHostId) => {
   const errorObj = {
     message: "Tidak dapat menemukan data host vans!",
     statusText: "Bad Request",
@@ -69,7 +69,7 @@ export const processGetVanHostVans = (targetedHostId) => {
   });
 };
 
-export const processGetVanDetailById = (idOfVanDetail) => {
+export const processGetVanDetailById = async (idOfVanDetail) => {
   const errorObj = {
     message: `Tidak dapat menemukan data van detail dengan id: ${idOfVanDetail}`,
     statusText: "Bad Request",
@@ -88,6 +88,24 @@ export const processGetVanDetailById = (idOfVanDetail) => {
         } else {
           reject(errorObj);
         }
+      } else {
+        reject(errorObj);
+      }
+    }, 500);
+  });
+};
+
+export const processGetHostVanReviews = () => {
+  const errorObj = {
+    message: "Tidak dapat menemukan data host van reviews!",
+    statusText: "Bad Request",
+    code: 400,
+  };
+
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      if (dummyVanReviews.length) {
+        resolve(dummyVanReviews);
       } else {
         reject(errorObj);
       }

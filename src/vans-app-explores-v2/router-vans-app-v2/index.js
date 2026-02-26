@@ -11,7 +11,7 @@ import PageWithHeaderAndFooter from "../layout/PageWithHeaderAndFooter";
 import HostWithNav from "../layout/HostWithNav";
 import Dashboard from "../pages/host/Dashboard";
 import Income from "../pages/host/Income";
-import Reviews from "../pages/host/Reviews";
+import Reviews, { hostVanReviewsLoader } from "../pages/host/Reviews";
 import HostVans, { hostVansLoaderV2 } from "../pages/host/HostVans";
 import HostVanDetailWithNav, {
   hostVanDetailV2Loader,
@@ -65,10 +65,8 @@ const routesElement = createRoutesFromElements(
       <Route
         path="reviews"
         element={<Reviews />}
-        loader={async ({ request }) => {
-          const pathName = new URL(request.url).pathname;
-          return authUserCheck(pathName);
-        }}
+        loader={hostVanReviewsLoader}
+        errorElement={<NotFoundV2 />}
       />
       <Route
         path="vans"
