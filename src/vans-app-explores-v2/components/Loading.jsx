@@ -1,9 +1,13 @@
-export default function Loading({ children, loadingName = "Loading" }) {
+export default function Loading({
+  children,
+  onlyLoadingName = false,
+  loadingName = "Loading",
+}) {
   if (children) return children;
 
-  return loadingName !== "Loading" ? (
-    <h1>Loading get {loadingName} data ...</h1>
-  ) : (
+  return onlyLoadingName ? (
     <h1>{loadingName}</h1>
+  ) : (
+    <h1>Loading get {loadingName} data ...</h1>
   );
 }

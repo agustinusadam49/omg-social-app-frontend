@@ -9,7 +9,7 @@ import Vans, { vansLoader } from "../pages/vans/Vans";
 import VanDetailV2, { vanDetailLoaderV2 } from "../pages/vans/VanDetailV2";
 import PageWithHeaderAndFooter from "../layout/PageWithHeaderAndFooter";
 import HostWithNav from "../layout/HostWithNav";
-import Dashboard from "../pages/host/Dashboard";
+import Dashboard, { hostVansDashboarLoader } from "../pages/host/Dashboard";
 import Income from "../pages/host/Income";
 import Reviews, { hostVanReviewsLoader } from "../pages/host/Reviews";
 import HostVans, { hostVansLoaderV2 } from "../pages/host/HostVans";
@@ -49,10 +49,8 @@ const routesElement = createRoutesFromElements(
       <Route
         index
         element={<Dashboard />}
-        loader={async ({ request }) => {
-          const pathName = new URL(request.url).pathname;
-          return authUserCheck(pathName);
-        }}
+        loader={hostVansDashboarLoader}
+        errorElement={<NotFoundV2 />}
       />
       <Route
         path="income"
