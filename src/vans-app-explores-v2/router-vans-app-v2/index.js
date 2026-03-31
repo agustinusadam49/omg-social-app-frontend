@@ -21,7 +21,7 @@ import HostVanDetailPricing from "../pages/host/HostVanDetailPricing";
 import HostVanDetailPhotos from "../pages/host/HostVanDetailPhotos";
 import NotFoundV2 from "../pages/NotFoundV2";
 import LoginVanV2, { loginVanLoaderV2 } from "../pages/LoginVanV2";
-import { authUserCheck } from "../utils/index";
+import { nonFetchingDataLoader } from "../utils/index";
 
 const routesElement = createRoutesFromElements(
   <Route path="/" element={<PageWithHeaderAndFooter />}>
@@ -55,10 +55,7 @@ const routesElement = createRoutesFromElements(
       <Route
         path="income"
         element={<Income />}
-        loader={async ({ request }) => {
-          const pathName = new URL(request.url).pathname;
-          return authUserCheck(pathName);
-        }}
+        loader={nonFetchingDataLoader}
       />
       <Route
         path="reviews"
@@ -82,26 +79,17 @@ const routesElement = createRoutesFromElements(
         <Route
           index
           element={<HostVanDetail />}
-          loader={async ({ request }) => {
-            const pathName = new URL(request.url).pathname;
-            return authUserCheck(pathName);
-          }}
+          loader={nonFetchingDataLoader}
         />
         <Route
           path="pricing"
           element={<HostVanDetailPricing />}
-          loader={async ({ request }) => {
-            const pathName = new URL(request.url).pathname;
-            return authUserCheck(pathName);
-          }}
+          loader={nonFetchingDataLoader}
         />
         <Route
           path="photos"
           element={<HostVanDetailPhotos />}
-          loader={async ({ request }) => {
-            const pathName = new URL(request.url).pathname;
-            return authUserCheck(pathName);
-          }}
+          loader={nonFetchingDataLoader}
         />
       </Route>
     </Route>

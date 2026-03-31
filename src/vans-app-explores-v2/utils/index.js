@@ -30,3 +30,8 @@ export const authUserCheck = async (fromPath = "/") => {
 
   return null;
 };
+
+export const nonFetchingDataLoader = async ({ request }) => {
+  const pathName = new URL(request.url).pathname;
+  return authUserCheck(pathName);
+};
