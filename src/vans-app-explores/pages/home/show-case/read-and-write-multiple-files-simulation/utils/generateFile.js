@@ -49,12 +49,12 @@ const handleProcessData = (dataArrObj, diseaseType) => {
         icdxOne: item?.icdxOne ?? "",
         diagnoseOne: item?.icdxOne
           ? diagnoseList.find(
-              (listOfDiagnose) => listOfDiagnose.disease === item.icdxOne
+              (listOfDiagnose) => listOfDiagnose.disease === item.icdxOne,
             ).description
           : "",
         isAntibiotic: item?.icdxOne
           ? diagnoseList.filter(
-              (listOfDiagnose) => listOfDiagnose.disease === item.icdxOne
+              (listOfDiagnose) => listOfDiagnose.disease === item.icdxOne,
             )[0].isAntibiotic
           : "",
         receipt: item?.receipt ?? "",
@@ -69,7 +69,7 @@ const handleProcessData = (dataArrObj, diseaseType) => {
 const processAntibioticStatus = (patients) => {
   const antibioticPatients = patients.filter((patient) => patient.isAntibiotic);
   const nonAntibioticPatients = patients.filter(
-    (patient) => !patient.isAntibiotic
+    (patient) => !patient.isAntibiotic,
   );
 
   if (antibioticPatients.length && !nonAntibioticPatients.length) {
@@ -92,10 +92,10 @@ const constructObjWithStatus = (dateArr, dateMapObj) => {
   for (let i = 0; i < dateArr.length; i++) {
     const allPatients = dateMapObj[dateArr[i]];
     const onlyAntibioticArr = allPatients.filter(
-      (patient) => patient.isAntibiotic
+      (patient) => patient.isAntibiotic,
     );
     const onlyNonAntibioticArr = allPatients.filter(
-      (patient) => !patient.isAntibiotic
+      (patient) => !patient.isAntibiotic,
     );
 
     const status = processAntibioticStatus(allPatients);
@@ -134,7 +134,7 @@ const processSortByStatus = (dateArr, mappedObjWithStatus) => {
 
       return newArr;
     },
-    []
+    [],
   );
 
   const allTheSame = dateArr.reduce((newArr, currentDate) => {
@@ -159,7 +159,7 @@ const processSortByStatus = (dateArr, mappedObjWithStatus) => {
 
       return newArr;
     },
-    []
+    [],
   );
 
   const allNonAntibiotic = dateArr.reduce((newArr, currentDate) => {
@@ -215,7 +215,7 @@ const generateDateResult = (dataArr) => {
 
   const sortedArrByStatus = processSortByStatus(
     objKeys,
-    dateObjMappedWithStatus
+    dateObjMappedWithStatus,
   );
 
   const processFinalResult = sortedArrByStatus.reduce((newArr, item, index) => {
@@ -274,12 +274,41 @@ const generateDateResult = (dataArr) => {
   return processFinalResult;
 };
 
+const processAddNewInsufficientData = (originalDataArr, finalDataArr) => {
+  const insufficientDataAmount = 25 - finalDataArr.length;
+
+  const newArrFromOriginal = [];
+  const indexUsedArr = [];
+
+  while (
+    (newArrFromOriginal.length && indexUsedArr.length) < insufficientDataAmount
+  ) {
+    const randomIndex = Math.floor(Math.random() * originalDataArr.length);
+
+    const currentItemByOriData = originalDataArr[randomIndex];
+
+    const isThereDataInFinalArr = !!finalDataArr.filter(
+      (finalDataItem) => currentItemByOriData.number === finalDataItem.number,
+    ).length;
+
+    const isThereIndexUsed = indexUsedArr.includes(randomIndex);
+
+    if (!isThereDataInFinalArr && !isThereIndexUsed) {
+      newArrFromOriginal.push(currentItemByOriData);
+      indexUsedArr.push(randomIndex);
+    }
+  }
+
+  return newArrFromOriginal;
+};
+
 export const generateContentFileOps = async ({
   readPath,
   writePath,
   sheetName,
   diseaseType,
 }) => {
+  let posibleInsufficientData = [];
   const contentArrMerged = [];
 
   for (let i = 0; i < readPath.length; i++) {
@@ -294,13 +323,39 @@ export const generateContentFileOps = async ({
   }
 
   const contentSortedByDate = contentArrMerged.sort(
-    (itemA, itemB) => new Date(itemA.date) - new Date(itemB.date)
+    (itemA, itemB) => new Date(itemA.date) - new Date(itemB.date),
   );
+  console.log("contentSortedByDate:", contentSortedByDate);
 
-  const result = generateDateResult(contentSortedByDate);
-  const finalAntibioticPatients = result.filter((item) => item.isAntibiotic);
+  const resultMappedByStatus =
+    contentSortedByDate.length > 25
+      ? generateDateResult(contentSortedByDate)
+      : contentSortedByDate;
 
-  const finalResult = result
+  console.log("resultMappedByStatus:", resultMappedByStatus);
+
+  if (resultMappedByStatus.length < 25 && contentSortedByDate.length >= 25) {
+    console.log(
+      `total data ${diseaseType} adalah: ${contentSortedByDate.length}`,
+    );
+    console.log("data final kurang dari 25 data");
+
+    const additionalArrData = processAddNewInsufficientData(
+      contentSortedByDate,
+      resultMappedByStatus,
+    );
+
+    posibleInsufficientData = additionalArrData;
+
+    console.log("posibleInsufficientData:", posibleInsufficientData);
+  }
+
+  const finalAntibioticPatients = resultMappedByStatus
+    .concat(posibleInsufficientData)
+    .filter((item) => item.isAntibiotic);
+
+  const finalResult = resultMappedByStatus
+    .concat(posibleInsufficientData)
     .sort((itemA, itemB) => new Date(itemA.date) - new Date(itemB.date))
     .map((item, idx) => {
       return {
