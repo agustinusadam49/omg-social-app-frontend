@@ -1,6 +1,6 @@
 import * as xlsx from "xlsx";
 import { DIARE_LISTS, ISPA_LISTS, DATA_MAP_OBJ } from "../../constants";
-// import { DUMMY_PATIENTS_DATA } from "../../dummyConstants" // just for testing
+// import { DUMMY_PATIENTS_DATA } from "../../dummyConstants"; // just for testing
 
 const changeObj = (itemObj) => {
   const keys = Object.keys(itemObj);
@@ -62,58 +62,81 @@ const handleProcessData = (dataArrObj, diseaseType) => {
   return dataHasBeenCapped;
 };
 
-const patientSelection = (patiens, antibioticCount) => {
-  const antibioticData = patiens
-    .filter((item) => item.isAntibiotic)
-    .sort((itemA, itemB) => new Date(itemA.date) - new Date(itemB.date));
-  const nonAntibioticData = patiens
-    .filter((item) => !item.isAntibiotic)
-    .sort((itemA, itemB) => new Date(itemA.date) - new Date(itemB.date));
+const getAntibioticAndNonAntibiotic = (patientsArg) => {
+  const filteredAntibiotic = [];
+  const filteredNonAntibiotic = [];
 
-  if (antibioticCount < 3 && antibioticData.length) return antibioticData[0];
+  for (const item of patientsArg) {
+    if (item.isAntibiotic) {
+      filteredAntibiotic.push(item);
+    } else {
+      filteredNonAntibiotic.push(item);
+    }
+  }
+
+  return {
+    antibioticData: filteredAntibiotic.length
+      ? filteredAntibiotic.sort(
+          (itemA, itemB) => new Date(itemA.date) - new Date(itemB.date),
+        )
+      : filteredAntibiotic,
+    nonAntibioticData: filteredNonAntibiotic.length
+      ? filteredNonAntibiotic.sort(
+          (itemA, itemB) => new Date(itemA.date) - new Date(itemB.date),
+        )
+      : filteredNonAntibiotic,
+  };
+};
+
+const patientSelection = (patients, newArrPatients) => {
+  const { antibioticData, nonAntibioticData } =
+    getAntibioticAndNonAntibiotic(patients);
+
+  const antibioticPatientsInNewArr = [];
+
+  for (const patient of newArrPatients) {
+    if (patient.isAntibiotic) {
+      antibioticPatientsInNewArr.push(patient);
+    }
+  }
+
+  if (antibioticPatientsInNewArr.length < 3 && antibioticData.length)
+    return antibioticData[0];
 
   return nonAntibioticData.length ? nonAntibioticData[0] : antibioticData[0];
 };
 
 const generateDateObject = (patientsDataArr) => {
-  return patientsDataArr.reduce((newObj, content) => {
-    const { date } = content;
+  const dateObjOfArr = {};
 
-    const onlyDate = date.split(" ")[0];
+  for (const patient of patientsDataArr) {
+    const onlyDate = patient.date.split(" ")[0];
 
-    if (newObj[onlyDate]) {
-      newObj[onlyDate].push(content);
+    if (!dateObjOfArr[onlyDate]) {
+      dateObjOfArr[onlyDate] = [patient];
     } else {
-      newObj[onlyDate] = [content];
+      dateObjOfArr[onlyDate].push(patient);
     }
+  }
 
-    return newObj;
-  }, {});
+  return dateObjOfArr;
 };
 
 export const generateDateResultV2 = (dataArr) => {
   const byDateObj = generateDateObject(dataArr);
 
-  const objKeys = Object.keys(byDateObj);
+  const finalResultOfArrPatients = [];
 
-  let antibioticCounter = 0;
-
-  const finalResultOfArrPatients = objKeys.reduce((newArr, item) => {
-    const patientDataArrPerDate = byDateObj[item];
+  for (const dateKey in byDateObj) {
+    const patientDataArrPerDate = byDateObj[dateKey];
 
     const currentPatientSelected = patientSelection(
       patientDataArrPerDate,
-      antibioticCounter,
+      finalResultOfArrPatients,
     );
 
-    if (currentPatientSelected.isAntibiotic) {
-      antibioticCounter += 1;
-    }
-
-    newArr.push(currentPatientSelected);
-
-    return newArr;
-  }, []);
+    finalResultOfArrPatients.push(currentPatientSelected);
+  }
 
   return finalResultOfArrPatients;
 };
