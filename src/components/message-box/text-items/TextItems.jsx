@@ -2,13 +2,14 @@ import React from "react";
 
 import { useSelector } from "react-redux";
 import { rangeDay } from "../../../utils/rangeDay";
+import { getRealMessage } from "../message-box-helper";
 
 import "./TextItems.scss";
 
-export default function TextItems({
+function TextItems({
   messageItem,
   paramUserId,
-  setMessageReadyToReply,
+  handleClickReply,
   isShowTriangle,
 }) {
   const userIdParam = paramUserId;
@@ -16,20 +17,6 @@ export default function TextItems({
   const currentUserIdFromSlice = useSelector((state) => state.user.userId);
 
   const repliedMessageData = JSON.parse(messageItem.textMessage);
-
-  const getRealMessage = (textObjInString) => {
-    const messageTextObj = JSON.parse(textObjInString);
-    const messageTextStr = messageTextObj.realTextMessage;
-    return messageTextStr;
-  };
-
-  const handleClickReply = (messageData) => {
-    const transformedMessageReplyData = {
-      ...messageData,
-      textMessage: getRealMessage(messageData.textMessage),
-    };
-    setMessageReadyToReply(transformedMessageReplyData);
-  };
 
   return (
     <div className="message-data-wrapper">
@@ -81,3 +68,5 @@ export default function TextItems({
     </div>
   );
 }
+
+export default React.memo(TextItems);

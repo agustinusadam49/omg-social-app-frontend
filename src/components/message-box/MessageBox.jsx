@@ -6,28 +6,32 @@ import React, {
   useReducer,
   useCallback,
 } from "react";
-import { Link } from "react-router-dom";
-import { useSelector, useDispatch } from "react-redux";
-import TextItems from "./text-items/TextItems";
 import {
   getAllMessagesData,
   createNewMessageData,
 } from "../../apiCalls/messagesApiFetch";
-import { setIsGetMessageNotif } from "../../redux/slices/userSlice";
-import { updateTheMessageById } from "../../apiCalls/messagesApiFetch";
-import { io } from "socket.io-client";
 import {
   INITIAL_LOADING_STATE,
   actionType,
   loadingReducer,
 } from "../../utils/reducers/globalLoadingReducer";
+
+import { useSelector, useDispatch } from "react-redux";
+import { io } from "socket.io-client";
+import { Link } from "react-router-dom";
+import { setIsGetMessageNotif } from "../../redux/slices/userSlice";
+import { updateTheMessageById } from "../../apiCalls/messagesApiFetch";
+import { getRealMessage } from "./message-box-helper";
+
+import TextItems from "./text-items/TextItems";
 import RoundedLoader from "../rounded-loader/RoundedLoader";
+
 import "./MessageBox.scss";
 
 const MessageBox = ({ paramUserId }) => {
   const [loadingState, mutate] = useReducer(
     loadingReducer,
-    INITIAL_LOADING_STATE
+    INITIAL_LOADING_STATE,
   );
   const dispatch = useDispatch();
 
@@ -36,13 +40,16 @@ const MessageBox = ({ paramUserId }) => {
 
   const currentUserIdFromSlice = useSelector((state) => state.user.userId);
   const currentUserNameFromSlice = useSelector((state) => state.user.userName);
-  const currentUserAvatarFromSlice = useSelector((state) => state.user.userAvatarPicture);
+  const currentUserAvatarFromSlice = useSelector(
+    (state) => state.user.userAvatarPicture,
+  );
 
   const [usersOnline, setUsersOnline] = useState([]);
   const [messageText, setMessageText] = useState("");
   const [mappedMessages, setMappedMessages] = useState([]);
   const [whoIsWriting, setWhoIsWriting] = useState("");
-  const [isThisUserVisitedMyProfile, setIsThisUserVisitedMyProfile] = useState(false);
+  const [isThisUserVisitedMyProfile, setIsThisUserVisitedMyProfile] =
+    useState(false);
   const [isTyping, setIsTyping] = useState(false);
   const [messageReadyToReply, setMessageReadyToReply] = useState(null);
 
@@ -72,7 +79,7 @@ const MessageBox = ({ paramUserId }) => {
       .catch((error) => {
         console.log(
           "failed edit message by id message:",
-          error.response.data.err.message
+          error.response.data.err.message,
         );
       });
   };
@@ -124,7 +131,7 @@ const MessageBox = ({ paramUserId }) => {
             emitSocket("sendNotif", createObjNewMessages);
           } else {
             const findUserReceiverId = usersOnline.filter(
-              (user) => user.userId === paramUserId
+              (user) => user.userId === paramUserId,
             );
             if (!!findUserReceiverId.length) {
               emitSocket("sendNotif", createObjNewMessages);
@@ -177,6 +184,14 @@ const MessageBox = ({ paramUserId }) => {
     }
   }, []);
 
+  const handleClickReply = useCallback((messageData) => {
+    const transformedMessageReplyData = {
+      ...messageData,
+      textMessage: getRealMessage(messageData.textMessage),
+    };
+    setMessageReadyToReply(transformedMessageReplyData);
+  }, []);
+
   useEffect(() => {
     // Don't delete these commented code bellow
     // socket.current = io(process.env.REACT_APP_SOCKET_IO_URL, {
@@ -224,11 +239,20 @@ const MessageBox = ({ paramUserId }) => {
   }, [currentUserIdFromSlice, paramUserId]);
 
   useEffect(() => {
-    if (messageText.length > 0) {
+    if (messageText) {
       setIsTyping(true);
     } else {
       setIsTyping(false);
+      return;
     }
+
+    const timerToStopType = setTimeout(() => {
+      setIsTyping(false);
+    }, 800);
+
+    return () => {
+      clearTimeout(timerToStopType);
+    };
   }, [messageText]);
 
   useEffect(() => {
@@ -262,7 +286,7 @@ const MessageBox = ({ paramUserId }) => {
   useEffect(() => {
     if (usersOnline.length && paramUserId) {
       const findThisUserWhenOnline = usersOnline.find(
-        (user) => user.userId === paramUserId
+        (user) => user.userId === paramUserId,
       );
       const userProfileIdVisited = findThisUserWhenOnline?.userProfileIdVisited;
       const isThisUserAlsoVisitedMe =
@@ -303,7 +327,7 @@ const MessageBox = ({ paramUserId }) => {
               key={index}
               messageItem={messageItem}
               paramUserId={paramUserId}
-              setMessageReadyToReply={setMessageReadyToReply}
+              handleClickReply={handleClickReply}
               isShowTriangle={
                 index === 0 ||
                 (messageItem.senderId !== mappedMessages[index - 1].senderId &&
