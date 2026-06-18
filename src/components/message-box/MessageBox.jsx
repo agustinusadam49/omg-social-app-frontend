@@ -18,13 +18,12 @@ import {
 
 import { useSelector, useDispatch } from "react-redux";
 import { io } from "socket.io-client";
-import { Link } from "react-router-dom";
 import { setIsGetMessageNotif } from "../../redux/slices/userSlice";
 import { updateTheMessageById } from "../../apiCalls/messagesApiFetch";
 import { getRealMessage } from "./message-box-helper";
 
 import TextItems from "./text-items/TextItems";
-import RoundedLoader from "../rounded-loader/RoundedLoader";
+import TextInputMessageSection from "./text-input-message-section/TextInputMessageSection";
 
 import "./MessageBox.scss";
 
@@ -40,9 +39,6 @@ const MessageBox = ({ paramUserId }) => {
 
   const currentUserIdFromSlice = useSelector((state) => state.user.userId);
   const currentUserNameFromSlice = useSelector((state) => state.user.userName);
-  const currentUserAvatarFromSlice = useSelector(
-    (state) => state.user.userAvatarPicture,
-  );
 
   const [usersOnline, setUsersOnline] = useState([]);
   const [messageText, setMessageText] = useState("");
@@ -120,7 +116,7 @@ const MessageBox = ({ paramUserId }) => {
             messageCreateDate: createDate,
           };
 
-          if (isThisUserVisitedMyProfile === true) {
+          if (isThisUserVisitedMyProfile) {
             hitApiUpdateMessageById(newMessageDataDB.id, {
               receiver_id: newMessageDataDB.receiver_id,
               message_text: newMessageDataDB.message_text,
@@ -256,7 +252,7 @@ const MessageBox = ({ paramUserId }) => {
   }, [messageText]);
 
   useEffect(() => {
-    if (isThisUserVisitedMyProfile === true) {
+    if (isThisUserVisitedMyProfile) {
       if (isTyping) {
         socket.current.emit("writingStatus", {
           writerName: currentUserNameFromSlice,
@@ -319,7 +315,7 @@ const MessageBox = ({ paramUserId }) => {
 
   return (
     <div className="message-box">
-      {/* message data section */}
+      {/* message list section */}
       <div className="message-data-container" ref={scrollRef}>
         {mappedMessages &&
           mappedMessages.map((messageItem, index) => (
@@ -338,84 +334,18 @@ const MessageBox = ({ paramUserId }) => {
           ))}
       </div>
 
-      {/* Send message container */}
-      <div className="send-message-container">
-        {isThisUserVisitedMyProfile === true ? (
-          <div className="who-is-writting">{whoIsWriting}</div>
-        ) : (
-          <div className="who-is-writting" />
-        )}
-
-        {messageReadyToReply && (
-          <div className="message-ready-to-reply">
-            <div className="user-name-and-text-wrapper">
-              <div className="user-message-name">
-                {messageReadyToReply.senderId === currentUserIdFromSlice
-                  ? "Anda"
-                  : messageReadyToReply.username}
-              </div>
-
-              <div className="message-content">
-                {messageReadyToReply.textMessage}
-              </div>
-            </div>
-
-            <div className="close-message-ready-to-reply">
-              <div
-                className="close-button-ready-to-reply"
-                onClick={() => setMessageReadyToReply(null)}
-              >
-                X
-              </div>
-            </div>
-          </div>
-        )}
-
-        <div
-          className="send-message-wrapper"
-          onKeyPress={doCreateNewMessageWithEnter}
-        >
-          <Link
-            to={`/profile/${currentUserNameFromSlice}/user-id/${currentUserIdFromSlice}`}
-          >
-            <img
-              src={currentUserAvatarFromSlice}
-              alt="user-avatar"
-              className="messages-current-user-avatar"
-            />
-          </Link>
-
-          <input
-            placeholder="Type your message here ..."
-            className="messages-input"
-            type="text"
-            value={messageText}
-            onChange={(e) => handleTypingMessage(e.target.value)}
-          />
-
-          {!loadingState.status ? (
-            <button
-              className={
-                messageText !== ""
-                  ? "messages-button-send"
-                  : "messages-button-send-disabled"
-              }
-              disabled={!messageText}
-              onClick={sendNewMessage}
-            >
-              Send
-            </button>
-          ) : (
-            <button className="messages-button-send">
-              <RoundedLoader
-                size={14}
-                baseColor="rgb(251, 226, 226)"
-                secondaryColor="green"
-              />
-            </button>
-          )}
-        </div>
-      </div>
+      {/* Text Input Send message container */}
+      <TextInputMessageSection
+        isThisUserVisitedMyProfile={isThisUserVisitedMyProfile}
+        whoIsWriting={whoIsWriting}
+        messageReadyToReply={messageReadyToReply}
+        setMessageReadyToReply={setMessageReadyToReply}
+        doCreateNewMessageWithEnter={doCreateNewMessageWithEnter}
+        messageText={messageText}
+        handleTypingMessage={handleTypingMessage}
+        loadingState={loadingState}
+        sendNewMessage={sendNewMessage}
+      />
     </div>
   );
 };
