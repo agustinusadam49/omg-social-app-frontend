@@ -54,10 +54,9 @@ const MessageBox = ({ paramUserId }) => {
         (user) => user.userId === paramUserId,
       );
       const userProfileIdVisited = findThisUserWhenOnline?.userProfileIdVisited;
-      const isThisUserAlsoVisitedMe =
-        userProfileIdVisited === currentUserIdFromSlice;
+      const isUserVisitedMe = userProfileIdVisited === currentUserIdFromSlice;
 
-      return isThisUserAlsoVisitedMe;
+      return isUserVisitedMe;
     }
 
     return false;
@@ -93,7 +92,7 @@ const MessageBox = ({ paramUserId }) => {
       .catch((error) => {
         console.log(
           "failed edit message by id message:",
-          error.response.data.err.message,
+          error?.response?.data?.err?.message || error?.message || error,
         );
       });
   };
@@ -121,7 +120,7 @@ const MessageBox = ({ paramUserId }) => {
       .then((newMessageResult) => {
         const successCreateNewMessage = newMessageResult.data.success;
 
-        if (successCreateNewMessage === true) {
+        if (successCreateNewMessage) {
           setMessageText("");
           setMessageReadyToReply(null);
 
@@ -157,16 +156,16 @@ const MessageBox = ({ paramUserId }) => {
 
           setMappedMessages((oldArray) => [...oldArray, createObjNewMessages]);
           scrollRef.current?.lastElementChild?.scrollIntoView({
-            behaviour: "smooth",
+            behavior: "smooth",
             block: "start",
             inline: "nearest",
           });
-
-          mutate({ type: actionType.STOP_LOADING_STATUS });
         }
       })
       .catch((error) => {
         console.log("failed to create new message:", error.response);
+      })
+      .finally(() => {
         mutate({ type: actionType.STOP_LOADING_STATUS });
       });
   };
@@ -190,54 +189,46 @@ const MessageBox = ({ paramUserId }) => {
       setWhoIsWriting(writingStatus);
     });
 
+    onSocket("getNotifStatus", (notifStatus) => {
+      dispatch(setIsGetMessageNotif({ isMessageNotif: notifStatus }));
+    });
+
     return () => {
       setMappedMessages([]);
       setWhoIsWriting("");
       socket.current.disconnect();
     };
-  }, []);
-
-  useEffect(() => {
-    onSocket("getNotifStatus", (notifStatus) => {
-      dispatch(setIsGetMessageNotif({ isMessageNotif: notifStatus }));
-    });
   }, [dispatch]);
 
   useEffect(() => {
-    if (currentUserIdFromSlice && paramUserId) {
+    const socketInstance = socket.current;
+    if (currentUserIdFromSlice && paramUserId && socketInstance) {
       emitSocket("addOnlineUsers", {
         currentUserId: currentUserIdFromSlice,
         inOtherPersonProfilePageId: paramUserId,
       });
 
       onSocket("usersOnline", (usersFromServer) => {
-        const mappedUsersOnline = usersFromServer.map((user) => user);
-        setUsersOnline(mappedUsersOnline);
+        setUsersOnline(usersFromServer);
       });
     }
 
     return () => {
-      setUsersOnline([]);
+      if (socketInstance) {
+        setUsersOnline([]);
+        socketInstance.off("usersOnline");
+      }
     };
   }, [currentUserIdFromSlice, paramUserId]);
 
   useEffect(() => {
     if (isThisUserVisitedMyProfile) {
-      if (isTyping) {
-        emitSocket("writingStatus", {
-          writerName: currentUserNameFromSlice,
-          writerId: currentUserIdFromSlice,
-          receiverId: paramUserId,
-          status: `${currentUserNameFromSlice} sedang mengetik ...`,
-        });
-      } else {
-        emitSocket("writingStatus", {
-          writerName: currentUserNameFromSlice,
-          writerId: currentUserIdFromSlice,
-          receiverId: paramUserId,
-          status: "",
-        });
-      }
+      emitSocket("writingStatus", {
+        writerName: currentUserNameFromSlice,
+        writerId: currentUserIdFromSlice,
+        receiverId: paramUserId,
+        status: isTyping ? `${currentUserNameFromSlice} mengetik ...` : "",
+      });
     } else {
       setWhoIsWriting("");
     }
@@ -297,7 +288,7 @@ const MessageBox = ({ paramUserId }) => {
         {mappedMessages &&
           mappedMessages.map((messageItem, index) => (
             <TextItems
-              key={index}
+              key={messageItem.id}
               messageItem={messageItem}
               paramUserId={paramUserId}
               isShowTriangle={
