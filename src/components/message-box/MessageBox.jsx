@@ -5,6 +5,7 @@ import React, {
   useRef,
   useReducer,
   useCallback,
+  useMemo,
 } from "react";
 import {
   getAllMessagesData,
@@ -44,13 +45,30 @@ const MessageBox = ({ paramUserId }) => {
   const [messageText, setMessageText] = useState("");
   const [mappedMessages, setMappedMessages] = useState([]);
   const [whoIsWriting, setWhoIsWriting] = useState("");
-  const [isThisUserVisitedMyProfile, setIsThisUserVisitedMyProfile] =
-    useState(false);
   const [isTyping, setIsTyping] = useState(false);
   const [messageReadyToReply, setMessageReadyToReply] = useState(null);
 
+  const isThisUserVisitedMyProfile = useMemo(() => {
+    if (usersOnline.length && paramUserId) {
+      const findThisUserWhenOnline = usersOnline.find(
+        (user) => user.userId === paramUserId,
+      );
+      const userProfileIdVisited = findThisUserWhenOnline?.userProfileIdVisited;
+      const isThisUserAlsoVisitedMe =
+        userProfileIdVisited === currentUserIdFromSlice;
+
+      return isThisUserAlsoVisitedMe;
+    }
+
+    return false;
+  }, [usersOnline, currentUserIdFromSlice, paramUserId]);
+
   const emitSocket = (emitName, payload) => {
     socket.current.emit(emitName, payload);
+  };
+
+  const onSocket = (name, callbackFun) => {
+    socket.current.on(name, callbackFun);
   };
 
   const handleTypingMessage = (value) => {
@@ -102,9 +120,11 @@ const MessageBox = ({ paramUserId }) => {
     createNewMessageData(payloadToCreateMessage)
       .then((newMessageResult) => {
         const successCreateNewMessage = newMessageResult.data.success;
+
         if (successCreateNewMessage === true) {
           setMessageText("");
           setMessageReadyToReply(null);
+
           const newMessageDataDB = newMessageResult.data.newMessage;
           const createDate = newMessageResult.data.newMessage.createdAt;
           const createObjNewMessages = {
@@ -123,6 +143,7 @@ const MessageBox = ({ paramUserId }) => {
               isRead: true,
               UserId: newMessageDataDB.UserId,
             });
+
             emitSocket("sendPrivateMessage", createObjNewMessages);
             emitSocket("sendNotif", createObjNewMessages);
           } else {
@@ -150,36 +171,6 @@ const MessageBox = ({ paramUserId }) => {
       });
   };
 
-  const hitApiGetMessagesData = useCallback(async (userIdFromUrlParam) => {
-    try {
-      const chatData = await getAllMessagesData(userIdFromUrlParam);
-      const { totalMessages } = chatData.data;
-
-      if (totalMessages) {
-        const { messagesData } = chatData.data;
-
-        const newMappedMessages = messagesData.map((message) => {
-          return {
-            id: message.id,
-            receiverId: message.receiver_id,
-            senderId: message.UserId,
-            username: message.User.userName,
-            textMessage: message.message_text,
-            messageCreateDate: message.createdAt,
-          };
-        });
-
-        setMappedMessages(newMappedMessages);
-      } else {
-        setMappedMessages([]);
-      }
-    } catch (error) {
-      if (error.response) {
-        console.error("failed get messages data:", error.response);
-      }
-    }
-  }, []);
-
   const handleClickReply = useCallback((messageData) => {
     const transformedMessageReplyData = {
       ...messageData,
@@ -189,41 +180,37 @@ const MessageBox = ({ paramUserId }) => {
   }, []);
 
   useEffect(() => {
-    // Don't delete these commented code bellow
-    // socket.current = io(process.env.REACT_APP_SOCKET_IO_URL, {
-    //   withCredentials: true,
-    //   extraHeaders: {
-    //     "my-custom-header": "abcd"
-    //   }
-    // });
     socket.current = io(process.env.REACT_APP_SOCKET_IO_URL);
-    socket.current.on("incommingPrivateMessage", (incommingMessage) => {
+
+    onSocket("incommingPrivateMessage", (incommingMessage) => {
       setMappedMessages((oldArray) => [...oldArray, incommingMessage]);
     });
-    socket.current.on("getWrittingStatus", (writingStatus) => {
+
+    onSocket("getWrittingStatus", (writingStatus) => {
       setWhoIsWriting(writingStatus);
     });
+
     return () => {
       setMappedMessages([]);
       setWhoIsWriting("");
-      setIsThisUserVisitedMyProfile(false);
       socket.current.disconnect();
     };
   }, []);
 
   useEffect(() => {
-    socket.current.on("getNotifStatus", (notifStatus) => {
+    onSocket("getNotifStatus", (notifStatus) => {
       dispatch(setIsGetMessageNotif({ isMessageNotif: notifStatus }));
     });
   }, [dispatch]);
 
   useEffect(() => {
     if (currentUserIdFromSlice && paramUserId) {
-      socket.current.emit("addOnlineUsers", {
+      emitSocket("addOnlineUsers", {
         currentUserId: currentUserIdFromSlice,
         inOtherPersonProfilePageId: paramUserId,
       });
-      socket.current.on("usersOnline", (usersFromServer) => {
+
+      onSocket("usersOnline", (usersFromServer) => {
         const mappedUsersOnline = usersFromServer.map((user) => user);
         setUsersOnline(mappedUsersOnline);
       });
@@ -235,33 +222,16 @@ const MessageBox = ({ paramUserId }) => {
   }, [currentUserIdFromSlice, paramUserId]);
 
   useEffect(() => {
-    if (messageText) {
-      setIsTyping(true);
-    } else {
-      setIsTyping(false);
-      return;
-    }
-
-    const timerToStopType = setTimeout(() => {
-      setIsTyping(false);
-    }, 800);
-
-    return () => {
-      clearTimeout(timerToStopType);
-    };
-  }, [messageText]);
-
-  useEffect(() => {
     if (isThisUserVisitedMyProfile) {
       if (isTyping) {
-        socket.current.emit("writingStatus", {
+        emitSocket("writingStatus", {
           writerName: currentUserNameFromSlice,
           writerId: currentUserIdFromSlice,
           receiverId: paramUserId,
           status: `${currentUserNameFromSlice} sedang mengetik ...`,
         });
       } else {
-        socket.current.emit("writingStatus", {
+        emitSocket("writingStatus", {
           writerName: currentUserNameFromSlice,
           writerId: currentUserIdFromSlice,
           receiverId: paramUserId,
@@ -280,29 +250,36 @@ const MessageBox = ({ paramUserId }) => {
   ]);
 
   useEffect(() => {
-    if (usersOnline.length && paramUserId) {
-      const findThisUserWhenOnline = usersOnline.find(
-        (user) => user.userId === paramUserId,
-      );
-      const userProfileIdVisited = findThisUserWhenOnline?.userProfileIdVisited;
-      const isThisUserAlsoVisitedMe =
-        userProfileIdVisited === currentUserIdFromSlice;
-      // Don't delete these commented code bellow
-      // console.log("Dimanakah user ini sedang berada:", userProfileIdVisited);
-      // console.log(
-      //   isThisUserAlsoVisitedMe
-      //     ? "User ini sedang mengunjungi anda"
-      //     : "User ini tidak sedang mengunjungi anda"
-      // );
-      setIsThisUserVisitedMyProfile(isThisUserAlsoVisitedMe);
-    }
+    const hitApiGetMessagesData = async (userIdFromUrlParam) => {
+      try {
+        const chatData = await getAllMessagesData(userIdFromUrlParam);
+        const { totalMessages } = chatData.data;
 
-    return () => {
-      setIsThisUserVisitedMyProfile(false);
+        if (totalMessages) {
+          const { messagesData } = chatData.data;
+
+          const newMappedMessages = messagesData.map((message) => {
+            return {
+              id: message.id,
+              receiverId: message.receiver_id,
+              senderId: message.UserId,
+              username: message.User.userName,
+              textMessage: message.message_text,
+              messageCreateDate: message.createdAt,
+            };
+          });
+
+          setMappedMessages(newMappedMessages);
+        } else {
+          setMappedMessages([]);
+        }
+      } catch (error) {
+        if (error.response) {
+          console.error("failed get messages data:", error.response);
+        }
+      }
     };
-  }, [usersOnline, currentUserIdFromSlice, paramUserId]);
 
-  useEffect(() => {
     if (currentUserIdFromSlice) {
       hitApiGetMessagesData(paramUserId);
     }
@@ -311,7 +288,7 @@ const MessageBox = ({ paramUserId }) => {
       setMappedMessages([]);
       setMessageReadyToReply(null);
     };
-  }, [paramUserId, currentUserIdFromSlice, hitApiGetMessagesData]);
+  }, [paramUserId, currentUserIdFromSlice]);
 
   return (
     <div className="message-box">
@@ -323,13 +300,13 @@ const MessageBox = ({ paramUserId }) => {
               key={index}
               messageItem={messageItem}
               paramUserId={paramUserId}
-              handleClickReply={handleClickReply}
               isShowTriangle={
                 index === 0 ||
                 (messageItem.senderId !== mappedMessages[index - 1].senderId &&
                   messageItem.receiverId !==
                     mappedMessages[index - 1].receiverId)
               }
+              handleClickReply={handleClickReply}
             />
           ))}
       </div>
@@ -339,12 +316,13 @@ const MessageBox = ({ paramUserId }) => {
         isThisUserVisitedMyProfile={isThisUserVisitedMyProfile}
         whoIsWriting={whoIsWriting}
         messageReadyToReply={messageReadyToReply}
+        messageText={messageText}
+        loadingState={loadingState}
         setMessageReadyToReply={setMessageReadyToReply}
         doCreateNewMessageWithEnter={doCreateNewMessageWithEnter}
-        messageText={messageText}
         handleTypingMessage={handleTypingMessage}
-        loadingState={loadingState}
         sendNewMessage={sendNewMessage}
+        setIsTyping={setIsTyping}
       />
     </div>
   );
