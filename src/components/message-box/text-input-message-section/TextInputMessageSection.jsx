@@ -16,7 +16,7 @@ export default function TextInputMessageSection({
   messageText,
   handleTypingMessage,
   loadingState,
-    sendNewMessage,
+  sendNewMessage,
   setIsTyping,
 }) {
   const currentUserAvatarFromSlice = useSelector(
