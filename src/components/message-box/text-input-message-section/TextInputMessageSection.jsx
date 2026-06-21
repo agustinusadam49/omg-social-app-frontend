@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React from "react";
 
 import { Link } from "react-router-dom";
 import { useSelector } from "react-redux";
@@ -17,7 +17,6 @@ export default function TextInputMessageSection({
   handleTypingMessage,
   loadingState,
   sendNewMessage,
-  setIsTyping,
 }) {
   const currentUserAvatarFromSlice = useSelector(
     (state) => state.user.userAvatarPicture,
@@ -25,23 +24,6 @@ export default function TextInputMessageSection({
   const currentUserIdFromSlice = useSelector((state) => state.user.userId);
 
   const currentUserNameFromSlice = useSelector((state) => state.user.userName);
-
-  useEffect(() => {
-    if (messageText) {
-      setIsTyping(true);
-    } else {
-      setIsTyping(false);
-      return;
-    }
-
-    const timerToStopType = setTimeout(() => {
-      setIsTyping(false);
-    }, 800);
-
-    return () => {
-      clearTimeout(timerToStopType);
-    };
-  }, [messageText, setIsTyping]);
 
   return (
     <div className="send-message-container">

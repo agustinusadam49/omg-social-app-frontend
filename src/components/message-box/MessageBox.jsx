@@ -35,7 +35,7 @@ const MessageBox = ({ paramUserId }) => {
   );
   const dispatch = useDispatch();
 
-  const socket = useRef(null);
+  const socketRef = useRef(null);
   const scrollRef = useRef(null);
 
   const currentUserIdFromSlice = useSelector((state) => state.user.userId);
@@ -62,28 +62,24 @@ const MessageBox = ({ paramUserId }) => {
     return false;
   }, [usersOnline, currentUserIdFromSlice, paramUserId]);
 
+  const handleClickReply = useCallback((messageData) => {
+    const transformedMessageReplyData = {
+      ...messageData,
+      textMessage: getRealMessage(messageData.textMessage),
+    };
+    setMessageReadyToReply(transformedMessageReplyData);
+  }, []);
+
+  const handleTypingMessage = useCallback((value) => {
+    setMessageText(value);
+  }, []);
+
   const emitSocket = (emitName, payload) => {
-    socket.current.emit(emitName, payload);
+    socketRef.current.emit(emitName, payload);
   };
 
   const onSocket = (name, callbackFun) => {
-    socket.current.on(name, callbackFun);
-  };
-
-  const handleTypingMessage = (value) => {
-    setMessageText(value);
-  };
-
-  const sendNewMessage = () => {
-    if (loadingState.status) return;
-    hitApiCreateNewMessage();
-  };
-
-  const doCreateNewMessageWithEnter = (event) => {
-    if (loadingState.status) return;
-    if (event.key === "Enter" && messageText !== "") {
-      hitApiCreateNewMessage();
-    }
+    socketRef.current.on(name, callbackFun);
   };
 
   const hitApiUpdateMessageById = (messageId, payloadBody) => {
@@ -97,16 +93,14 @@ const MessageBox = ({ paramUserId }) => {
       });
   };
 
-  const hitApiCreateNewMessage = () => {
+  const hitApiCreateNewMessage = useCallback(() => {
     mutate({ type: actionType.RUN_LOADING_STATUS });
 
     const messageAndReplyDataObj = {
-      messageSourceId: messageReadyToReply ? messageReadyToReply.id : null,
-      senderSourceId: messageReadyToReply ? messageReadyToReply.senderId : null,
-      textSourceMessage: messageReadyToReply
-        ? messageReadyToReply.textMessage
-        : null,
-      usernameSource: messageReadyToReply ? messageReadyToReply.username : null,
+      messageSourceId: messageReadyToReply?.id || null,
+      senderSourceId: messageReadyToReply?.senderId || null,
+      textSourceMessage: messageReadyToReply?.textMessage || null,
+      usernameSource: messageReadyToReply?.username || null,
       realTextMessage: messageText,
     };
 
@@ -168,18 +162,33 @@ const MessageBox = ({ paramUserId }) => {
       .finally(() => {
         mutate({ type: actionType.STOP_LOADING_STATUS });
       });
-  };
+  }, [
+    paramUserId,
+    currentUserIdFromSlice,
+    currentUserNameFromSlice,
+    isThisUserVisitedMyProfile,
+    messageReadyToReply,
+    messageText,
+    usersOnline,
+  ]);
 
-  const handleClickReply = useCallback((messageData) => {
-    const transformedMessageReplyData = {
-      ...messageData,
-      textMessage: getRealMessage(messageData.textMessage),
-    };
-    setMessageReadyToReply(transformedMessageReplyData);
-  }, []);
+  const sendNewMessage = useCallback(() => {
+    if (loadingState.status) return;
+    hitApiCreateNewMessage();
+  }, [hitApiCreateNewMessage, loadingState]);
+
+  const doCreateNewMessageWithEnter = useCallback(
+    (event) => {
+      if (loadingState.status) return;
+      if (event.key === "Enter" && messageText !== "") {
+        hitApiCreateNewMessage();
+      }
+    },
+    [hitApiCreateNewMessage, loadingState, messageText],
+  );
 
   useEffect(() => {
-    socket.current = io(process.env.REACT_APP_SOCKET_IO_URL);
+    socketRef.current = io(process.env.REACT_APP_SOCKET_IO_URL);
 
     onSocket("incommingPrivateMessage", (incommingMessage) => {
       setMappedMessages((oldArray) => [...oldArray, incommingMessage]);
@@ -196,12 +205,12 @@ const MessageBox = ({ paramUserId }) => {
     return () => {
       setMappedMessages([]);
       setWhoIsWriting("");
-      socket.current.disconnect();
+      socketRef.current.disconnect();
     };
   }, [dispatch]);
 
   useEffect(() => {
-    const socketInstance = socket.current;
+    const socketInstance = socketRef.current;
     if (currentUserIdFromSlice && paramUserId && socketInstance) {
       emitSocket("addOnlineUsers", {
         currentUserId: currentUserIdFromSlice,
@@ -239,6 +248,23 @@ const MessageBox = ({ paramUserId }) => {
     isThisUserVisitedMyProfile,
     paramUserId,
   ]);
+
+  useEffect(() => {
+    if (messageText) {
+      setIsTyping(true);
+    } else {
+      setIsTyping(false);
+      return;
+    }
+
+    const timerToStopType = setTimeout(() => {
+      setIsTyping(false);
+    }, 800);
+
+    return () => {
+      clearTimeout(timerToStopType);
+    };
+  }, [messageText]);
 
   useEffect(() => {
     const hitApiGetMessagesData = async (userIdFromUrlParam) => {
@@ -313,7 +339,6 @@ const MessageBox = ({ paramUserId }) => {
         doCreateNewMessageWithEnter={doCreateNewMessageWithEnter}
         handleTypingMessage={handleTypingMessage}
         sendNewMessage={sendNewMessage}
-        setIsTyping={setIsTyping}
       />
     </div>
   );
