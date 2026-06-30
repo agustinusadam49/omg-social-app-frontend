@@ -1,14 +1,8 @@
-import {
-  Link,
-  useLocation,
-  useLoaderData,
-  defer,
-  Await,
-} from "react-router-dom";
-import { Suspense } from "react";
+import { Link, useLocation, useLoaderData, defer } from "react-router-dom";
 import { processGetVanDetailById } from "../../api-calls-simulations/api-calls";
 import { modifiedToClassCssName, authUserCheck } from "../../utils/index";
 import Loading from "../../components/Loading";
+import SuspenseAndAwaitGlobal from "../../components/SuspenseAndAwaitGlobal";
 
 export default function VanDetailV2() {
   const { state } = useLocation();
@@ -47,9 +41,12 @@ export default function VanDetailV2() {
   };
 
   return (
-    <Suspense fallback={<Loading loadingName="van detail" />}>
-      <Await resolve={vanDetailPromise.vanById}>{renderVanDetailSection}</Await>
-    </Suspense>
+    <SuspenseAndAwaitGlobal
+      fallback={<Loading loadingName="van detail" />}
+      resolveResult={vanDetailPromise.vanById}
+    >
+      {renderVanDetailSection}
+    </SuspenseAndAwaitGlobal>
   );
 }
 

@@ -1,14 +1,8 @@
-import {
-  Link,
-  useSearchParams,
-  useLoaderData,
-  defer,
-  Await,
-} from "react-router-dom";
-import { Suspense } from "react";
+import { Link, useSearchParams, useLoaderData, defer } from "react-router-dom";
 import { modifiedToClassCssName, authUserCheck } from "../../utils/index";
 import { promiseToGetVansV2 } from "../../api-calls-simulations/api-calls";
 import Loading from "../../components/Loading";
+import SuspenseAndAwaitGlobal from "../../components/SuspenseAndAwaitGlobal";
 
 export default function Vans() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -98,9 +92,12 @@ export default function Vans() {
     <div className="van-list-container">
       <h1>Explore our van options</h1>
 
-      <Suspense fallback={<Loading loadingName="vans"/>}>
-        <Await resolve={loaderDataPromise.vans}>{renderVanElement}</Await>
-      </Suspense>
+      <SuspenseAndAwaitGlobal
+        fallback={<Loading loadingName="vans" />}
+        resolveResult={loaderDataPromise.vans}
+      >
+        {renderVanElement}
+      </SuspenseAndAwaitGlobal>
     </div>
   );
 }

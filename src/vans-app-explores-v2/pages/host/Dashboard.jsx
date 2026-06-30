@@ -1,5 +1,4 @@
-import { Suspense } from "react";
-import { Link, defer, Await, useLoaderData } from "react-router-dom";
+import { Link, defer, useLoaderData } from "react-router-dom";
 import {
   processGetVanHostVans,
   processGetHostVanReviews,
@@ -7,6 +6,7 @@ import {
 import { authUserCheck } from "../../utils/index";
 import { getOverallRating } from "./host-van-util";
 import Loading from "../../components/Loading";
+import SuspenseAndAwaitGlobal from "../../components/SuspenseAndAwaitGlobal";
 
 export default function Dashboard() {
   const loaderDataPromise = useLoaderData();
@@ -54,11 +54,12 @@ export default function Dashboard() {
       </section>
       <section className="host-dashboard-reviews">
         <h2>Review score</h2>
-        <Suspense fallback={<Loading loadingName="..." onlyLoadingName />}>
-          <Await resolve={loaderDataPromise.reviews}>
-            {(reviewArr) => renderReviewScore(reviewArr)}
-          </Await>
-        </Suspense>
+        <SuspenseAndAwaitGlobal
+          fallback={<Loading loadingName="..." onlyLoadingName />}
+          resolveResult={loaderDataPromise.reviews}
+        >
+          {renderReviewScore}
+        </SuspenseAndAwaitGlobal>
         <Link to="reviews">Details</Link>
       </section>
       <section className="host-dashboard-vans">
@@ -66,11 +67,12 @@ export default function Dashboard() {
           <h2>Your listed vans</h2>
           <Link to="vans">View all</Link>
         </div>
-        <Suspense fallback={<Loading loadingName="listed vans" />}>
-          <Await resolve={loaderDataPromise.vans}>
-            {(vanArr) => renderVanSection(vanArr)}
-          </Await>
-        </Suspense>
+        <SuspenseAndAwaitGlobal
+          fallback={<Loading loadingName="listed vans" />}
+          resolveResult={loaderDataPromise.vans}
+        >
+          {renderVanSection}
+        </SuspenseAndAwaitGlobal>
       </section>
     </>
   );

@@ -1,9 +1,9 @@
-import { Suspense } from "react";
-import { Link, Outlet, useLoaderData, defer, Await } from "react-router-dom";
+import { Link, Outlet, useLoaderData, defer } from "react-router-dom";
 import { processGetHostVanDetailV2 } from "../api-calls-simulations/api-calls";
 import HostVanDetailNav from "../components/HostVanDetailNav";
 import { modifiedToClassCssName, authUserCheck } from "../utils/index";
 import Loading from "../components/Loading";
+import SuspenseAndAwaitGlobal from "../components/SuspenseAndAwaitGlobal";
 
 export default function HostVanDetailWithNav() {
   const hostVanDetailPromise = useLoaderData();
@@ -38,11 +38,12 @@ export default function HostVanDetailWithNav() {
         &larr; <span>Back to all vans</span>
       </Link>
 
-      <Suspense fallback={<Loading loadingName="host van detail" />}>
-        <Await resolve={hostVanDetailPromise.vanHostDetail}>
-          {renderHostVanDetailSection}
-        </Await>
-      </Suspense>
+      <SuspenseAndAwaitGlobal
+        fallback={<Loading loadingName="host van detail" />}
+        resolveResult={hostVanDetailPromise.vanHostDetail}
+      >
+        {renderHostVanDetailSection}
+      </SuspenseAndAwaitGlobal>
     </section>
   );
 }

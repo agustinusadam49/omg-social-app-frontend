@@ -1,8 +1,8 @@
-import { Suspense } from "react";
-import { Link, useLoaderData, defer, Await } from "react-router-dom";
+import { Link, useLoaderData, defer } from "react-router-dom";
 import { processGetVanHostVans } from "../../api-calls-simulations/api-calls";
 import { authUserCheck } from "../../utils/index";
 import Loading from "../../components/Loading";
+import SuspenseAndAwaitGlobal from "../../components/SuspenseAndAwaitGlobal";
 
 export default function HostVans() {
   const hostVansPromise = useLoaderData();
@@ -35,11 +35,12 @@ export default function HostVans() {
     <section>
       <h1 className="host-vans-title">Your listed vans</h1>
 
-      <Suspense fallback={<Loading loadingName="host vans" />}>
-        <Await resolve={hostVansPromise.hostVanListData}>
-          {renderHostVanListSection}
-        </Await>
-      </Suspense>
+      <SuspenseAndAwaitGlobal
+        fallback={<Loading loadingName="host vans" />}
+        resolveResult={hostVansPromise.hostVanListData}
+      >
+        {renderHostVanListSection}
+      </SuspenseAndAwaitGlobal>
     </section>
   );
 }

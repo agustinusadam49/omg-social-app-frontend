@@ -1,9 +1,9 @@
-import { Suspense } from "react";
-import { defer, useLoaderData, Await } from "react-router-dom";
+import { defer, useLoaderData } from "react-router-dom";
 import { processGetHostVanReviews } from "../../api-calls-simulations/api-calls";
 import { authUserCheck } from "../../utils/index";
 import { getPercentageDataArr, getOverallRating } from "./host-van-util";
 import Loading from "../../components/Loading";
+import SuspenseAndAwaitGlobal from "../../components/SuspenseAndAwaitGlobal";
 
 export default function Reviews() {
   const reviewsDataPromise = useLoaderData();
@@ -61,11 +61,13 @@ export default function Reviews() {
           Last <span>30 days</span>
         </p>
       </div>
-      <Suspense fallback={<Loading loadingName="reviews" />}>
-        <Await resolve={reviewsDataPromise.reviews}>
-          {(reviewDataArr) => renderRatingSection(reviewDataArr)}
-        </Await>
-      </Suspense>
+
+      <SuspenseAndAwaitGlobal
+        fallback={<Loading loadingName="reviews" />}
+        resolveResult={reviewsDataPromise.reviews}
+      >
+        {renderRatingSection}
+      </SuspenseAndAwaitGlobal>
     </section>
   );
 }
