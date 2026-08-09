@@ -65,14 +65,19 @@ export default function SearchPageContents() {
         });
     };
 
-    if (queryParamsUrl) {
-      hitApiSearchPosts(queryParamsUrl);
-    }
+    const debouceForSearchPosts = setTimeout(() => {
+      if (queryParamsUrl) {
+        hitApiSearchPosts(queryParamsUrl);
+      } else {
+        return;
+      }
+    }, 1000);
 
     return () => {
       setSearchedPostItems([]);
-      setSearchErrorMessage("")
-    }
+      setSearchErrorMessage("");
+      clearTimeout(debouceForSearchPosts);
+    };
   }, [queryParamsUrl]);
 
   useEffect(() => {
@@ -88,14 +93,19 @@ export default function SearchPageContents() {
         });
     };
 
-    if (queryParamsUrl) {
-      getUsersAndPostsThroughSearch(queryParamsUrl);
-    }
+    const debounceForSearchUsersAndPosts = setTimeout(() => {
+      if (queryParamsUrl) {
+        getUsersAndPostsThroughSearch(queryParamsUrl);
+      } else {
+        return;
+      }
+    }, 1000);
 
     return () => {
       setSearchedUserItems([]);
-      setSearchErrorMessage("")
-    }
+      setSearchErrorMessage("");
+      clearTimeout(debounceForSearchUsersAndPosts);
+    };
   }, [queryParamsUrl]);
 
   return (

@@ -1,0 +1,116 @@
+.send-message-container {
+  width: 100%;
+  border-radius: 0 0 10px 10px;
+  margin-top: 20px;
+  border-top: solid 1px rgb(234, 231, 231);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: fit-content;
+  padding-top: 4px;
+
+  .who-is-writting {
+    font-size: 11px;
+    font-weight: 600;
+    box-sizing: border-box;
+    width: fit-content;
+    color: rgb(40, 67, 175);
+  }
+
+  .message-ready-to-reply {
+    border-radius: 8px;
+    margin-bottom: 10px;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    font-size: 11px;
+    font-weight: 300;
+    line-height: 16px;
+    padding: 6px;
+    background-color: rgb(7, 121, 7);
+
+    .user-name-and-text-wrapper {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+
+      .user-message-name {
+        font-size: 12px;
+        font-weight: 600;
+        color: white;
+      }
+
+      .message-content {
+        color: white;
+      }
+    }
+
+    .close-message-ready-to-reply {
+      padding: 0px 2px 0px 2px;
+
+      .close-button-ready-to-reply {
+        color: white;
+        border: solid 1px white;
+        width: 16px;
+        height: 16px;
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        // font-weight: 600;
+        cursor: pointer;
+      }
+    }
+  }
+
+  .send-message-wrapper {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+
+    .messages-current-user-avatar {
+      width: 32px;
+      height: 32px;
+      object-fit: cover;
+      border-radius: 50%;
+      border: solid 1px rgb(174, 172, 172);
+      cursor: pointer;
+    }
+
+    .messages-input {
+      height: 32px;
+      border: none;
+      padding: 0 20px;
+      width: 80%;
+      background-color: white;
+      color: black;
+
+      &:focus {
+        outline: none;
+      }
+    }
+
+    .messages-button-send {
+      border: none;
+      padding: 6px 12px;
+      border-radius: 5px;
+      background-color: green;
+      font-weight: 500;
+      cursor: pointer;
+      color: white;
+    }
+
+    .messages-button-send-disabled {
+      border: none;
+      padding: 6px 12px;
+      border-radius: 5px;
+      background-color: rgb(163, 163, 163);
+      font-weight: 500;
+      cursor: not-allowed;
+      color: white;
+    }
+  }
+}

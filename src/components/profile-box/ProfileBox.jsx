@@ -81,7 +81,11 @@ export default function ProfileBox({ classStyleAddOn }) {
 
       <div className="profile-box-logout-inner-wrapper">
         {!loadingState.status ? (
-          <div className="profile-box-logout-button" onClick={doLogout}>
+          <div
+            className="profile-box-logout-button"
+            onClick={doLogout}
+            id="logout-button-id"
+          >
             Logout
           </div>
         ) : (

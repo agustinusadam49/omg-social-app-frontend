@@ -1,4 +1,4 @@
-import React, { useState, useReducer } from "react";
+import { useState, useReducer } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { setToLocalStorageWhenSuccess } from "../../utils/setLocalStorage";
 import { loginUser } from "../../apiCalls/registerAndLoginApiFetch";
@@ -14,10 +14,7 @@ import {
 } from "../../utils/reducers/globalLoadingReducer";
 import RoundedLoader from "../../components/rounded-loader/RoundedLoader";
 import { useFormValidation } from "../../custom-hooks/useFormValidation";
-import {
-  getFirstError,
-  helpersWithMessage,
-} from "../../utils/formValidationFunction";
+import { helpersWithMessage } from "../../utils/formValidationFunction";
 import { setIsClicked } from "../../redux/slices/buttonsSlice";
 import LoginWrapper from "../../components/login-wrapper/LoginWrapper";
 import LoginRightSection from "../../components/login-right-section/LoginRightSection";
@@ -54,7 +51,7 @@ export default function Login() {
     mutate({ type: actionType.STOP_LOADING_STATUS });
   };
 
-  const { isValid, errorMessage } = useFormValidation({
+  const { isValid, handleInputErrorMessage } = useFormValidation({
     rulesSchema: {
       email: {
         currentValue: email,
@@ -135,10 +132,6 @@ export default function Login() {
     }
   };
 
-  const handleInputErrorMessage = (type) => {
-    return getFirstError(errorMessage[type]);
-  };
-
   const handleOnChangeEmail = (val) => {
     setEmail(val);
 
@@ -174,6 +167,7 @@ export default function Login() {
               inputPlaceholder={"Email"}
               inputErrorMessage={handleInputErrorMessage("email")}
               inputSecondErrorMessage={secondaryErrorObj.email}
+              id={"email-id"}
             />
 
             <InputTextGlobal
@@ -183,6 +177,7 @@ export default function Login() {
               inputType={"password"}
               inputErrorMessage={handleInputErrorMessage("password")}
               inputSecondErrorMessage={secondaryErrorObj.password}
+              id={"password-id"}
             />
 
             <GlobalButton
@@ -198,6 +193,7 @@ export default function Login() {
                   <RoundedLoader baseColor="gray" secondaryColor="white" />
                 )
               }
+              id={"login-button-id"}
             />
 
             <Link className="login-forgot-wrapper" to="/forgot-password">

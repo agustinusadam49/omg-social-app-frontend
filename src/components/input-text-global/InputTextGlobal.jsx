@@ -64,6 +64,7 @@ const InputTextGlobal = ({
         <div
           className="eye-icon-wrapper"
           onClick={() => changeIcon(seePassword)}
+          id="eye-icon-id"
         >
           {!seePassword ? (
             <VisibilityOffIcon className="eye-icon" fontSize="medium" />

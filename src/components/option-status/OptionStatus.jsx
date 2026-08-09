@@ -72,8 +72,11 @@ export default function OptionStatusSection({ setActiveStatus, activeStatus }) {
             key={index}
             isActive={activeStatus === name}
             onClick={() => toggleActiveStatus(name)}
+            id={`option-status-item-id-${name}`}
           >
-            <OptionStatusName statusName={getStatus(name, STATUS_OPTIONS_ENUM)} />
+            <OptionStatusName
+              statusName={getStatus(name, STATUS_OPTIONS_ENUM)}
+            />
             <OptionStatusDescription statusDescription={description} />
           </OptionStatusItem>
         );

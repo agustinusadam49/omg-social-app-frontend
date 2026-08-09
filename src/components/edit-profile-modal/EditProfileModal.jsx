@@ -1,4 +1,4 @@
-import React, { useState, Fragment } from "react";
+import { useState, Fragment } from "react";
 import { updateProfileById } from "../../apiCalls/profileApiFetch";
 import InputTextGlobalV2 from "../input-text-global-v2/InputTextGlobalV2";
 import GlobalButton from "../button/GlobalButton";
@@ -6,10 +6,7 @@ import EditProfileModalWrapper from "../edit-profile-modal-wrapper/EditProfileMo
 import TopContent from "../edit-profile-modal-wrapper/top-content/TopContent";
 import MiddleContent from "../edit-profile-modal-wrapper/middle-content/MiddleContent";
 import BottomContent from "../edit-profile-modal-wrapper/bottom-content/BottomContent";
-import {
-  getFirstError,
-  helpersWithMessage,
-} from "../../utils/formValidationFunction";
+import { helpersWithMessage } from "../../utils/formValidationFunction";
 import { useFormValidation } from "../../custom-hooks/useFormValidation";
 import { useDispatch } from "react-redux";
 import { setIsClicked } from "../../redux/slices/buttonsSlice";
@@ -78,7 +75,7 @@ const EditProfileModal = ({
     hitApiEditProfile(profileId, profilePayloadObj);
   };
 
-  const { isValid, errorMessage } = useFormValidation({
+  const { isValid, handleInputErrorMessage } = useFormValidation({
     rulesSchema: {
       biodata: { currentValue: biodata, isRequired: true },
       addressData: { currentValue: addressData, isRequired: true },
@@ -124,10 +121,6 @@ const EditProfileModal = ({
     if (isValid) {
       processingEditProfile();
     }
-  };
-
-  const handleInputErrorMessage = (type) => {
-    return getFirstError(errorMessage[type]);
   };
 
   return (

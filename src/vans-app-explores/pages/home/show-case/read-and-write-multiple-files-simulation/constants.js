@@ -4,28 +4,13 @@ export const DIARE_LISTS = [
     description: "Diarrhoea and gastroenteritis of presumed infectious origin",
     isAntibiotic: true,
   },
-  {
-    disease: "A09.9",
-    description: "Gastroenteritis and colitis of unspecified origin",
-    isAntibiotic: false,
-  },
-  {
-    disease: "K52",
-    description: "Other noninfective gastroenteritis and colitis",
-    isAntibiotic: false,
-  },
 ];
 
 export const ISPA_LISTS = [
   {
-    disease: "J02",
-    description: "Acute pharyngitis",
-    isAntibiotic: true,
-  },
-  {
-    disease: "J03",
-    description: "Acute tonsillitis",
-    isAntibiotic: true,
+    disease: "J00",
+    description: "Acute nasopharyngitis [common cold] ",
+    isAntibiotic: false,
   },
   {
     disease: "J06",
@@ -34,23 +19,13 @@ export const ISPA_LISTS = [
     isAntibiotic: false,
   },
   {
-    disease: "J18.0",
-    description: "Bronchopneumonia, unspecified",
-    isAntibiotic: true,
-  },
-  {
-    disease: "R05",
-    description: "Cough",
-    isAntibiotic: true,
-  },
-  {
-    disease: "J00",
-    description: "Acute nasopharyngitis [common cold] ",
+    disease: "J09",
+    description: "influenza due to identified avian influenza virus",
     isAntibiotic: false,
   },
   {
-    disease: "J06.9",
-    description: "Acute upper respiratory infection, unspecified",
+    disease: "J11",
+    description: "influenza, virus not identified",
     isAntibiotic: false,
   },
 ];
@@ -84,4 +59,26 @@ export const allWording = {
     "Diagnosa 1 menjadi diagnoseOne",
     "Resep menjadi receipt",
   ],
+};
+
+export const DATA_MAP_OBJ = {
+  "No.": "number",
+  Tanggal: "date",
+  "Nama Pasien": "patientName",
+  "No. eRM": "ermNumber",
+  "Umur Tahun": "patientAge",
+  "Umur Bulan": "monthAge",
+  "Dokter / Tenaga Medis": "medicalPersonnel",
+  "ICD-X 1": "icdxOne",
+  "Diagnosa 1": "diagnoseOne",
+  Resep: "receipt",
+};
+
+export const ANTIBIOTIC_STATUS_MAP_OBJ = {
+  SEMUA_ANTIBIOTIC: "SEMUA_ANTIBIOTIC",
+  LEBIH_BANYAK_ANTIBIOTIC: "LEBIH_BANYAK_ANTIBIOTIC",
+  SEIMBANG: "SEIMBANG",
+  LEBIH_BANYAK_NON_ANTIBIOTIC: "LEBIH_BANYAK_NON_ANTIBIOTIC",
+  SEMUA_NON_ANTIBIOTIC: "SEMUA_NON_ANTIBIOTIC",
+  ALL_DATA_EMPTY: "ALL_DATA_EMPTY",
 };

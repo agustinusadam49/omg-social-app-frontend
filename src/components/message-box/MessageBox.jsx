@@ -5,65 +5,81 @@ import React, {
   useRef,
   useReducer,
   useCallback,
+  useMemo,
 } from "react";
-import { Link } from "react-router-dom";
-import { useSelector, useDispatch } from "react-redux";
-import TextItems from "./text-items/TextItems";
 import {
   getAllMessagesData,
   createNewMessageData,
 } from "../../apiCalls/messagesApiFetch";
-import { setIsGetMessageNotif } from "../../redux/slices/userSlice";
-import { updateTheMessageById } from "../../apiCalls/messagesApiFetch";
-import { io } from "socket.io-client";
 import {
   INITIAL_LOADING_STATE,
   actionType,
   loadingReducer,
 } from "../../utils/reducers/globalLoadingReducer";
-import RoundedLoader from "../rounded-loader/RoundedLoader";
+
+import { useSelector, useDispatch } from "react-redux";
+import { io } from "socket.io-client";
+import { setIsGetMessageNotif } from "../../redux/slices/userSlice";
+import { updateTheMessageById } from "../../apiCalls/messagesApiFetch";
+import { getRealMessage } from "./message-box-helper";
+
+import TextItems from "./text-items/TextItems";
+import TextInputMessageSection from "./text-input-message-section/TextInputMessageSection";
+
 import "./MessageBox.scss";
 
 const MessageBox = ({ paramUserId }) => {
   const [loadingState, mutate] = useReducer(
     loadingReducer,
-    INITIAL_LOADING_STATE
+    INITIAL_LOADING_STATE,
   );
   const dispatch = useDispatch();
 
-  const socket = useRef(null);
+  const socketRef = useRef(null);
   const scrollRef = useRef(null);
 
   const currentUserIdFromSlice = useSelector((state) => state.user.userId);
   const currentUserNameFromSlice = useSelector((state) => state.user.userName);
-  const currentUserAvatarFromSlice = useSelector((state) => state.user.userAvatarPicture);
 
   const [usersOnline, setUsersOnline] = useState([]);
   const [messageText, setMessageText] = useState("");
   const [mappedMessages, setMappedMessages] = useState([]);
   const [whoIsWriting, setWhoIsWriting] = useState("");
-  const [isThisUserVisitedMyProfile, setIsThisUserVisitedMyProfile] = useState(false);
   const [isTyping, setIsTyping] = useState(false);
   const [messageReadyToReply, setMessageReadyToReply] = useState(null);
 
-  const emitSocket = (emitName, payload) => {
-    socket.current.emit(emitName, payload);
-  };
+  const isThisUserVisitedMyProfile = useMemo(() => {
+    if (usersOnline.length && paramUserId) {
+      const findThisUserWhenOnline = usersOnline.find(
+        (user) => user.userId === paramUserId,
+      );
+      const userProfileIdVisited = findThisUserWhenOnline?.userProfileIdVisited;
+      const isUserVisitedMe = userProfileIdVisited === currentUserIdFromSlice;
 
-  const handleTypingMessage = (value) => {
-    setMessageText(value);
-  };
-
-  const sendNewMessage = () => {
-    if (loadingState.status) return;
-    hitApiCreateNewMessage();
-  };
-
-  const doCreateNewMessageWithEnter = (event) => {
-    if (loadingState.status) return;
-    if (event.key === "Enter" && messageText !== "") {
-      hitApiCreateNewMessage();
+      return isUserVisitedMe;
     }
+
+    return false;
+  }, [usersOnline, currentUserIdFromSlice, paramUserId]);
+
+  const handleClickReply = useCallback((messageData) => {
+    const transformedMessageReplyData = {
+      ...messageData,
+      textMessage: getRealMessage(messageData.textMessage),
+    };
+    setMessageReadyToReply(transformedMessageReplyData);
+  }, []);
+
+  const handleTypingMessage = useCallback((value) => {
+    setMessageText(value);
+  }, []);
+
+  const emitSocket = (emitName, payload) => {
+    socketRef.current.emit(emitName, payload);
+  };
+
+  const onSocket = (name, callbackFun) => {
+    socketRef.current.on(name, callbackFun);
   };
 
   const hitApiUpdateMessageById = (messageId, payloadBody) => {
@@ -72,21 +88,19 @@ const MessageBox = ({ paramUserId }) => {
       .catch((error) => {
         console.log(
           "failed edit message by id message:",
-          error.response.data.err.message
+          error?.response?.data?.err?.message || error?.message || error,
         );
       });
   };
 
-  const hitApiCreateNewMessage = () => {
+  const hitApiCreateNewMessage = useCallback(() => {
     mutate({ type: actionType.RUN_LOADING_STATUS });
 
     const messageAndReplyDataObj = {
-      messageSourceId: messageReadyToReply ? messageReadyToReply.id : null,
-      senderSourceId: messageReadyToReply ? messageReadyToReply.senderId : null,
-      textSourceMessage: messageReadyToReply
-        ? messageReadyToReply.textMessage
-        : null,
-      usernameSource: messageReadyToReply ? messageReadyToReply.username : null,
+      messageSourceId: messageReadyToReply?.id || null,
+      senderSourceId: messageReadyToReply?.senderId || null,
+      textSourceMessage: messageReadyToReply?.textMessage || null,
+      usernameSource: messageReadyToReply?.username || null,
       realTextMessage: messageText,
     };
 
@@ -99,9 +113,11 @@ const MessageBox = ({ paramUserId }) => {
     createNewMessageData(payloadToCreateMessage)
       .then((newMessageResult) => {
         const successCreateNewMessage = newMessageResult.data.success;
-        if (successCreateNewMessage === true) {
+
+        if (successCreateNewMessage) {
           setMessageText("");
           setMessageReadyToReply(null);
+
           const newMessageDataDB = newMessageResult.data.newMessage;
           const createDate = newMessageResult.data.newMessage.createdAt;
           const createObjNewMessages = {
@@ -113,18 +129,19 @@ const MessageBox = ({ paramUserId }) => {
             messageCreateDate: createDate,
           };
 
-          if (isThisUserVisitedMyProfile === true) {
+          if (isThisUserVisitedMyProfile) {
             hitApiUpdateMessageById(newMessageDataDB.id, {
               receiver_id: newMessageDataDB.receiver_id,
               message_text: newMessageDataDB.message_text,
               isRead: true,
               UserId: newMessageDataDB.UserId,
             });
+
             emitSocket("sendPrivateMessage", createObjNewMessages);
             emitSocket("sendNotif", createObjNewMessages);
           } else {
             const findUserReceiverId = usersOnline.filter(
-              (user) => user.userId === paramUserId
+              (user) => user.userId === paramUserId,
             );
             if (!!findUserReceiverId.length) {
               emitSocket("sendNotif", createObjNewMessages);
@@ -133,121 +150,94 @@ const MessageBox = ({ paramUserId }) => {
 
           setMappedMessages((oldArray) => [...oldArray, createObjNewMessages]);
           scrollRef.current?.lastElementChild?.scrollIntoView({
-            behaviour: "smooth",
+            behavior: "smooth",
             block: "start",
             inline: "nearest",
           });
-
-          mutate({ type: actionType.STOP_LOADING_STATUS });
         }
       })
       .catch((error) => {
         console.log("failed to create new message:", error.response);
+      })
+      .finally(() => {
         mutate({ type: actionType.STOP_LOADING_STATUS });
       });
-  };
+  }, [
+    paramUserId,
+    currentUserIdFromSlice,
+    currentUserNameFromSlice,
+    isThisUserVisitedMyProfile,
+    messageReadyToReply,
+    messageText,
+    usersOnline,
+  ]);
 
-  const hitApiGetMessagesData = useCallback(async (userIdFromUrlParam) => {
-    try {
-      const chatData = await getAllMessagesData(userIdFromUrlParam);
-      const { totalMessages } = chatData.data;
+  const sendNewMessage = useCallback(() => {
+    if (loadingState.status) return;
+    hitApiCreateNewMessage();
+  }, [hitApiCreateNewMessage, loadingState]);
 
-      if (totalMessages) {
-        const { messagesData } = chatData.data;
-
-        const newMappedMessages = messagesData.map((message) => {
-          return {
-            id: message.id,
-            receiverId: message.receiver_id,
-            senderId: message.UserId,
-            username: message.User.userName,
-            textMessage: message.message_text,
-            messageCreateDate: message.createdAt,
-          };
-        });
-
-        setMappedMessages(newMappedMessages);
-      } else {
-        setMappedMessages([]);
+  const doCreateNewMessageWithEnter = useCallback(
+    (event) => {
+      if (loadingState.status) return;
+      if (event.key === "Enter" && messageText !== "") {
+        hitApiCreateNewMessage();
       }
-    } catch (error) {
-      if (error.response) {
-        console.error("failed get messages data:", error.response);
-      }
-    }
-  }, []);
+    },
+    [hitApiCreateNewMessage, loadingState, messageText],
+  );
 
   useEffect(() => {
-    // Don't delete these commented code bellow
-    // socket.current = io(process.env.REACT_APP_SOCKET_IO_URL, {
-    //   withCredentials: true,
-    //   extraHeaders: {
-    //     "my-custom-header": "abcd"
-    //   }
-    // });
-    socket.current = io(process.env.REACT_APP_SOCKET_IO_URL);
-    socket.current.on("incommingPrivateMessage", (incommingMessage) => {
+    socketRef.current = io(process.env.REACT_APP_SOCKET_IO_URL);
+
+    onSocket("incommingPrivateMessage", (incommingMessage) => {
       setMappedMessages((oldArray) => [...oldArray, incommingMessage]);
     });
-    socket.current.on("getWrittingStatus", (writingStatus) => {
+
+    onSocket("getWrittingStatus", (writingStatus) => {
       setWhoIsWriting(writingStatus);
     });
+
+    onSocket("getNotifStatus", (notifStatus) => {
+      dispatch(setIsGetMessageNotif({ isMessageNotif: notifStatus }));
+    });
+
     return () => {
       setMappedMessages([]);
       setWhoIsWriting("");
-      setIsThisUserVisitedMyProfile(false);
-      socket.current.disconnect();
+      socketRef.current.disconnect();
     };
-  }, []);
-
-  useEffect(() => {
-    socket.current.on("getNotifStatus", (notifStatus) => {
-      dispatch(setIsGetMessageNotif({ isMessageNotif: notifStatus }));
-    });
   }, [dispatch]);
 
   useEffect(() => {
-    if (currentUserIdFromSlice && paramUserId) {
-      socket.current.emit("addOnlineUsers", {
+    const socketInstance = socketRef.current;
+    if (currentUserIdFromSlice && paramUserId && socketInstance) {
+      emitSocket("addOnlineUsers", {
         currentUserId: currentUserIdFromSlice,
         inOtherPersonProfilePageId: paramUserId,
       });
-      socket.current.on("usersOnline", (usersFromServer) => {
-        const mappedUsersOnline = usersFromServer.map((user) => user);
-        setUsersOnline(mappedUsersOnline);
+
+      onSocket("usersOnline", (usersFromServer) => {
+        setUsersOnline(usersFromServer);
       });
     }
 
     return () => {
-      setUsersOnline([]);
+      if (socketInstance) {
+        setUsersOnline([]);
+        socketInstance.off("usersOnline");
+      }
     };
   }, [currentUserIdFromSlice, paramUserId]);
 
   useEffect(() => {
-    if (messageText.length > 0) {
-      setIsTyping(true);
-    } else {
-      setIsTyping(false);
-    }
-  }, [messageText]);
-
-  useEffect(() => {
-    if (isThisUserVisitedMyProfile === true) {
-      if (isTyping) {
-        socket.current.emit("writingStatus", {
-          writerName: currentUserNameFromSlice,
-          writerId: currentUserIdFromSlice,
-          receiverId: paramUserId,
-          status: `${currentUserNameFromSlice} sedang mengetik ...`,
-        });
-      } else {
-        socket.current.emit("writingStatus", {
-          writerName: currentUserNameFromSlice,
-          writerId: currentUserIdFromSlice,
-          receiverId: paramUserId,
-          status: "",
-        });
-      }
+    if (isThisUserVisitedMyProfile) {
+      emitSocket("writingStatus", {
+        writerName: currentUserNameFromSlice,
+        writerId: currentUserIdFromSlice,
+        receiverId: paramUserId,
+        status: isTyping ? `${currentUserNameFromSlice} mengetik ...` : "",
+      });
     } else {
       setWhoIsWriting("");
     }
@@ -260,29 +250,53 @@ const MessageBox = ({ paramUserId }) => {
   ]);
 
   useEffect(() => {
-    if (usersOnline.length && paramUserId) {
-      const findThisUserWhenOnline = usersOnline.find(
-        (user) => user.userId === paramUserId
-      );
-      const userProfileIdVisited = findThisUserWhenOnline?.userProfileIdVisited;
-      const isThisUserAlsoVisitedMe =
-        userProfileIdVisited === currentUserIdFromSlice;
-      // Don't delete these commented code bellow
-      // console.log("Dimanakah user ini sedang berada:", userProfileIdVisited);
-      // console.log(
-      //   isThisUserAlsoVisitedMe
-      //     ? "User ini sedang mengunjungi anda"
-      //     : "User ini tidak sedang mengunjungi anda"
-      // );
-      setIsThisUserVisitedMyProfile(isThisUserAlsoVisitedMe);
+    if (messageText) {
+      setIsTyping(true);
+    } else {
+      setIsTyping(false);
+      return;
     }
 
+    const timerToStopType = setTimeout(() => {
+      setIsTyping(false);
+    }, 800);
+
     return () => {
-      setIsThisUserVisitedMyProfile(false);
+      clearTimeout(timerToStopType);
     };
-  }, [usersOnline, currentUserIdFromSlice, paramUserId]);
+  }, [messageText]);
 
   useEffect(() => {
+    const hitApiGetMessagesData = async (userIdFromUrlParam) => {
+      try {
+        const chatData = await getAllMessagesData(userIdFromUrlParam);
+        const { totalMessages } = chatData.data;
+
+        if (totalMessages) {
+          const { messagesData } = chatData.data;
+
+          const newMappedMessages = messagesData.map((message) => {
+            return {
+              id: message.id,
+              receiverId: message.receiver_id,
+              senderId: message.UserId,
+              username: message.User.userName,
+              textMessage: message.message_text,
+              messageCreateDate: message.createdAt,
+            };
+          });
+
+          setMappedMessages(newMappedMessages);
+        } else {
+          setMappedMessages([]);
+        }
+      } catch (error) {
+        if (error.response) {
+          console.error("failed get messages data:", error.response);
+        }
+      }
+    };
+
     if (currentUserIdFromSlice) {
       hitApiGetMessagesData(paramUserId);
     }
@@ -291,107 +305,41 @@ const MessageBox = ({ paramUserId }) => {
       setMappedMessages([]);
       setMessageReadyToReply(null);
     };
-  }, [paramUserId, currentUserIdFromSlice, hitApiGetMessagesData]);
+  }, [paramUserId, currentUserIdFromSlice]);
 
   return (
     <div className="message-box">
-      {/* message data section */}
+      {/* message list section */}
       <div className="message-data-container" ref={scrollRef}>
         {mappedMessages &&
           mappedMessages.map((messageItem, index) => (
             <TextItems
-              key={index}
+              key={messageItem.id}
               messageItem={messageItem}
               paramUserId={paramUserId}
-              setMessageReadyToReply={setMessageReadyToReply}
               isShowTriangle={
                 index === 0 ||
                 (messageItem.senderId !== mappedMessages[index - 1].senderId &&
                   messageItem.receiverId !==
                     mappedMessages[index - 1].receiverId)
               }
+              handleClickReply={handleClickReply}
             />
           ))}
       </div>
 
-      {/* Send message container */}
-      <div className="send-message-container">
-        {isThisUserVisitedMyProfile === true ? (
-          <div className="who-is-writting">{whoIsWriting}</div>
-        ) : (
-          <div className="who-is-writting" />
-        )}
-
-        {messageReadyToReply && (
-          <div className="message-ready-to-reply">
-            <div className="user-name-and-text-wrapper">
-              <div className="user-message-name">
-                {messageReadyToReply.senderId === currentUserIdFromSlice
-                  ? "Anda"
-                  : messageReadyToReply.username}
-              </div>
-
-              <div className="message-content">
-                {messageReadyToReply.textMessage}
-              </div>
-            </div>
-
-            <div className="close-message-ready-to-reply">
-              <div
-                className="close-button-ready-to-reply"
-                onClick={() => setMessageReadyToReply(null)}
-              >
-                X
-              </div>
-            </div>
-          </div>
-        )}
-
-        <div
-          className="send-message-wrapper"
-          onKeyPress={doCreateNewMessageWithEnter}
-        >
-          <Link
-            to={`/profile/${currentUserNameFromSlice}/user-id/${currentUserIdFromSlice}`}
-          >
-            <img
-              src={currentUserAvatarFromSlice}
-              alt="user-avatar"
-              className="messages-current-user-avatar"
-            />
-          </Link>
-
-          <input
-            placeholder="Type your message here ..."
-            className="messages-input"
-            type="text"
-            value={messageText}
-            onChange={(e) => handleTypingMessage(e.target.value)}
-          />
-
-          {!loadingState.status ? (
-            <button
-              className={
-                messageText !== ""
-                  ? "messages-button-send"
-                  : "messages-button-send-disabled"
-              }
-              disabled={!messageText}
-              onClick={sendNewMessage}
-            >
-              Send
-            </button>
-          ) : (
-            <button className="messages-button-send">
-              <RoundedLoader
-                size={14}
-                baseColor="rgb(251, 226, 226)"
-                secondaryColor="green"
-              />
-            </button>
-          )}
-        </div>
-      </div>
+      {/* Text Input Send message container */}
+      <TextInputMessageSection
+        isThisUserVisitedMyProfile={isThisUserVisitedMyProfile}
+        whoIsWriting={whoIsWriting}
+        messageReadyToReply={messageReadyToReply}
+        messageText={messageText}
+        loadingState={loadingState}
+        setMessageReadyToReply={setMessageReadyToReply}
+        doCreateNewMessageWithEnter={doCreateNewMessageWithEnter}
+        handleTypingMessage={handleTypingMessage}
+        sendNewMessage={sendNewMessage}
+      />
     </div>
   );
 };

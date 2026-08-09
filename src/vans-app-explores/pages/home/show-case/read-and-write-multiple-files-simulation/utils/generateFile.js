@@ -1,78 +1,9 @@
 import * as xlsx from "xlsx";
-import { DIARE_LISTS, ISPA_LISTS } from "../constants";
 
-const DATA_MAP_OBJ = {
-  "No.": "number",
-  Tanggal: "date",
-  "Nama Pasien": "patientName",
-  "No. eRM": "ermNumber",
-  "Umur Tahun": "patientAge",
-  "Umur Bulan": "monthAge",
-  "Dokter / Tenaga Medis": "medicalPersonnel",
-  "ICD-X 1": "icdxOne",
-  "Diagnosa 1": "diagnoseOne",
-  Resep: "receipt",
-};
-
-const changeObj = (itemObj) => {
-  const keys = Object.keys(itemObj);
-  const resultObj = {};
-
-  for (let i = 0; i < keys.length; i++) {
-    const itemValue = itemObj[keys[i]];
-
-    if (DATA_MAP_OBJ[keys[i]]) {
-      resultObj[DATA_MAP_OBJ[keys[i]]] = itemValue;
-    } else {
-      resultObj[keys[i]] = itemValue;
-    }
-  }
-
-  return resultObj;
-};
-
-const changeArrOutput = (inputArr) => {
-  return inputArr.map((item) => changeObj(item));
-};
-
-const handleProcessData = (dataArrObj, diseaseType) => {
-  const dataHasBeenCapped = [];
-
-  const diagnoseList = diseaseType === "diare" ? DIARE_LISTS : ISPA_LISTS;
-
-  const modifiedDataArr = changeArrOutput(dataArrObj);
-
-  for (let i = 0; i < diagnoseList.length; i++) {
-    const slicedData = modifiedDataArr
-      .filter((item) => item.icdxOne === diagnoseList[i].disease)
-      .slice(0, 1)
-      .map((item) => ({
-        number: item?.number ?? "",
-        date: item?.date ?? "",
-        patientName: item?.patientName ?? "",
-        ermNumber: item?.ermNumber ?? "",
-        patientAge: item?.patientAge ?? "",
-        monthAge: item?.monthAge ?? "",
-        medicalPersonnel: item?.medicalPersonnel ?? "",
-        icdxOne: item?.icdxOne ?? "",
-        diagnoseOne: item?.icdxOne
-          ? diagnoseList.find(
-              (listOfDiagnose) => listOfDiagnose.disease === item.icdxOne
-            ).description
-          : "",
-        isAntibiotic: item?.icdxOne
-          ? diagnoseList.filter(
-              (listOfDiagnose) => listOfDiagnose.disease === item.icdxOne
-            )[0].isAntibiotic
-          : "",
-        receipt: item?.receipt ?? "",
-      }));
-
-    dataHasBeenCapped.push(...slicedData);
-  }
-
-  return dataHasBeenCapped;
-};
+import {
+  readFileAndMergedData,
+  formattedReceipt,
+} from "./helpersForGenerateFile/helpers.js";
 
 export const generateContentFileOps = async ({
   readPath,
@@ -80,47 +11,123 @@ export const generateContentFileOps = async ({
   sheetName,
   diseaseType,
 }) => {
-  const contentArrMerged = [];
+  const contentSortedByDate = await readFileAndMergedData(
+    readPath,
+    sheetName,
+    diseaseType,
+  );
 
-  for (let i = 0; i < readPath.length; i++) {
-    const data = await readPath[i].arrayBuffer();
-    const stokPtData = xlsx.readFile(data, { cellDates: true });
-    const sheetData = stokPtData.Sheets[sheetName];
-    const arrayOfObjectsDataSheets = xlsx.utils.sheet_to_json(sheetData, {
-      range: 25,
+  const mappedContent = contentSortedByDate.map((item) => ({
+    ...item,
+    receipt: formattedReceipt(item.receipt),
+  }));
+
+  console.log("mappedContent:", mappedContent);
+
+  const headers = [
+    "TGL",
+    "NO",
+    "NAMA",
+    "UMUR",
+    "NO.REG",
+    "DOKTER",
+    "DIAGNOSIS",
+    "JUMLAH ITEM OBAT",
+    "ANTIBIOTIK YA / TIDAK",
+    "INJEKSI YA / TIDAK",
+    "JUMLAH GENERIK",
+    "NAMA OBAT",
+    "DOSIS",
+    "JUMLAH OBAT",
+    "SESUAI PEDOMAN YA / TIDAK",
+  ];
+
+  // Matriks rows dimulai langsung dari Header di baris 1 (index 0)
+  const rows = [headers];
+  const merges = [];
+
+  let currentRow = 1; // Index baris kedua (Baris 2 di Excel)
+  let patientNo = 1;
+
+  mappedContent.forEach((pasien) => {
+    const receipts =
+      pasien.receipt && pasien.receipt.length > 0
+        ? pasien.receipt
+        : [{ medicineName: "", signa: "", jumlah: "" }];
+
+    const itemCount =
+      pasien.receipt && pasien.receipt.length > 0 ? pasien.receipt.length : "0";
+    const startRow = currentRow;
+
+    receipts.forEach((rc, index) => {
+      rows.push([
+        index === 0 ? pasien.date : "", // TGL
+        index === 0 ? patientNo : "", // NO
+        index === 0 ? pasien.patientName : "", // NAMA
+        index === 0 ? pasien.patientAge.trim() : "", // UMUR
+        index === 0 ? pasien.ermNumber : "", // NO.REG
+        index === 0 ? pasien.medicalPersonnel : "", // DOKTER
+        index === 0 ? pasien.diagnoseOne : "", // DIAGNOSIS
+        index === 0 ? itemCount : "", // JUMLAH ITEM OBAT
+        index === 0 ? (pasien.isAntibiotic ? "1" : "0") : "", // ANTIBIOTIK YA / TIDAK
+        index === 0 ? "0" : "", // INJEKSI YA / TIDAK
+        index === 0 ? itemCount : "", // JUMLAH GENERIK
+        rc.medicineName ? rc.medicineName.trim() : "", // NAMA OBAT
+        rc.signa || "", // DOSIS
+        rc.jumlah || "", // JUMLAH OBAT
+        "", // SESUAI PEDOMAN YA / TIDAK
+      ]);
+      currentRow++;
     });
-    const content = handleProcessData(arrayOfObjectsDataSheets, diseaseType);
-    contentArrMerged.push(...content);
-  }
 
-  const contentSortedByDate = contentArrMerged
-    .sort((itemA, itemB) => new Date(itemA.date) - new Date(itemB.date))
-    .map((item, idx) => {
-      return {
-        TGL: item.date,
-        NO: idx + 1,
-        NAMA: item.patientName,
-        UMUR: item.patientAge,
-        "UMUR BULAN": item.monthAge,
-        "NO.REG": item.ermNumber,
-        DOKTER: item.medicalPersonnel,
-        "ICD-X 1": item.icdxOne,
-        DIAGNOSIS: item.diagnoseOne,
-        "ANTIBIOTIK YA / TIDAK": item.isAntibiotic ? 1 : 0,
-        "NAMA OBAT": item.receipt,
-      };
-    });
+    // Merge Cells untuk data pasien (Kolom 0/A sampai Kolom 10/K) jika resep lebih dari 1
+    if (receipts.length > 1) {
+      const endRow = currentRow - 1;
+      for (let col = 0; col <= 10; col++) {
+        merges.push({
+          s: { r: startRow, c: col },
+          e: { r: endRow, c: col },
+        });
+      }
+    }
 
-  const workSheet = xlsx.utils.json_to_sheet(contentSortedByDate);
-  const woorkBook = xlsx.utils.book_new();
-  xlsx.utils.book_append_sheet(woorkBook, workSheet, "Sheet 1");
+    patientNo++;
+  });
+
+  // Buat sheet dari Array of Arrays (AOA)
+  const worksheet = xlsx.utils.aoa_to_sheet(rows);
+
+  // Pasang konfigurasi merge cells
+  worksheet["!merges"] = merges;
+
+  // Atur lebar kolom agar tulisan tidak terpotong
+  worksheet["!cols"] = [
+    { wch: 20 }, // TGL
+    { wch: 6 }, // NO
+    { wch: 25 }, // NAMA
+    { wch: 18 }, // UMUR
+    { wch: 12 }, // NO.REG
+    { wch: 25 }, // DOKTER
+    { wch: 40 }, // DIAGNOSIS
+    { wch: 18 }, // JUMLAH ITEM OBAT
+    { wch: 22 }, // ANTIBIOTIK YA / TIDAK
+    { wch: 20 }, // INJEKSI YA / TIDAK
+    { wch: 18 }, // JUMLAH GENERIK
+    { wch: 45 }, // NAMA OBAT
+    { wch: 12 }, // DOSIS
+    { wch: 14 }, // JUMLAH OBAT
+    { wch: 25 }, // SESUAI PEDOMAN YA / TIDAK
+  ];
+
+  // Simpan ke file .xlsx
+  const workbook = xlsx.utils.book_new();
+  xlsx.utils.book_append_sheet(workbook, worksheet, "Sheet1");
 
   try {
-    // fs.writeFileSync(writePath, finalResultContentStr);
-    xlsx.writeFile(woorkBook, writePath);
-    console.log("content successfully written");
-    console.log("total data:", contentSortedByDate.length);
-  } catch (err) {
-    console.error("Waduuh error Broo / Siss!!:", err);
+    xlsx.writeFile(workbook, writePath);
+
+    console.log("File Laporan_Pemeriksaan_Plain.xlsx berhasil dibuat!");
+  } catch (error) {
+    console.error("Waduuh error Broo / Siss!!:", error);
   }
 };
