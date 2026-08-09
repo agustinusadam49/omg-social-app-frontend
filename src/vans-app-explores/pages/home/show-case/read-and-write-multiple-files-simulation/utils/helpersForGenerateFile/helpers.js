@@ -33,7 +33,6 @@ const handleProcessData = (dataArrObj, diseaseType) => {
   for (let i = 0; i < diagnoseList.length; i++) {
     const slicedData = modifiedDataArr
       .filter((item) => item.icdxOne === diagnoseList[i].disease)
-      // .slice(0, 1)
       .map((item) => ({
         number: item?.number ?? "",
         date: item?.date ?? "",
@@ -53,7 +52,19 @@ const handleProcessData = (dataArrObj, diseaseType) => {
               (listOfDiagnose) => listOfDiagnose.disease === item.icdxOne,
             )[0].isAntibiotic
           : "",
-        receipt: item?.receipt ?? "",
+        // receipt: item?.receipt ?? "", struktur data receipt old type/version
+        receipt: item?.receipt // struktur data receipt new type/version
+          ? item.receipt
+              .split("\n\n")
+              .filter((item) => item)
+              .map((item) => item.split("\n"))
+              .map((item) => ({
+                medicineName: item[0].substring(2),
+                signa: item[1].split(":")[1].trim(),
+                jumlah: item[2].split(":")[1].trim(),
+                racikan: item[3].split(":")[1].trim(),
+              }))
+          : [],
       }));
 
     dataHasBeenCapped.push(...slicedData);
@@ -193,4 +204,29 @@ export const readFileAndMergedData = async (
   return contentArrMerged.sort(
     (itemA, itemB) => new Date(itemA.date) - new Date(itemB.date),
   );
+};
+
+export const formattedReceipt = (receiptData) => {
+  if (!receiptData.length) return [];
+
+  const finalArr = [];
+
+  for (let i = 0; i < receiptData.length; i++) {
+    const modifyName = `${receiptData[i].medicineName.replace(/\btablet\b\s*/gi, "").trim()} Racikan`;
+    const nameOfMedicine =
+      receiptData[i].racikan.toLowerCase() === "r1"
+        ? modifyName
+        : receiptData[i].medicineName;
+
+    const objData = {
+      medicineName: nameOfMedicine,
+      signa: receiptData[i].signa,
+      jumlah: receiptData[i].jumlah,
+      racikan: receiptData[i].racikan,
+    };
+
+    finalArr.push(objData);
+  }
+
+  return finalArr;
 };
