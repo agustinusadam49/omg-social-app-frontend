@@ -29,13 +29,17 @@ export const generateContentFileOps = async ({
     "NO",
     "NAMA",
     "UMUR",
-    "NO.REG",
-    "DOKTER",
+    // "NO.REG", // DINONAKTIFKAN
+    // "DOKTER", // DINONAKTIFKAN
     "DIAGNOSIS",
     "JUMLAH ITEM OBAT",
+    "",
     "ANTIBIOTIK YA / TIDAK",
+    "",
     "INJEKSI YA / TIDAK",
+    "",
     "JUMLAH GENERIK",
+    "",
     "NAMA OBAT",
     "DOSIS",
     "JUMLAH OBAT",
@@ -43,10 +47,55 @@ export const generateContentFileOps = async ({
   ];
 
   // Matriks rows dimulai langsung dari Header di baris 1 (index 0)
-  const rows = [headers];
+  const rows = [
+    ["FORMULIR MONITORING INDIKATOR PERESEPAN"],
+    [],
+    [
+      "PUSKESMAS",
+      ": TANAH TINGGI",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "BULAN",
+      ": JULI",
+    ],
+    [
+      "KOTA",
+      ": TANGERANG",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "TAHUN",
+      ": 2026",
+    ],
+    ["PROPINSI", ": BANTEN"],
+    [],
+    headers,
+  ];
   const merges = [];
 
-  let currentRow = 1; // Index baris kedua (Baris 2 di Excel)
+  let currentRow = rows.length;
+  console.log("currentRow:", currentRow);
   let patientNo = 1;
 
   mappedContent.forEach((pasien) => {
@@ -65,13 +114,17 @@ export const generateContentFileOps = async ({
         index === 0 ? patientNo : "", // NO
         index === 0 ? pasien.patientName : "", // NAMA
         index === 0 ? pasien.patientAge.trim() : "", // UMUR
-        index === 0 ? pasien.ermNumber : "", // NO.REG
-        index === 0 ? pasien.medicalPersonnel : "", // DOKTER
+        // index === 0 ? pasien.ermNumber : "", // NO.REG // DINONAKTIFKAN
+        // index === 0 ? pasien.medicalPersonnel : "", // DOKTER // DINONAKTIFKAN
         index === 0 ? pasien.diagnoseOne : "", // DIAGNOSIS
         index === 0 ? itemCount : "", // JUMLAH ITEM OBAT
+        "",
         index === 0 ? (pasien.isAntibiotic ? "1" : "0") : "", // ANTIBIOTIK YA / TIDAK
+        "",
         index === 0 ? "0" : "", // INJEKSI YA / TIDAK
+        "",
         index === 0 ? itemCount : "", // JUMLAH GENERIK
+        "",
         rc.medicineName ? rc.medicineName.trim() : "", // NAMA OBAT
         rc.signa || "", // DOSIS
         rc.jumlah || "", // JUMLAH OBAT
@@ -80,10 +133,10 @@ export const generateContentFileOps = async ({
       currentRow++;
     });
 
-    // Merge Cells untuk data pasien (Kolom 0/A sampai Kolom 10/K) jika resep lebih dari 1
+    // Merge Cells untuk data pasien (Kolom 0/A sampai Kolom 12/M) jika resep lebih dari 1
+    const endRow = currentRow - 1;
     if (receipts.length > 1) {
-      const endRow = currentRow - 1;
-      for (let col = 0; col <= 10; col++) {
+      for (let col = 0; col <= 4; col++) {
         merges.push({
           s: { r: startRow, c: col },
           e: { r: endRow, c: col },
@@ -91,7 +144,52 @@ export const generateContentFileOps = async ({
       }
     }
 
+    merges.push({
+      s: { r: startRow, c: 5 },
+      e: { r: endRow, c: 6 },
+    });
+
+    merges.push({
+      s: { r: startRow, c: 7 },
+      e: { r: endRow, c: 8 },
+    });
+
+    merges.push({
+      s: { r: startRow, c: 9 },
+      e: { r: endRow, c: 10 },
+    });
+
+    merges.push({
+      s: { r: startRow, c: 11 },
+      e: { r: endRow, c: 12 },
+    });
+
     patientNo++;
+  });
+
+  merges.push({
+    s: { r: 0, c: 0 },
+    e: { r: 0, c: headers.length - 1 },
+  });
+
+  merges.push({
+    s: { r: 6, c: 5 },
+    e: { r: 6, c: 6 },
+  });
+
+  merges.push({
+    s: { r: 6, c: 7 },
+    e: { r: 6, c: 8 },
+  });
+
+  merges.push({
+    s: { r: 6, c: 9 },
+    e: { r: 6, c: 10 },
+  });
+
+  merges.push({
+    s: { r: 6, c: 11 },
+    e: { r: 6, c: 12 },
   });
 
   // Buat sheet dari Array of Arrays (AOA)
@@ -106,13 +204,17 @@ export const generateContentFileOps = async ({
     { wch: 6 }, // NO
     { wch: 25 }, // NAMA
     { wch: 18 }, // UMUR
-    { wch: 12 }, // NO.REG
-    { wch: 25 }, // DOKTER
+    // { wch: 12 }, // NO.REG // DINONAKTIFKAN
+    // { wch: 25 }, // DOKTER // DINONAKTIFKAN
     { wch: 40 }, // DIAGNOSIS
-    { wch: 18 }, // JUMLAH ITEM OBAT
-    { wch: 22 }, // ANTIBIOTIK YA / TIDAK
-    { wch: 20 }, // INJEKSI YA / TIDAK
-    { wch: 18 }, // JUMLAH GENERIK
+    { wch: 5 }, // JUMLAH ITEM OBAT
+    { wch: 5 },
+    { wch: 5 }, // ANTIBIOTIK YA / TIDAK
+    { wch: 5 },
+    { wch: 5 }, // INJEKSI YA / TIDAK
+    { wch: 5 },
+    { wch: 5 }, // JUMLAH GENERIK
+    { wch: 5 },
     { wch: 45 }, // NAMA OBAT
     { wch: 12 }, // DOSIS
     { wch: 14 }, // JUMLAH OBAT
