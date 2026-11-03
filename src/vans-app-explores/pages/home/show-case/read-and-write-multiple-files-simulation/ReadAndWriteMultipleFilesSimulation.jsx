@@ -1,4 +1,4 @@
-import React, { useRef, useState, Fragment } from "react";
+import { useRef, useState, Fragment } from "react";
 import { useDispatch } from "react-redux";
 import { generateContentFileOps } from "./utils/generateFile";
 import InputTextGlobal from "../../../../../components/input-text-global/InputTextGlobal";
@@ -10,7 +10,6 @@ import {
   deleteAllFilesButtonStyle,
   chooseFileButtonStyle,
   filesSectionListStyle,
-  // warningSectionStyle,
 } from "./styleObj";
 import { diseaseOptions, allWording } from "./constants";
 
@@ -43,7 +42,7 @@ export default function ReadAndWriteMultipleFilesSimulation() {
     const itemData = targetFiles;
 
     const isDuplicate = files.filter(
-      (item) => item.name === itemData.name
+      (item) => item.name === itemData.name,
     ).length;
 
     if (isDuplicate) return;
@@ -77,16 +76,6 @@ export default function ReadAndWriteMultipleFilesSimulation() {
   return (
     <div className="read-and-write-wrapper">
       <div className="read-and-write-title">{allWording.featureTitle}</div>
-
-      {/* <div style={warningSectionStyle}>
-        <h1>{allWording.h1Warning}</h1>
-        <p>{allWording.paragraphOne}</p>{" "}
-        <ul>
-          {allWording.whatToChange.map((item) => (
-            <li key={item}>{item}</li>
-          ))}
-        </ul>
-      </div> */}
 
       {!!files.length &&
         files.map((item) => (

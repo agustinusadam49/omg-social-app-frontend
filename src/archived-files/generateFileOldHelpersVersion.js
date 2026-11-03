@@ -1,3 +1,113 @@
+const getAntibioticAndNonAntibiotic = (patientsArg) => {
+  const filteredAntibiotic = [];
+  const filteredNonAntibiotic = [];
+
+  for (const item of patientsArg) {
+    if (item.isAntibiotic) {
+      filteredAntibiotic.push(item);
+    } else {
+      filteredNonAntibiotic.push(item);
+    }
+  }
+
+  return {
+    antibioticData: filteredAntibiotic.length
+      ? filteredAntibiotic.sort(
+          (itemA, itemB) => new Date(itemA.date) - new Date(itemB.date),
+        )
+      : filteredAntibiotic,
+    nonAntibioticData: filteredNonAntibiotic.length
+      ? filteredNonAntibiotic.sort(
+          (itemA, itemB) => new Date(itemA.date) - new Date(itemB.date),
+        )
+      : filteredNonAntibiotic,
+  };
+};
+
+const patientSelection = (patients, newArrPatients) => {
+  const { antibioticData, nonAntibioticData } =
+    getAntibioticAndNonAntibiotic(patients);
+
+  const antibioticPatientsInNewArr = [];
+
+  for (const patient of newArrPatients) {
+    if (patient.isAntibiotic) {
+      antibioticPatientsInNewArr.push(patient);
+    }
+  }
+
+  if (antibioticPatientsInNewArr.length < 3 && antibioticData.length)
+    return antibioticData[0];
+
+  return nonAntibioticData.length ? nonAntibioticData[0] : antibioticData[0];
+};
+
+const generateDateObject = (patientsDataArr) => {
+  const dateObjOfArr = {};
+
+  for (const patient of patientsDataArr) {
+    const onlyDate = patient.date.split(" ")[0];
+
+    if (!dateObjOfArr[onlyDate]) {
+      dateObjOfArr[onlyDate] = [patient];
+    } else {
+      dateObjOfArr[onlyDate].push(patient);
+    }
+  }
+
+  return dateObjOfArr;
+};
+
+export const generateDateResultV2 = (dataArr) => {
+  const byDateObj = generateDateObject(dataArr);
+
+  const finalResultOfArrPatients = [];
+
+  for (const dateKey in byDateObj) {
+    const patientDataArrPerDate = byDateObj[dateKey];
+
+    const currentPatientSelected = patientSelection(
+      patientDataArrPerDate,
+      finalResultOfArrPatients,
+    );
+
+    finalResultOfArrPatients.push(currentPatientSelected);
+  }
+
+  return finalResultOfArrPatients;
+};
+
+export const processAddNewInsufficientData = (
+  originalDataArr,
+  finalDataArr,
+) => {
+  const insufficientDataAmount = 25 - finalDataArr.length;
+
+  const newArrFromOriginal = [];
+  const indexUsedArr = [];
+
+  while (
+    (newArrFromOriginal.length && indexUsedArr.length) < insufficientDataAmount
+  ) {
+    const randomIndex = Math.floor(Math.random() * originalDataArr.length);
+
+    const currentItemByOriData = originalDataArr[randomIndex];
+
+    const isThereDataInFinalArr = !!finalDataArr.filter(
+      (finalDataItem) => currentItemByOriData.number === finalDataItem.number,
+    ).length;
+
+    const isThereIndexUsed = indexUsedArr.includes(randomIndex);
+
+    if (!isThereDataInFinalArr && !isThereIndexUsed) {
+      newArrFromOriginal.push(currentItemByOriData);
+      indexUsedArr.push(randomIndex);
+    }
+  }
+
+  return newArrFromOriginal;
+};
+
 // OLD FUNCTIONS HELPER
 
 // const processAntibioticStatus = (patients) => {

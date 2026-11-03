@@ -1,6 +1,5 @@
 import * as xlsx from "xlsx";
 import { DIARE_LISTS, ISPA_LISTS, DATA_MAP_OBJ } from "../../constants";
-// import { DUMMY_PATIENTS_DATA } from "../../dummyConstants"; // just for testing
 
 const changeObj = (itemObj) => {
   const keys = Object.keys(itemObj);
@@ -52,12 +51,11 @@ const handleProcessData = (dataArrObj, diseaseType) => {
               (listOfDiagnose) => listOfDiagnose.disease === item.icdxOne,
             )[0].isAntibiotic
           : "",
-        // receipt: item?.receipt ?? "", struktur data receipt old type/version
-        receipt: item?.receipt // struktur data receipt new type/version
+        receipt: item?.receipt
           ? item.receipt
-              .split("\n\n")
+              .split(/(?:\r?\n){2,}/)
               .filter((item) => item)
-              .map((item) => item.split("\n"))
+              .map((item) => item.split(/\r?\n/))
               .map((item) => ({
                 medicineName: item[0].substring(2),
                 signa: item[1].split(":")[1].trim(),
@@ -71,116 +69,6 @@ const handleProcessData = (dataArrObj, diseaseType) => {
   }
 
   return dataHasBeenCapped;
-};
-
-const getAntibioticAndNonAntibiotic = (patientsArg) => {
-  const filteredAntibiotic = [];
-  const filteredNonAntibiotic = [];
-
-  for (const item of patientsArg) {
-    if (item.isAntibiotic) {
-      filteredAntibiotic.push(item);
-    } else {
-      filteredNonAntibiotic.push(item);
-    }
-  }
-
-  return {
-    antibioticData: filteredAntibiotic.length
-      ? filteredAntibiotic.sort(
-          (itemA, itemB) => new Date(itemA.date) - new Date(itemB.date),
-        )
-      : filteredAntibiotic,
-    nonAntibioticData: filteredNonAntibiotic.length
-      ? filteredNonAntibiotic.sort(
-          (itemA, itemB) => new Date(itemA.date) - new Date(itemB.date),
-        )
-      : filteredNonAntibiotic,
-  };
-};
-
-const patientSelection = (patients, newArrPatients) => {
-  const { antibioticData, nonAntibioticData } =
-    getAntibioticAndNonAntibiotic(patients);
-
-  const antibioticPatientsInNewArr = [];
-
-  for (const patient of newArrPatients) {
-    if (patient.isAntibiotic) {
-      antibioticPatientsInNewArr.push(patient);
-    }
-  }
-
-  if (antibioticPatientsInNewArr.length < 3 && antibioticData.length)
-    return antibioticData[0];
-
-  return nonAntibioticData.length ? nonAntibioticData[0] : antibioticData[0];
-};
-
-const generateDateObject = (patientsDataArr) => {
-  const dateObjOfArr = {};
-
-  for (const patient of patientsDataArr) {
-    const onlyDate = patient.date.split(" ")[0];
-
-    if (!dateObjOfArr[onlyDate]) {
-      dateObjOfArr[onlyDate] = [patient];
-    } else {
-      dateObjOfArr[onlyDate].push(patient);
-    }
-  }
-
-  return dateObjOfArr;
-};
-
-export const generateDateResultV2 = (dataArr) => {
-  const byDateObj = generateDateObject(dataArr);
-
-  const finalResultOfArrPatients = [];
-
-  for (const dateKey in byDateObj) {
-    const patientDataArrPerDate = byDateObj[dateKey];
-
-    const currentPatientSelected = patientSelection(
-      patientDataArrPerDate,
-      finalResultOfArrPatients,
-    );
-
-    finalResultOfArrPatients.push(currentPatientSelected);
-  }
-
-  return finalResultOfArrPatients;
-};
-
-export const processAddNewInsufficientData = (
-  originalDataArr,
-  finalDataArr,
-) => {
-  const insufficientDataAmount = 25 - finalDataArr.length;
-
-  const newArrFromOriginal = [];
-  const indexUsedArr = [];
-
-  while (
-    (newArrFromOriginal.length && indexUsedArr.length) < insufficientDataAmount
-  ) {
-    const randomIndex = Math.floor(Math.random() * originalDataArr.length);
-
-    const currentItemByOriData = originalDataArr[randomIndex];
-
-    const isThereDataInFinalArr = !!finalDataArr.filter(
-      (finalDataItem) => currentItemByOriData.number === finalDataItem.number,
-    ).length;
-
-    const isThereIndexUsed = indexUsedArr.includes(randomIndex);
-
-    if (!isThereDataInFinalArr && !isThereIndexUsed) {
-      newArrFromOriginal.push(currentItemByOriData);
-      indexUsedArr.push(randomIndex);
-    }
-  }
-
-  return newArrFromOriginal;
 };
 
 export const readFileAndMergedData = async (
