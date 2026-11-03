@@ -54,14 +54,25 @@ const handleProcessData = (dataArrObj, diseaseType) => {
         receipt: item?.receipt
           ? item.receipt
               .split(/(?:\r?\n){2,}/)
-              .filter((item) => item)
-              .map((item) => item.split(/\r?\n/))
-              .map((item) => ({
-                medicineName: item[0].substring(2),
-                signa: item[1].split(":")[1].trim(),
-                jumlah: item[2].split(":")[1].trim(),
-                racikan: item[3].split(":")[1].trim(),
-              }))
+              .filter(Boolean)
+              .map((block) => {
+                const lines = block
+                  .split(/\r?\n/)
+                  .map((line) => line.trim())
+                  .filter(Boolean);
+
+                const getValue = (str) =>
+                  str && str.includes(":") ? str.split(":")[1].trim() : "";
+
+                return {
+                  medicineName: lines[0]
+                    ? lines[0].replace(/^-\s*/, "").trim()
+                    : "",
+                  signa: getValue(lines[1]),
+                  jumlah: getValue(lines[2]),
+                  racikan: getValue(lines[3]),
+                };
+              })
           : [],
       }));
 

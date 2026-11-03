@@ -38,6 +38,13 @@ export default function ReadAndWriteMultipleFilesSimulation() {
     },
   });
 
+  const handleDeleteAllFiles = () => {
+    setFiles([]);
+    setMonthName("");
+    setYearNum("");
+    setOption("diare");
+  };
+
   const handleAddFiles = (targetFiles) => {
     const itemData = targetFiles;
 
@@ -64,13 +71,6 @@ export default function ReadAndWriteMultipleFilesSimulation() {
       sheetName: "Sheet1",
       diseaseType: option,
     });
-  };
-
-  const handleDeleteAllFiles = () => {
-    setFiles([]);
-    setMonthName("");
-    setYearNum("");
-    setOption("diare");
   };
 
   return (
